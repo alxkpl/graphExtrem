@@ -1,0 +1,45 @@
+---
+title: "Trivariate coefficient for extremal graphical models"
+author: "CAPEL Alexandre"
+date: "2024-12-02"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: "cerulean"
+  pdf_document:
+    toc: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+# The trivariate coefficient $\chi_{ijk}$
+
+\noindent Let $X = (X_1, X_2, X_3)$ a random vector of marginal $F$, the distribution function of a 
+standard Frechet. We define the trivariate extremal coefficient as below : 
+
+$$
+\chi_{ijk} = \lim_{q \rightarrow 1}\mathbb P(F(X_i)>q,F(X_j)>q~|~F(X_k)>q)
+$$
+
+if the right-hand term exists.\newline
+
+In that case, if the vector $X$ is in the attraction domain of $Y$, the corresponding generalized 
+Pareto distribution, then we also get : 
+
+\begin{equation}\label{eq:chi_pareto}
+  \chi_{ijk} = \mathbb P(Y_i>1,Y_j>1~|~Y_k>1)
+\end{equation}
+
+
+# Proofs
+
+C'est bon ça marche
+
+
+

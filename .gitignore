@@ -1,0 +1,12 @@
+# R files
+*.Rhistory
+*.Rproj.user*
+# System specific files
+*.DS_Store
+.Rproj.user
+# Latex
+*.syntex.gz
+*.out
+*.log
+*.aux
+*.toc

@@ -1,0 +1,9 @@
+name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
+chi_trivariate_example|stem|4065bda707fefa17|097d2fbe253d7c11|b9ea821324318eb9|1037411411||t20059.5395707702s|a33fb1da66f6e09f|55|rds|local|vector|||0.009||
+chi_trivariate_HR|function|f4cd322dfc7b0d27|||||||||||||||
+Gamma_cond_indep_12|stem|921deb377fe47a20|796edb992b2889d3|f876a4ebf71dbde4|-1973432184||t20059.6034483045s|dcf033efd1d1accc|101|rds|local|vector|||0.353||
+lambda_2|function|2d55430cc07beef4|||||||||||||||
+random_Gamma12|function|a7af8b0ebdc67e6f|||||||||||||||
+theta|function|a191cfee90d2f27e|||||||||||||||
+trivariate_html|stem|c650a2ba086b7d8a|8b5c54ee5ac8f0a4|2c530c1562a7fbd1|-1765248961|public/trivariate.html*src/trivariate.Rmd|t20059.8252657247s|e1856cfc9a15d64a|631227|file|local|vector|||0.219||
+trivariate_pdf|stem|e5bbb8b90b03499a|b8bbb5d02704117e|2c530c1562a7fbd1|310260321|report/trivariate.pdf*src/trivariate.Rmd|t20059.8252632196s|65b97209c2d61932|176682|file|local|vector|||3.351||
