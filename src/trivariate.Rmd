@@ -1,30 +1,98 @@
 ---
-title: "Trivariate coefficient for extremal graphical models"
+title: "Conditionnal coefficient for extremal graphical models"
 author: "CAPEL Alexandre"
-date: "2024-12-02"
+date: "`r Sys.Date()`"
 output:
   html_document:
-    toc: true
     toc_depth: 2
-    theme: "cerulean"
+    number_sections: true
   pdf_document:
     toc: true
     number_sections: true
+bibliography: biblio.bib
 ---
+
+\newcommand{\indep}{\perp \!\! \perp}
+\newcommand{\indic}{1\!\!1}
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(targets, graphicalExtremes)
 ```
 
+Let $V = \{1, \dots, d\}$ the set of nodes of a graph $\mathcal G=(V,E)$.
+
+We want to define a new coefficient used for caracterize the conditionnal dependance to apply for a pairwise Markov property in the extremal graphical model setting [@engelkeGraphicalModelsExtremes2020]. 
 
 
-# The trivariate coefficient $\chi_{ijk}$
+# Extremal/Asymptotical independence
 
-\noindent Let $X = (X_1, X_2, X_3)$ a random vector of marginal $F$, the distribution function of a 
-standard Frechet. We define the trivariate extremal coefficient as below : 
+Let $X$ a random $d$-dimensional vector where the marginal distribution are standard Frechet.
+
+## Case $d=2$
+
+One famous quantity in extreme value theory is the bivariate extremal coefficient which is defined as follow :
 
 $$
-\chi_{ijk} = \lim_{q \rightarrow 1}\mathbb P(F(X_i)>q,F(X_j)>q~|~F(X_k)>q)
+\chi_{1,2} = \lim_{q\rightarrow 1} \mathbb P(F(X_1) >q ~|~ F(X_2)>q) = \lim_{q\rightarrow 1}\chi_{1,2}(q)
+$$
+if the right-hand term exists, where $F$ is the distribution function of a standard Fréchet.
+
+We say that $X_1$ and $X_2$ are asymptotically independent if $\chi_{1,2} = 0$ and asymptotically dependent otherwise.
+
+If $X$ is in the attraction domain of generalized Pareto distribution $Y$ of exponent measure $\Lambda$, there is an equivalence between : 
+
+$$
+\chi_{1,2} = 0 \Longleftrightarrow \Big(\forall x=(x_1,x_2)>0 ,~\Lambda(x) = \Lambda_1(x_1) +\Lambda_2(x_2)\Big)
+$$
+
+And we know in [@strokorbExtremalIndependenceOld2020] that is equivalent to the extended extremal independance $Y_1 \indep_e Y_2$.
+
+
+## Case $d>2$
+
+For some dimension $d$, we have similar results. Let $A$ and $B$ a partition of $V$. With the extended extremal independance of [@strokorbExtremalIndependenceOld2020], one can show a similar equivalence as above where :
+
+$$
+Y_A \indep_e Y_B \Longleftrightarrow \Big( \forall x=(x_A,x_B)>0 ,~\Lambda(x) = \Lambda_A(x_A) + \Lambda_B(x_B) \Big)
+$$
+
+We can also define the Sum of Extremal COefficient of the partition $\{A,B\}$ by :
+$$
+SECO_{A,B} = \Lambda_A(\indic_A) + \Lambda_B(\indic_B) - \Lambda(\indic)
+$$
+where $\Lambda_C$ is the exponent measure of the extreme limit of the sub-vector $X_C$.
+
+With [@ferreiraDependenceTwoMultivariate2011], we can show that $SECO_{A,B}=0$ if and only if we have $Y_A \indep_e Y_B$.
+
+
+**Motivation**
+
+For both situation, we can stress that there is a list of equivalent assertion which are following the same structure : extremal (or asymptotical) independance, exponent measure decomposition, and coefficient equality.
+
+So we can wonder, in the context of extremal conditional independence, if  we can define a conditional exponent measure $\Lambda^C$ to have the relation : 
+
+$$
+Y_A \indep_e Y_B ~|~ Y_C \Longleftrightarrow \Big(\forall x=(x_A,x_B)>0 ,~\Lambda^C(x) = \Lambda^C_A(x_A) + \Lambda^C_B(x_B) \Big)
+$$
+where $A,B,C$ is a partition of $V$.
+
+Furthermore, can we find some coefficient $\theta_{AB}^C$ (computable from data) and a constant $c \in \mathbb R$ such that :
+$$
+\theta_{AB}^C = c \Longleftrightarrow Y_A \indep_e Y_B ~|~ Y_C
+$$
+
+
+# The conditional extremal coefficient $\chi_{ij}^A$
+
+The aim of the section is to present a new coefficient for extreme graphical models and try to link the general case to the univariate one, which is simpler to compute. As above, let $X$ a random $d$-dimensional vector where the marginal distribution are standard Frechet.
+
+## The trivariate coefficient $\chi_{ijk}$
+
+We define the trivariate extremal coefficient as : 
+
+$$
+\chi_{ijk} = \lim_{q \rightarrow 1}\mathbb P(F(X_i)>q,F(X_j)>q~|~F(X_k)>q) = \lim_{q \rightarrow 1}\chi_{ijk}(q)
 $$
 
 if the right-hand term exists.\newline
@@ -36,10 +104,207 @@ Pareto distribution, then we also get :
   \chi_{ijk} = \mathbb P(Y_i>1,Y_j>1~|~Y_k>1)
 \end{equation}
 
+We would like to use this coefficient in order to caracterize the conditionnal independance (or dependance) between 
+the component in a similar sense of the extremal conditionnal independance (see [@engelkeGraphicalModelsExtremes2020]).
+
+## Case where $A = \{k\}$
+
+By analogy on the extremal coefficient $\chi_{ij}$, we define the conditionnal extremal coefficient by : 
+
+$$
+\chi_{ij}^k = \lim_{q \rightarrow 1}\mathbb P(F(X_i)>q ~|~ F(X_j)>q, F(X_k)>q) = \frac{\chi_{ijk}}{\chi_{jk}}
+$$
+in the same setting as above.
+
+Of course, the equation in the last section gives us another way to compute this quantity using the corresponding generalised Pareto distribution $Y$ : 
+
+$$
+\chi_{ij}^k = \mathbb P(Y_i>1~|~Y_j>1, Y_k>1)
+$$
+
+## Definition for any $A$
+
+Now, let's define for some $A \subset V$. 
+
+Let $i,j \in V$, then the conditionnal extremal coefficient is defined as : 
+
+$$
+\chi_{ij}^A = \lim_{q \rightarrow 1}\mathbb P(F(X_i)>q ~|~ F(X_j)>q, ||F(X_A)||_{\infty}>q) =  \lim_{q\rightarrow 1}\chi_{ij}^A(q)
+$$
+
+where $F(X_A) = (F(X_k))_{k \in A}$, if the right-hand limit exists.
+
+We could use different extension for a general subset $A$ of $V$ as for example $\lim_{q \rightarrow 1}\mathbb P(F(X_i)>q ~|~ F(X_j)>q, F(X_A)>q)$, but let's focus on the first one before.
+
+First, we can write another expression for this coefficient, similar to the previous sectio, which is : 
+$$
+\chi_{ij}^A=\mathbb P(Y_i>1~|~Y_j>1, ||Y_A||_\infty > 1)
+$$
+(the demonstration is the same as the case where $A = \{k\}$)
+
+
+More, we have some inequalities between the conditional coefficient $\chi^A_{ij}$ and all sub-coefficient $\chi^k_{ij}$ for $k \in A$. 
+
+**Proposition.** Let $A \subset V$ and $i, j \notin A$. Then we have : 
+
+- $\chi^k_{ij} \le |A| \chi^A_{ij}$ for all $k \in A$.
+    
+- $\chi^A_{ij} \le \sum_{k\in A} \chi^k_{ij}$.
+
+In particular, we have thanks to these inequalities, the equivalence : 
+
+$$
+\Big(\forall k \in A,~ \chi^k_{ij} = 0 \Big) \Longleftrightarrow \chi^A_{ij} = 0
+$$
+
+An appreciated properties will be that a conditional independence between two nodes occurs if and only if, $\chi^A_{ij}=0$ with $A= V\setminus \{i,j\}$ and so $\chi^k_{ij} = 0$ for all $k \neq i,j$.
+
+## Simulation study for the Hüsler-Reiss model
+
+We would like to test the last assumption in the case of a Hüsler-Reiss model, where the conditional independence can be verified easily. For $d =3$ for example, let's define the variogram matrix of our Hüsler-Reiss model  :
+
+$$ 
+\Gamma = 
+\begin{pmatrix}
+ 0 & a&b \\
+ a  & 0 & c \\
+ b & c & 0
+\end{pmatrix}
+$$
+
+Then, thanks to the extended precision matrix $\Theta$ defined in [@hentschelStatisticalInferenceHuslerReiss2023] we have that : 
+
+- $Y_1 \indep Y_2 | Y_3 \Longleftrightarrow a=b+c$ 
+
+- $Y_1 \indep Y_3 | Y_2 \Longleftrightarrow b=a+c$ 
+
+- $Y_2 \indep Y_3 | Y_1 \Longleftrightarrow c=a+b$ 
+
+More, in the Hüsler-Reiss model, the extremal coefficient (bivariate an trivariate) can be computed fastly using : 
+
+- $\chi_{ij} = 2-2\Phi(\sqrt{\Gamma_{ij}}/2)$
+
+- $\chi_{ijk} = 3-2\Phi(\sqrt{\Gamma_{ij}}/2)-2\Phi(\sqrt{\Gamma_{jk}}/2)-2\Phi(\sqrt{\Gamma_{ik}}/2)+ c_\Gamma$ where $\Phi$ is the distribution function of a standard Gaussian variable and $c_\Gamma = \sum$
+
+We produce a random matrix restricted by the relation $a=b+c$ (to get a graph with no node linking $1$ and $2$). The coefficients $b$ and $c$ are simulated with by an uniform distribution on $[0,5]$.
+
+```{r gamma_display}
+tar_load(Gamma_cond_indep_12)       # load our simulated variogram
+print(Gamma_cond_indep_12)
+```
+
+Of course, we have to check the conditional negative definiteness of the matrix (to know if the matrix is a possible Hüsler-Reiss variogram). In order to do that we use the `graphicalExtremes`.
+
+```{r check_validity}
+checkGamma(Gamma_cond_indep_12, returnBoolean = T)    # function checking the validity of the matrix
+```
+
+Now, we are able to compute the trivariate coefficient, and consequently check if this is zero or not.
+
+```{r trivariate}
+tar_load(chi_trivariate_example)    # load the value of the trivariate coef for our matrix
+print(chi_trivariate_example)
+```
+
+So finally it is not 0...
+
+This is not very surprising because the condition that we wanted is about a coefficient which is totally symmetric between $i$,$j$ and $k$, so the conditional independence (in the $d=3$ case at least) of two implies the conditional independence for all and then the graph is empty.
+
+
+But, let's check another thing. We are going to simulate several matrix and see what is the trend for the value of the conditional extremal coefficient. 
+
+**TODO**
 
 # Proofs
 
-C'est bon ça marche
+## Alternative writing for the trivariate coefficient
+
+We will show that we can compute the trivariate coefficient with the formula : 
+$$
+3 - \Lambda_{ij}(1,1) -\Lambda_{ik}(1,1)-\Lambda_{jk}(1,1)+\Lambda_{ijk}(1,1,1)
+$$
+and the two writing can be expressed with the latter.
+
+First, let's take a look to the limit side : 
+
+\begin{align*}
+\chi_{ijk}(q) =& \frac{1}{1-q} \big[1-3q +\mathbb P(F(X_i)<q,F(X_j)<q)+\mathbb P(F(X_i)<q,F(X_k)<q) \\ 
+ & +\mathbb P(F(X_j)<q,F(X_k)<q)-\mathbb P(F(X_i)<q,F(X_j)<q,F(X_k)<q)\big]\\
+ = & 3 -  \frac{1-\mathbb P(F(X_i)<q,F(X_j)<q)}{1-q}- \frac{1-\mathbb P(F(X_i)<q,F(X_k)<q)}{1-q}\\
+ & - \frac{1-\mathbb P(F(X_j)<q,F(X_k)<q)}{1-q} + \frac{1-\mathbb P(F(X_i)<q,F(X_j)<q,F(X_k)<q)}{1-q}\\
+ = & 3 -\frac{1}{F^{-1}(q)}\big[\frac{F^{-1}(q)(1-\mathbb P(X_{ij}<F^{-1}(q)))}{1-q}- \frac{F^{-1}(q)(1-\mathbb P(X_{ik}<F^{-1}(q)))}{1-q}\\
+ & - \frac{F^{-1}(q)(1-\mathbb P(X_{jk}<F^{-1}(q)))}{1-q} + \frac{F^{-1}(q)(1-\mathbb P(X_{ijk}<F^{-1}(q)))}{1-q}\big]\\
+\end{align*}
+
+But, as $X$ is a random vector with standard Frechet marginals, $X$ is a regular variation random vector, that means that : 
+
+$$
+\lim_{u \rightarrow \infty} u(1- \mathbb P(X_C<u)) = \Lambda_C(\indic_C)
+$$
+where $\Lambda_C$ is the exponent measure of the marginal extreme limit of $X_C$.
+
+But, we have $F^{-1}(q) \rightarrow \infty$ when $q \rightarrow 1$ and $-\log(q) \sim 1-q$ so we obtain : 
+
+$$
+\lim_{q \rightarrow 1} \chi_{ijk}(q) =3 - \Lambda_{ij}(1,1) -\Lambda_{ik}(1,1)-\Lambda_{jk}(1,1)+\Lambda_{ijk}(1,1,1)
+$$
+
+Now, let's develop the other term. Using the equation (16) in [@engelkeGraphicalModelsExtremes2020], if we note $\lambda$ the density of the exponent measure with respect to the Lebesgue measure, we have : 
+
+$$
+\mathbb P(Y_i>1, Y_j>1 ~|~Y_k>1) = \int_{[1,\infty[^3} \lambda(y)dy = \Lambda([1,\infty[^3)
+$$
+
+The properties of valid density give us 3 equations that we can use to get that : 
+
+$$
+3 = \Lambda(]0,\infty[\times[1,\infty[^2) + \Lambda([1,\infty[\times]0,\infty[\times[1,\infty[) + \Lambda([1,\infty[^2\times]0,\infty[)
+$$
+These quantities can be decomposed as several "volume" in the space. We can merge some volume between them to obtain this relation : 
+$$
+3 = \Lambda_{ij}(1,1) +\Lambda_{ik}(1,1)+\Lambda_{jk}(1,1)-\Lambda_{ijk}(1,1,1) + \Lambda([1,\infty[^3)
+$$
+
+and we have the right formula by isolating the $\Lambda([1,\infty[^3)$ term.
 
 
+## Inequalities of section 2
+
+- **$\chi^k_{ij} \le |A| \chi^A_{ij}$ :**
+
+Let $k \in A$. We have by definition that : 
+
+\begin{align*}
+\mathbb P(F(X_i)>q~|~F(X_j)>q,F(X_k)>q) &= \frac{\mathbb P(F(X_i)>q,F(X_j)>q,F(X_k)>q)}{\mathbb P(F(X_j)>q,F(X_k)>q)} \\
+&\le \frac{\mathbb P(F(X_i)>q,F(X_j)>q,||F(X_A)||_{\infty}>q)}{\mathbb P(F(X_j)>q,F(X_k)>q)} \\
+&\le \chi^A_{ij}(q) \frac{\mathbb P(F(X_j)>q,||F(X_A)||_{\infty}>q)}{\mathbb P(F(X_j)>q,F(X_k)>q)} \\
+&\le \chi^A_{ij}(q) \sum_{k\in A}\frac{\mathbb P(F(X_j)>q,F(X_k)>q)}{\mathbb P(F(X_j)>q,F(X_k)>q)} \\
+&\le |A| \times\chi^A_{ij}(q)
+\end{align*}
+
+If we take the limit of both side, we get :
+$$
+\chi^k_{ij} \le |A| \times\chi^A_{ij}
+$$
+which shows the first inequality.
+
+- **$\chi^A_{ij} \le \sum_{k\in A} \chi^k_{ij}$ :**
+
+We use the alternative writing for this proof. If we apply again the definition, we have : 
+
+\begin{align*}
+\chi^A_{ij} &= \frac{\mathbb P(Y_i>1,Y_j>1, ||Y_A||_\infty >1)}{\mathbb P(Y_j>1, ||Y_A||_\infty >1)}\\
+& \le \sum_{k \in A}\frac{\mathbb P(Y_i>1,Y_j>1, Y_k >1)}{\mathbb P(Y_j>1, ||Y_A||_\infty >1)} \\
+& \le \sum_{k \in A}\chi^k_{ij}\frac{\mathbb P(Y_j>1, Y_k >1)}{\mathbb P(Y_j>1, ||Y_A||_\infty >1)} \\
+\end{align*}
+
+but as $\mathbb P(Y_j>1, Y_k >1)\le \mathbb P(Y_j>1, ||Y_A||_\infty >1)$ for all $k \in A$, we finally have : 
+
+$$
+\chi^A_{ij} \le \sum_{k\in A} \chi^k_{ij}
+$$
+which is what we wanted.
+
+
+### References
 

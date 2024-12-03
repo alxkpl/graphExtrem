@@ -13,7 +13,8 @@ tar_option_set(packages = c("graphicalExtremes",
                             "tidyr",
                             "dplyr",
                             "ggplot2",
-                            "here"))
+                            "here",
+                            "rmdformats"))
 
 #-------------------------------------------------------------------------------
 #                                   PIPELINE
@@ -38,7 +39,7 @@ list(
   tar_render(
     trivariate_html, 
     path = "./src/trivariate.Rmd",
-    output_format = "html_document",
+    output_format = "readthedown",
     output_file = here("public","trivariate.html")
     ),
   

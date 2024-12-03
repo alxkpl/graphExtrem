@@ -1,6 +1,7 @@
 #' 3x3 variogram generator for a trivariate Husler-Reiss model
 #'
-#' @return A valid Husler-Reiss 3x3 variogram.
+#' @return A valid Husler-Reiss 3x3 variogram where the corresponding graphical model
+#' doesn't have edge between nodes 1 and 2.
 #'
 #' @examples
 #' random_Gamma12()
