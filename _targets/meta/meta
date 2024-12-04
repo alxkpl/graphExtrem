@@ -1,9 +1,14 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
 chi_trivariate_example|stem|4065bda707fefa17|097d2fbe253d7c11|b9ea821324318eb9|1037411411||t20059.5395707702s|a33fb1da66f6e09f|55|rds|local|vector|||0.009||
 chi_trivariate_HR|function|f4cd322dfc7b0d27|||||||||||||||
+chi_trivariate_simulation_results|stem|6595415e30d34604|8aaf7e2c0c724aa7|1febc34b65b7ab02|1548422211||t20061.5357030969s|5eb019c4ac0e1486|1001|rds|local|vector|||0.036||
+cond_trivariate_HR|function|4fb8c4446bebf1a6|||||||||||||||
 Gamma_cond_indep_12|stem|921deb377fe47a20|796edb992b2889d3|f876a4ebf71dbde4|-1973432184||t20059.6034483045s|dcf033efd1d1accc|101|rds|local|vector|||0.353||
+Gamma_cond_indep_12_replicate|pattern|35b641fa652109af|80d997349ae8b193||1415890075||||2551|rds|local|list||Gamma_cond_indep_12_replicate_761dbfb87890ef4d|0.407||
+Gamma_cond_indep_12_replicate_761dbfb87890ef4d|branch|ef9c4d278a718ed2|80d997349ae8b193|f876a4ebf71dbde4|-1189853942||t20061.4218349804s|1edeb881ed2d2ec2|2551|rds|local|list|Gamma_cond_indep_12_replicate||0.407||
+Gamma_cond_indep_12_replicate_batch|stem|16ef8d890b81364c|0390d554493dce9a|2c530c1562a7fbd1|-455565346||t20061.4182647815s|ba41eabafff2540f|48|rds|local|vector||Gamma_cond_indep_12_replicate_batch_6e95f3b2b5476d92|0||
 lambda_2|function|2d55430cc07beef4|||||||||||||||
 random_Gamma12|function|a7af8b0ebdc67e6f|||||||||||||||
 theta|function|a191cfee90d2f27e|||||||||||||||
-trivariate_html|stem|da8b685d39a2e287|0c082dcd92f5afc7|486f449b7aac933d|-1765248961|public/trivariate.html*src/trivariate.Rmd|t20060.7067054027s|5ee1f5a1182f7600|1181495|file|local|vector|||2.142||
-trivariate_pdf|stem|70710e845590e962|b5b4a9a714025b49|486f449b7aac933d|310260321|report/trivariate.pdf*src/trivariate.Rmd|t20060.7066806786s|6ec34a326bef87f6|348880|file|local|vector|||3.864||
+trivariate_html|stem|7c8d88db23e4f49f|0c082dcd92f5afc7|486f449b7aac933d|-1765248961|public/trivariate.html*src/trivariate.Rmd|t20061.5443744665s|17b3c81a6c725c1f|1185553|file|local|vector|||2.147||
+trivariate_pdf|stem|767fd2a24d754db1|b5b4a9a714025b49|486f449b7aac933d|310260321|report/trivariate.pdf*src/trivariate.Rmd|t20061.5443496888s|83d6b395923e3d56|354621|file|local|vector|||3.876||

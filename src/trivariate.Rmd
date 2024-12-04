@@ -17,7 +17,7 @@ bibliography: biblio.bib
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-pacman::p_load(targets, graphicalExtremes)
+pacman::p_load(targets, graphicalExtremes, ggplot2, hrbrthemes)
 ```
 
 Let $V = \{1, \dots, d\}$ the set of nodes of a graph $\mathcal G=(V,E)$.
@@ -184,7 +184,8 @@ More, in the Hüsler-Reiss model, the extremal coefficient (bivariate an trivari
 
 - $\chi_{ij} = 2-2\Phi(\sqrt{\Gamma_{ij}}/2)$
 
-- $\chi_{ijk} = 3-2\Phi(\sqrt{\Gamma_{ij}}/2)-2\Phi(\sqrt{\Gamma_{jk}}/2)-2\Phi(\sqrt{\Gamma_{ik}}/2)+ c_\Gamma$ where $\Phi$ is the distribution function of a standard Gaussian variable and $c_\Gamma = \sum$
+- $\chi_{ijk} = 3-2\Phi(\sqrt{\Gamma_{ij}}/2)-2\Phi(\sqrt{\Gamma_{jk}}/2)-2\Phi(\sqrt{\Gamma_{ik}}/2)+ \sum_{k=1}^3 \Phi_2((\sqrt{\Gamma_{ik}}/2)_{i\neq k}; A_k\Sigma^{(k)}A_k)$ with $A_k = \text{diag}((\sqrt{\Gamma_{ik}}^{-1})_{i\neq k})$ and where $\Phi$ is the distribution function of a standard Gaussian variable and $\Phi_2(.;\Sigma)$ the distribution function of a gaussian vector of covariance matrix $\Sigma$.
+
 
 We produce a random matrix restricted by the relation $a=b+c$ (to get a graph with no node linking $1$ and $2$). The coefficients $b$ and $c$ are simulated with by an uniform distribution on $[0,5]$.
 
@@ -214,6 +215,29 @@ This is not very surprising because the condition that we wanted is about a coef
 But, let's check another thing. We are going to simulate several matrix and see what is the trend for the value of the conditional extremal coefficient. 
 
 **TODO**
+
+
+```{r eval=FALSE}
+tar_load(chi_trivariate_simulation_results)
+
+chi_trivariate_simulation_results |> 
+  ggplot() + aes(x = num_sim, y = tri_chi) + 
+  geom_line(col = "darkorange") +
+  coord_cartesian(ylim = c(0, 1))+
+  xlab("Simulation number") +
+  ylab("Trivariate coefficient")+
+  ggtitle("Trivariate coefficient variation") +
+  theme_ipsum()
+
+
+chi_trivariate_simulation_results |> 
+  ggplot() + aes(x = tri_chi) + 
+  geom_boxplot(col = "#474F58", fill = "darkorange") +
+  xlab("Trivariate coefficient")+
+  ggtitle("Trivariate coefficient boxplot simulation") +
+  theme_ipsum()
+```
+
 
 # Proofs
 

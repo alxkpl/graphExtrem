@@ -14,13 +14,14 @@ tar_option_set(packages = c("graphicalExtremes",
                             "dplyr",
                             "ggplot2",
                             "here",
-                            "rmdformats"))
+                            "rmdformats",
+                            "hrbrthemes"))
 
 #-------------------------------------------------------------------------------
 #                                   PIPELINE
 #-------------------------------------------------------------------------------
 list(
-  #------------------------------- Calculation ---------------------------------
+  #------------------------ Simulation study trivariate ------------------------
   # Computation of a the trivariate coefficient in the Husler-Reiss case
   tar_target(
     Gamma_cond_indep_12,
@@ -32,6 +33,27 @@ list(
     chi_trivariate_HR(Gamma_cond_indep_12)    # Computation of the coefficient
     ),
   # not zero in this case but it was obvious unfortunately...
+  
+  # Repetition of the variogram simulation 100 times (= batches * reps)
+  tar_rep(
+    Gamma_cond_indep_12_replicate,
+    random_Gamma12(),
+    batches = 1,
+    reps = 100,
+    iteration = "list"                 # the output of the replicates is a list
+  ),
+  
+  tar_target(
+    chi_trivariate_simulation_results,
+    {
+      simulation <- Gamma_cond_indep_12_replicate$Gamma_cond_indep_12_replicate_761dbfb87890ef4d
+      
+      data.frame(
+        num_sim = 1:length(simulation),
+        tri_chi = simulation |> sapply(\(.) cond_trivariate_HR(., 2, 3))
+      )
+    }
+  ),
   
   #----------------------------- Export document -------------------------------
   # Trivariate coefficient documents

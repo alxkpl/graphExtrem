@@ -83,4 +83,8 @@ chi_trivariate_HR <- function(Gamma){
 }
 
 
-
+cond_trivariate_HR <- function(Gamma, i, j){
+    return(
+      chi_trivariate_HR(Gamma) / (2 - theta(Gamma[i, j]))
+      )
+}
