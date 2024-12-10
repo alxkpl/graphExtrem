@@ -1,6 +1,8 @@
 # R files
 *.Rhistory
 *.Rproj.user*
+# Targets directory
+_targets/
 # System specific files
 *.DS_Store
 .Rproj.user
