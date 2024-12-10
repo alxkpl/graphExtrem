@@ -1340,9 +1340,10 @@ dependent otherwise.</p>
 of generalized Pareto distribution <span class="math inline">\(Y\)</span> of exponent measure <span class="math inline">\(\Lambda\)</span>, there is an equivalence between
 :</p>
 <p><span class="math display">\[
-\chi_{1,2} = 0 \Longleftrightarrow \Big(\forall x=(x_1,x_2)&gt;0
-,~\Lambda(x) = \Lambda_1(x_1) +\Lambda_2(x_2)\Big)
-\]</span></p>
+\chi_{1,2} = 0 \Longleftrightarrow \Big(\forall x=(x_1,x_2)&gt;0 ,~H(x)
+= H_1(x_1) +H_2(x_2)\Big)
+\]</span> where <span class="math inline">\(H(y) = \Lambda\big[(\mathbb
+R_+)^2 \setminus [0,y]\big]\)</span>.</p>
 <p>And we know in <span class="citation">(Strokorb 2020)</span> that is
 equivalent to the extended extremal independence <span class="math inline">\(Y_1 \perp \!\! \perp_e Y_2\)</span>.</p>
 </div>
@@ -1354,11 +1355,11 @@ independence of <span class="citation">(Strokorb 2020)</span>, one can
 show a similar equivalence as above where :</p>
 <p><span class="math display">\[
 Y_A \perp \!\! \perp_e Y_B \Longleftrightarrow \Big( \forall
-x=(x_A,x_B)&gt;0 ,~\Lambda(x) = \Lambda_A(x_A) + \Lambda_B(x_B) \Big)
+x=(x_A,x_B)&gt;0 ,~H(x) = H_A(x_A) + H_B(x_B) \Big)
 \]</span></p>
 <p>We can also define the Sum of Extremal COefficient of the partition
 <span class="math inline">\(\{A,B\}\)</span> by : <span class="math display">\[
-SECO_{A,B} = \Lambda_A(1\!\!1_A) + \Lambda_B(1\!\!1_B) - \Lambda(1\!\!1)
+SECO_{A,B} = H_A(1\!\!1_A) + H(1\!\!1_B) - H(1\!\!1)
 \]</span> where <span class="math inline">\(\Lambda_C\)</span> is the
 exponent measure of the extreme limit of the sub-vector <span class="math inline">\(X_C\)</span>.</p>
 <p>With <span class="citation">(Ferreira 2011)</span>, we can show that
@@ -1373,11 +1374,11 @@ coefficient equality.</p>
 independence, if we can define a conditional exponent measure <span class="math inline">\(\Lambda^C\)</span> to have the relation :</p>
 <p><span class="math display">\[
 Y_A \perp \!\! \perp_e Y_B ~|~ Y_C \Longleftrightarrow \Big(\forall
-x=(x_A,x_B)&gt;0 ,~\Lambda^C(x) = \Lambda^C_A(x_A) + \Lambda^C_B(x_B)
-\Big)
+x=(x_A,x_B)&gt;0 ,~H^C(x) = H^C_A(x_A) +
+H^C_B(x_B) \Big)
 \]</span> where <span class="math inline">\(A,B,C\)</span> is a
 partition of <span class="math inline">\(V\)</span>.</p>
-<p>Furthermore, can we find some coefficient <span class="math inline">\(\theta_{AB}^C\)</span> (computable from data) and
+<p>Furthermore, can we find some coefficient <span class="math inline">\(\theta_{AB}^C\)</span> (calculable from data) and
 a constant <span class="math inline">\(c \in \mathbb R\)</span> such
 that : <span class="math display">\[
 \theta_{AB}^C = c \Longleftrightarrow Y_A \perp \!\! \perp_e Y_B ~|~ Y_C
@@ -1405,13 +1406,13 @@ corresponding generalized Pareto distribution, then we also get :</p>
 <p><span class="math display">\[\begin{equation}\label{eq:chi_pareto}
   \chi_{ijk} = \mathbb P(Y_i&gt;1,Y_j&gt;1~|~Y_k&gt;1)
 \end{equation}\]</span></p>
-<p>We would like to use this coefficient in order to caracterize the
-conditionnal independance (or dependance) between the component in a
-similar sense of the extremal conditionnal independance (see <span class="citation">(Engelke and Hitz 2020)</span>).</p>
+<p>We would like to use this coefficient in order to caractherize the
+conditional independence (or dependence) between the component in a
+similar sense of the extremal conditional independence (see <span class="citation">(Engelke and Hitz 2020)</span>).</p>
 </div>
 <div id="case-where-a-k" class="section level2">
 <h2>Case where <span class="math inline">\(A = \{k\}\)</span></h2>
-<p>By analogy on the extremal coefficient <span class="math inline">\(\chi_{ij}\)</span>, we define the conditionnal
+<p>By analogy on the extremal coefficient <span class="math inline">\(\chi_{ij}\)</span>, we define the conditional
 extremal coefficient by :</p>
 <p><span class="math display">\[
 \chi_{ij}^k = \lim_{q \rightarrow 1}\mathbb P(F(X_i)&gt;q ~|~
@@ -1429,7 +1430,7 @@ distribution <span class="math inline">\(Y\)</span> :</p>
 <p>Now, let’s define for some <span class="math inline">\(A \subset
 V\)</span>.</p>
 <p>Let <span class="math inline">\(i,j \in V\)</span>, then the
-conditionnal extremal coefficient is defined as :</p>
+conditional extremal coefficient is defined as :</p>
 <p><span class="math display">\[
 \chi_{ij}^A = \lim_{q \rightarrow 1}\mathbb P(F(X_i)&gt;q ~|~
 F(X_j)&gt;q, ||F(X_A)||_{\infty}&gt;q) =  \lim_{q\rightarrow
@@ -1441,7 +1442,7 @@ A}\)</span>, if the right-hand limit exists.</p>
 F(X_j)&gt;q, F(X_A)&gt;q)\)</span>, but let’s focus on the first one
 before.</p>
 <p>First, we can write another expression for this coefficient, similar
-to the previous sectio, which is : <span class="math display">\[
+to the previous section, which is : <span class="math display">\[
 \chi_{ij}^A=\mathbb P(Y_i&gt;1~|~Y_j&gt;1, ||Y_A||_\infty &gt; 1)
 \]</span> (the demonstration is the same as the case where <span class="math inline">\(A = \{k\}\)</span>)</p>
 <p>More, we have some inequalities between the conditional coefficient

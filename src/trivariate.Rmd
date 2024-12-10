@@ -52,8 +52,9 @@ We say that $X_1$ and $X_2$ are asymptotically independent if $\chi_{1,2} = 0$ a
 If $X$ is in the attraction domain of generalized Pareto distribution $Y$ of exponent measure $\Lambda$, there is an equivalence between : 
 
 $$
-\chi_{1,2} = 0 \Longleftrightarrow \Big(\forall x=(x_1,x_2)>0 ,~\Lambda(x) = \Lambda_1(x_1) +\Lambda_2(x_2)\Big)
+\chi_{1,2} = 0 \Longleftrightarrow \Big(\forall x=(x_1,x_2)>0 ,~H(x) = H_1(x_1) +H_2(x_2)\Big)
 $$
+where $H(y) = \Lambda\big[(\mathbb R_+)^2 \setminus [0,y]\big]$.
 
 And we know in [@strokorbExtremalIndependenceOld2020] that is equivalent to the extended extremal independence $Y_1 \indep_e Y_2$.
 
@@ -63,12 +64,12 @@ And we know in [@strokorbExtremalIndependenceOld2020] that is equivalent to the 
 For some dimension $d$, we have similar results. Let $A$ and $B$ a partition of $V$. With the extended extremal independence of [@strokorbExtremalIndependenceOld2020], one can show a similar equivalence as above where :
 
 $$
-Y_A \indep_e Y_B \Longleftrightarrow \Big( \forall x=(x_A,x_B)>0 ,~\Lambda(x) = \Lambda_A(x_A) + \Lambda_B(x_B) \Big)
+Y_A \indep_e Y_B \Longleftrightarrow \Big( \forall x=(x_A,x_B)>0 ,~H(x) = H_A(x_A) + H_B(x_B) \Big)
 $$
 
 We can also define the Sum of Extremal COefficient of the partition $\{A,B\}$ by :
 $$
-SECO_{A,B} = \Lambda_A(\indic_A) + \Lambda_B(\indic_B) - \Lambda(\indic)
+SECO_{A,B} = H_A(\indic_A) + H(\indic_B) - H(\indic)
 $$
 where $\Lambda_C$ is the exponent measure of the extreme limit of the sub-vector $X_C$.
 
@@ -79,14 +80,15 @@ With [@ferreiraDependenceTwoMultivariate2011], we can show that $SECO_{A,B}=0$ i
 
 For both situation, we can stress that there is a list of equivalent assertion which are following the same structure : extremal (or asymptomatic) independence, exponent measure decomposition, and coefficient equality.
 
-So we can wonder, in the context of extremal conditional independence, if  we can define a conditional exponent measure $\Lambda^C$ to have the relation : 
+So we can wonder, in the context of extremal conditional independence, if we can define a conditional exponent measure $\Lambda^C$ to have the relation : 
 
 $$
-Y_A \indep_e Y_B ~|~ Y_C \Longleftrightarrow \Big(\forall x=(x_A,x_B)>0 ,~\Lambda^C(x) = \Lambda^C_A(x_A) + \Lambda^C_B(x_B) \Big)
+Y_A \indep_e Y_B ~|~ Y_C \Longleftrightarrow \Big(\forall x=(x_A,x_B)>0 ,~H^C(x) = H^C_A(x_A) + 
+H^C_B(x_B) \Big)
 $$
 where $A,B,C$ is a partition of $V$.
 
-Furthermore, can we find some coefficient $\theta_{AB}^C$ (computable from data) and a constant $c \in \mathbb R$ such that :
+Furthermore, can we find some coefficient $\theta_{AB}^C$ (calculable from data) and a constant $c \in \mathbb R$ such that :
 $$
 \theta_{AB}^C = c \Longleftrightarrow Y_A \indep_e Y_B ~|~ Y_C
 $$
@@ -113,12 +115,11 @@ Pareto distribution, then we also get :
   \chi_{ijk} = \mathbb P(Y_i>1,Y_j>1~|~Y_k>1)
 \end{equation}
 
-We would like to use this coefficient in order to caracterize the conditionnal independance (or dependance) between 
-the component in a similar sense of the extremal conditionnal independance (see [@engelkeGraphicalModelsExtremes2020]).
+We would like to use this coefficient in order to caractherize the conditional independence (or dependence) between the component in a similar sense of the extremal conditional independence (see [@engelkeGraphicalModelsExtremes2020]).
 
 ## Case where $A = \{k\}$
 
-By analogy on the extremal coefficient $\chi_{ij}$, we define the conditionnal extremal coefficient by : 
+By analogy on the extremal coefficient $\chi_{ij}$, we define the conditional extremal coefficient by : 
 
 $$
 \chi_{ij}^k = \lim_{q \rightarrow 1}\mathbb P(F(X_i)>q ~|~ F(X_j)>q, F(X_k)>q) = \frac{\chi_{ijk}}{\chi_{jk}}
@@ -135,7 +136,7 @@ $$
 
 Now, let's define for some $A \subset V$. 
 
-Let $i,j \in V$, then the conditionnal extremal coefficient is defined as : 
+Let $i,j \in V$, then the conditional extremal coefficient is defined as : 
 
 $$
 \chi_{ij}^A = \lim_{q \rightarrow 1}\mathbb P(F(X_i)>q ~|~ F(X_j)>q, ||F(X_A)||_{\infty}>q) =  \lim_{q\rightarrow 1}\chi_{ij}^A(q)
@@ -145,7 +146,7 @@ where $F(X_A) = (F(X_k))_{k \in A}$, if the right-hand limit exists.
 
 We could use different extension for a general subset $A$ of $V$ as for example $\lim_{q \rightarrow 1}\mathbb P(F(X_i)>q ~|~ F(X_j)>q, F(X_A)>q)$, but let's focus on the first one before.
 
-First, we can write another expression for this coefficient, similar to the previous sectio, which is : 
+First, we can write another expression for this coefficient, similar to the previous section, which is : 
 $$
 \chi_{ij}^A=\mathbb P(Y_i>1~|~Y_j>1, ||Y_A||_\infty > 1)
 $$
@@ -297,7 +298,6 @@ plot(plot_all_matrix_error)
 
 \newpage 
 Indeed, we observe a strong effect of the value of the coefficient value when the parameters grow. Actually, the absolute error is not that large, but the fact that we divide by the product of two quantities which go to zero when the parameters go to infinity bring an increase of the absolute error.
-
 
 
 # Proofs
