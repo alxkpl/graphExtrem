@@ -77,7 +77,7 @@ With [@ferreiraDependenceTwoMultivariate2011], we can show that $SECO_{A,B}=0$ i
 
 **Motivation**
 
-For both situation, we can stress that there is a list of equivalent assertion which are following the same structure : extremal (or asymptotical) independance, exponent measure decomposition, and coefficient equality.
+For both situation, we can stress that there is a list of equivalent assertion which are following the same structure : extremal (or asymptomatic) independence, exponent measure decomposition, and coefficient equality.
 
 So we can wonder, in the context of extremal conditional independence, if  we can define a conditional exponent measure $\Lambda^C$ to have the relation : 
 
