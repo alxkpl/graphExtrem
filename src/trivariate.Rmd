@@ -55,12 +55,12 @@ $$
 \chi_{1,2} = 0 \Longleftrightarrow \Big(\forall x=(x_1,x_2)>0 ,~\Lambda(x) = \Lambda_1(x_1) +\Lambda_2(x_2)\Big)
 $$
 
-And we know in [@strokorbExtremalIndependenceOld2020] that is equivalent to the extended extremal independance $Y_1 \indep_e Y_2$.
+And we know in [@strokorbExtremalIndependenceOld2020] that is equivalent to the extended extremal independence $Y_1 \indep_e Y_2$.
 
 
 ## Case $d>2$
 
-For some dimension $d$, we have similar results. Let $A$ and $B$ a partition of $V$. With the extended extremal independance of [@strokorbExtremalIndependenceOld2020], one can show a similar equivalence as above where :
+For some dimension $d$, we have similar results. Let $A$ and $B$ a partition of $V$. With the extended extremal independence of [@strokorbExtremalIndependenceOld2020], one can show a similar equivalence as above where :
 
 $$
 Y_A \indep_e Y_B \Longleftrightarrow \Big( \forall x=(x_A,x_B)>0 ,~\Lambda(x) = \Lambda_A(x_A) + \Lambda_B(x_B) \Big)
