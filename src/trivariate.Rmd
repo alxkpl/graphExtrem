@@ -1,11 +1,13 @@
 ---
-title: "Conditionnal coefficient for extremal graphical models"
+title: "Conditional coefficient for extremal graphical models"
 author: "CAPEL Alexandre"
 date: "`r Sys.Date()`"
 output:
   html_document:
     toc_depth: 2
     number_sections: true
+    fig_caption: true
+    pandoc_args: ["-F","pandoc-crossref"]
   pdf_document:
     toc: true
     number_sections: true
@@ -16,13 +18,20 @@ bibliography: biblio.bib
 \newcommand{\indic}{1\!\!1}
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-pacman::p_load(targets, graphicalExtremes, ggplot2, hrbrthemes)
+knitr::opts_chunk$set(echo = TRUE,
+                      fig.align = "center")
+
+pacman::p_load(targets, 
+               graphicalExtremes,
+               ggplot2, 
+               hrbrthemes, 
+               gridExtra)
+extrafont::loadfonts()
 ```
 
 Let $V = \{1, \dots, d\}$ the set of nodes of a graph $\mathcal G=(V,E)$.
 
-We want to define a new coefficient used for caracterize the conditionnal dependance to apply for a pairwise Markov property in the extremal graphical model setting [@engelkeGraphicalModelsExtremes2020]. 
+We want to define a new coefficient used for characterize the conditional dependence to apply for a pairwise Markov property in the extremal graphical model setting [@engelkeGraphicalModelsExtremes2020]. 
 
 
 # Extremal/Asymptotical independence
@@ -36,7 +45,7 @@ One famous quantity in extreme value theory is the bivariate extremal coefficien
 $$
 \chi_{1,2} = \lim_{q\rightarrow 1} \mathbb P(F(X_1) >q ~|~ F(X_2)>q) = \lim_{q\rightarrow 1}\chi_{1,2}(q)
 $$
-if the right-hand term exists, where $F$ is the distribution function of a standard Fréchet.
+if the right-hand term exists, where $F$ is the distribution function of a standard Frechet.
 
 We say that $X_1$ and $X_2$ are asymptotically independent if $\chi_{1,2} = 0$ and asymptotically dependent otherwise.
 
@@ -197,7 +206,7 @@ print(Gamma_cond_indep_12)
 Of course, we have to check the conditional negative definiteness of the matrix (to know if the matrix is a possible Hüsler-Reiss variogram). In order to do that we use the `graphicalExtremes`.
 
 ```{r check_validity}
-checkGamma(Gamma_cond_indep_12, returnBoolean = T)    # function checking the validity of the matrix
+checkGamma(to_matrix(Gamma_cond_indep_12), returnBoolean = T)    # function checking the validity 
 ```
 
 Now, we are able to compute the trivariate coefficient, and consequently check if this is zero or not.
@@ -214,29 +223,81 @@ This is not very surprising because the condition that we wanted is about a coef
 
 But, let's check another thing. We are going to simulate several matrix and see what is the trend for the value of the conditional extremal coefficient. 
 
-**TODO**
+**Simulation with $n$ replicates**
 
+Here, let's check for our example for a tri-dimensional Hüsler-Reiss graphical model with no edge between nodes 1 and 2 if there we can tell something else with different variogram. For our setup :
 
-```{r eval=FALSE}
-tar_load(chi_trivariate_simulation_results)
+- simulate $n=2000$ matrices 
 
-chi_trivariate_simulation_results |> 
-  ggplot() + aes(x = num_sim, y = tri_chi) + 
-  geom_line(col = "darkorange") +
-  coord_cartesian(ylim = c(0, 1))+
-  xlab("Simulation number") +
-  ylab("Trivariate coefficient")+
-  ggtitle("Trivariate coefficient variation") +
-  theme_ipsum()
+- the coefficient $b$ and $c$ are produced by a uniform random variable in the interval $[0,25]$.
 
+For the conditional extremal coefficient, we get theses results :
 
-chi_trivariate_simulation_results |> 
-  ggplot() + aes(x = tri_chi) + 
-  geom_boxplot(col = "#474F58", fill = "darkorange") +
-  xlab("Trivariate coefficient")+
-  ggtitle("Trivariate coefficient boxplot simulation") +
-  theme_ipsum()
+```{r plot_cond, echo=FALSE, fig.height=4}
+#| fig.cap: Conditional coefficient computed with the simulations
+tar_load(cond_trivariate_plot)
+plot(cond_trivariate_plot)
 ```
+
+
+
+We can not have any conclusion with such figures... Perhaps, we notice a concentration near $0,1$ but nothing else. If we focus our attention in the trivariate coefficient, we will obtain the following figure : \newpage
+
+```{r plot_chi, echo=FALSE, fig.height=4}
+#| fig.cap: Trivariate coefficient computed with the simulations
+tar_load(chi_trivariate_plot)
+plot(chi_trivariate_plot)
+```
+
+
+Again, we can not say anything, even if the concentration around 0 is a little bit stronger. We can explain this by the fact that the trivariate coefficient is lower that the conditional one. 
+
+
+However, under the conditional independence assumption, one can notice that : 
+
+$$
+\chi_{123} = \mathbb P(Y_1>1, Y_2 > 1 ~ | ~Y_3 > 1) = \mathbb P(Y_1>1, ~ | ~Y_3 > 1)\mathbb P(Y_2 > 1 ~ | ~Y_3 > 1) = \chi_{1,3} \chi_{2,3}
+$$
+and so that the quotient coefficient $\frac{\chi_{123}}{\chi_{1,3} \chi_{2,3}} = 1$.
+
+Let's see if it is the case for our previous simulations. We obtained :   
+
+```{r plot_quotient, echo = FALSE, fig.height = 3.5}
+#| fig.cap: Computation of the quotient coefficient (left, the expected value 1 is the grey dashed line) and gap between the two coefficients (right).
+
+tar_load(quotient_chi_plot)
+tar_load(error_triprod_chi_plot)
+
+p_alt <- quotient_chi_plot + theme(plot.title = element_text(size = 10))
+p_alt2 <- error_triprod_chi_plot + theme(plot.title = element_text(size = 10))
+
+grid.arrange(grobs = list(p_alt, 
+                          p_alt2), ncol = 2)
+```
+
+\newpage
+We can notice that is not really what we expected... It seems that there is some error during the computation, but if we try with others values for the coefficient of the variogram that there are close to zero, we notice better more accurate results as it should be : 
+
+
+```{r plot_all_matrix, echo = FALSE,  fig.height = 5}
+#| fig.cap: Quotient value for each possible matrix when conditional independence
+tar_load(plot_all_matrix_coef)
+plot_all_matrix_coef
+```
+
+
+
+Perhaps, there is an effect of the fact that our values are very small. To see this effect, let's build the absolute and relative error for the coefficient computation and see what we can say.
+
+```{r plot_error_matrix, echo = FALSE,  fig.height = 8}
+#| fig.cap: Different error types for each possible matrix when conditional independence
+tar_load(plot_all_matrix_error)
+plot(plot_all_matrix_error)
+```
+
+\newpage 
+Indeed, we observe a strong effect of the value of the coefficient value when the parameters grow. Actually, the absolute error is not that large, but the fact that we divide by the product of two quantities which go to zero when the parameters go to infinity bring an increase of the absolute error.
+
 
 
 # Proofs
@@ -267,7 +328,7 @@ $$
 $$
 where $\Lambda_C$ is the exponent measure of the marginal extreme limit of $X_C$.
 
-But, we have $F^{-1}(q) \rightarrow \infty$ when $q \rightarrow 1$ and $-\log(q) \sim 1-q$ so we obtain : 
+But, we have $F^{-1}(q) \rightarrow \infty$ and $-\log(q) \sim 1-q$ when $q \rightarrow 1$ so we obtain : 
 
 $$
 \lim_{q \rightarrow 1} \chi_{ijk}(q) =3 - \Lambda_{ij}(1,1) -\Lambda_{ik}(1,1)-\Lambda_{jk}(1,1)+\Lambda_{ijk}(1,1,1)
