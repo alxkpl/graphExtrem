@@ -232,7 +232,7 @@ Here, let's check for our example for a tri-dimensional Hüsler-Reiss graphical 
 
 - the coefficient $b$ and $c$ are produced by a uniform random variable in the interval $[0,25]$.
 
-For the conditional extremal coefficient, we get theses results :
+For the conditional extremal coefficient, we get these results :
 
 ```{r plot_cond, echo=FALSE, fig.height=4}
 #| fig.cap: Conditional coefficient computed with the simulations
@@ -257,7 +257,7 @@ Again, we can not say anything, even if the concentration around 0 is a little b
 However, under the conditional independence assumption, one can notice that : 
 
 $$
-\chi_{123} = \mathbb P(Y_1>1, Y_2 > 1 ~ | ~Y_3 > 1) = \mathbb P(Y_1>1, ~ | ~Y_3 > 1)\mathbb P(Y_2 > 1 ~ | ~Y_3 > 1) = \chi_{1,3} \chi_{2,3}
+\chi_{123} = \mathbb P(Y_1>1, Y_2 > 1 ~ | ~Y_3 > 1) = \mathbb P(Y_1>1 ~ | ~Y_3 > 1)\mathbb P(Y_2 > 1 ~ | ~Y_3 > 1) = \chi_{1,3} \chi_{2,3}
 $$
 and so that the quotient coefficient $\frac{\chi_{123}}{\chi_{1,3} \chi_{2,3}} = 1$.
 
@@ -297,7 +297,13 @@ plot(plot_all_matrix_error)
 ```
 
 \newpage 
-Indeed, we observe a strong effect of the value of the coefficient value when the parameters grow. Actually, the absolute error is not that large, but the fact that we divide by the product of two quantities which go to zero when the parameters go to infinity bring an increase of the absolute error.
+Actually, we made a mistake. The relation of independence we wrote above was a pure independence relationship, not conditional dependence... With another notation it corresponds to : 
+
+$$
+\mathbb P(Y_1^3>1, Y_2^3 >1) =\mathbb P(Y_1^3>1)\times \mathbb  P (Y_2^3 >1)
+$$
+which is true when $Y_1^3 \indep Y_2^3$, not when $Y_1^3 \indep Y_2^3 ~ | ~ Y_3^3$.
+
 
 
 # Proofs
