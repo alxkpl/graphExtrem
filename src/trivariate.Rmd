@@ -49,7 +49,7 @@ if the right-hand term exists, where $F$ is the distribution function of a stand
 
 We say that $X_1$ and $X_2$ are asymptotically independent if $\chi_{1,2} = 0$ and asymptotically dependent otherwise.
 
-If $X$ is in the attraction domain of generalized Pareto distribution $Y$ of exponent measure $\Lambda$, there is an equivalence between : 
+If $X$ is in the attraction domain of generalized Pareto distribution $Y$ of exponent measure $\Lambda$, there is an equivalence between :
 
 $$
 \chi_{1,2} = 0 \Longleftrightarrow \Big(\forall x=(x_1,x_2)>0 ,~H(x) = H_1(x_1) +H_2(x_2)\Big)
@@ -71,7 +71,7 @@ We can also define the Sum of Extremal COefficient of the partition $\{A,B\}$ by
 $$
 SECO_{A,B} = H_A(\indic_A) + H(\indic_B) - H(\indic)
 $$
-where $\Lambda_C$ is the exponent measure of the extreme limit of the sub-vector $X_C$.
+where $H_C$ is the exponent measure function of the extreme limit of the sub-vector $X_C$.
 
 With [@ferreiraDependenceTwoMultivariate2011], we can show that $SECO_{A,B}=0$ if and only if we have $Y_A \indep_e Y_B$.
 
@@ -80,7 +80,7 @@ With [@ferreiraDependenceTwoMultivariate2011], we can show that $SECO_{A,B}=0$ i
 
 For both situation, we can stress that there is a list of equivalent assertion which are following the same structure : extremal (or asymptomatic) independence, exponent measure decomposition, and coefficient equality.
 
-So we can wonder, in the context of extremal conditional independence, if we can define a conditional exponent measure $\Lambda^C$ to have the relation : 
+So we can wonder, in the context of extremal conditional independence, if we can define a conditional exponent measure function $H^C$ to have the relation : 
 
 $$
 Y_A \indep_e Y_B ~|~ Y_C \Longleftrightarrow \Big(\forall x=(x_A,x_B)>0 ,~H^C(x) = H^C_A(x_A) + 
@@ -92,6 +92,10 @@ Furthermore, can we find some coefficient $\theta_{AB}^C$ (calculable from data)
 $$
 \theta_{AB}^C = c \Longleftrightarrow Y_A \indep_e Y_B ~|~ Y_C
 $$
+
+*More I look a these relations, more I think it will be difficult to get... The previous relation of independence where strongly linked to the independence of the corresponding max stable distribution. But in our case, we can't talk about conditional independence for the max stable distribution because it does not exist (I mean, it is equivalent to the classical independence).*
+
+*If I really want to build these relations, I think we will need to use or create new notions, which ideally can be linked to the previous ones (exponent measure, etc...).*
 
 
 # The conditional extremal coefficient $\chi_{ij}^A$
@@ -261,7 +265,9 @@ $$
 $$
 and so that the quotient coefficient $\frac{\chi_{123}}{\chi_{1,3} \chi_{2,3}} = 1$.
 
-*Finally, it is not... But there is what I've done which indicate the equality is false.* Let's see if it is the case for our previous simulations. We obtained :   
+*Finally, it is not... But there is what I've done which indicate the equality is false. I will explain why below.*
+
+Let's see if it is the case for our previous simulations. We obtained :   
 
 ```{r plot_quotient, echo = FALSE, fig.height = 3.5}
 #| fig.cap: Computation of the quotient coefficient (left, the expected value 1 is the grey dashed line) and gap between the two coefficients (right).
@@ -304,7 +310,7 @@ $$
 $$
 which is true when $Y_1^3 \indep Y_2^3$, not when $Y_1^3 \indep Y_2^3 ~ | ~ Y_3^3$.
 
-
+*To get the relation, except using the factorization of the density, I don't know really how to formulate the conditional independence using probabilities because the notion of conditional probabilities given a random variable is very weird and not that intuitive (because it's conditional given a particular $\sigma$-algebra)...*
 
 # Proofs
 
