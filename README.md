@@ -40,7 +40,11 @@ This folder contains `.html` files that correspond to the `.pdf` documents in th
 
 ## Works
 
-My initial goal was to identify coefficients that summarize all conditional independence relationships between the components of the MGPD (Multivariate Generalized Pareto Distribution). The results of this work can be found in the `trivariate` output located in the `src` or `public` directories.
+### Conditional coefficient for extremal graphical models (`trivariate`)
+The goal was to identify coefficients that summarize all conditional independence relationships between the components of the MGPD (Multivariate Generalized Pareto Distribution). 
+
+### Spectral representation for extremal graphical model (`spectral`)
+Here, we want to know if, perhaps under som assumptions, it exists a link between graphical model for extreme, and the "classical" graphical model that we can find in the spectral representation of the corresponding max-stable vector.
 
 ## Materials and references
 
