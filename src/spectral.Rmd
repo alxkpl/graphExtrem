@@ -1,0 +1,245 @@
+---
+title: "Spectral representation for extremal graphical model"
+author: "CAPEL Alexandre"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc_depth: 2
+    number_sections: true
+    fig_caption: true
+    pandoc_args: ["-F","pandoc-crossref"]
+  pdf_document:
+    toc: true
+    number_sections: true
+bibliography: biblio.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+\newcommand{\indep}{\perp \!\! \perp}
+\newcommand{\indic}{1\!\!1}
+
+In this document, we would like to find a link between the graphical model for extreme (for MGPD variable) and their spectral representation (with the max-stable). 
+
+# Spectral representation of max stable process
+
+We will use he notation of [@SpatialExtremesMaxStable2016].
+
+## General case
+
+Let $\mathcal X$ a compact subset of $\mathbb R^p$ and let's consider a max-stable process $\{Z(x), x \in \mathcal X\}$. As the marginal of the process must be a generalized extreme value distribution, we will assume that all the unit margins follows a standard Fréchet distribution.
+
+[@haanSpectralRepresentationMaxstable1984] shows that : 
+
+**Theorem.** For a such max-stable process $Z$ with continue sample paths, then : 
+$$
+Z(x) \overset d = \max_{i\ge 1} \zeta_if_i(x), \quad \quad x \in \mathcal X,
+$$
+where $\{(\zeta_i,f_i), i \ge 1\}$ are the point of a Poisson process on the space $\mathbb R_+ \times \mathcal C$ with intensity $\zeta^{-2} d\zeta \nu(df)$ for $\nu$, a locally finite measure defined on the space $\mathcal C$ of the non-negative continuous function on $\mathcal X$ and such that : 
+
+$$
+\int_{\mathcal C}f(x)\nu(df) = 1, \quad \quad x \in \mathcal X.
+$$
+
+*The integral relation comes from the fact the process $Z$ has standard Fréchet unit margins. Of course there is a first problem which appears here, because the measure $\nu$ is not unique.*
+
+Of course, in that case where the measure $\nu$ is a probability measure, then we can express the $f$ as the set of an independent copies random process $\{W_i(x), x \in \mathcal X\}$ such that $\mathbb E(W_1(x)) = 1$. In that sense we can thus write the representation as : 
+
+$$
+Z(x) \overset d = \max_{i\ge 1} \zeta_iW_i(x), \quad \quad x \in \mathcal X.
+$$
+
+We can give several examples of parametric max-stable process and their spectral representation : 
+
+- the first one is the Smith process that we can represent by : 
+$$
+Z(x)  = \max_{i\ge 1} \zeta_i \varphi(x-U_i, \Sigma), \quad \quad x \in \mathcal X,
+$$
+where $\varphi(., \Sigma)$ is the $p$-variate centered Gaussian density with covariance $\Sigma$ and $\{(\zeta_i,U_i), i \ge 1\}$ are the point of a Poisson process on the space $\mathbb R_+ \times \mathbb R^p$ with intensity $\zeta^{-2} d\zeta du$. \newline 
+
+- the next one is very famous, and is a generalization of the previous model. It is called the Brown-Resnik process and it is defined as : 
+$$
+Z(x)  = \max_{i\ge 1} \zeta_i \exp(W_i(x) - \sigma^2(x) /2), \quad \quad x \in \mathcal X,
+$$
+where $\{\zeta_i, i \ge 1\}$ is the point of a Poisson process on the space $\mathbb R_+$ with intensity $\zeta^{-2} d\zeta$ and $\{W_i(x), x \in \mathcal X\}$ are independent copies of a centered normal process with some covariance matrix $\Sigma(x)$.
+
+
+The latter have some good properties especially the fact that the law depends only of some variogram $\Gamma$. Moreover, all the finite $d$-dimensional distribution of a such process are Husler-Reiss models.
+
+Now, let's focus on finite dimensional distributions.
+
+## Finite dimensional max-stable distribution
+
+Now assume that $\mathcal X$ is a finite subset (of size $d$) of $\mathbb R^p$. 
+
+Of course, the last theorem is still valid, so for a $d$-dimensional max-stable vector $Z$, we can write it as : 
+
+$$
+Z_k = \max_{i\ge 1} \zeta_iW^{(i)}_k
+$$
+where $\{\zeta_i, i \ge 1\}$ is the point of a Poisson process on the space $\mathbb R_+$ with intensity $\zeta^{-2} d\zeta$ and $(W^{(i)})_{i \ge 1}$ are independent copies of a random vector of dimension $d$ with density $f_W$.
+
+*I chose to limit for now the case where the measure $\nu$ is a probability measure. That why I use the random vector representation.*
+
+
+We want to characterize here the distribution function of the max-stable vector $Z$ using the spectral representation. We can write
+
+$$
+\mathbb P(Z \le z) = \mathbb P(\max_{i\ge 1} \zeta_iW^{(i)}_k \le z_k) = \mathbb P((\zeta, W) \notin A)
+$$
+
+where $A = \bigcup_{k=1}^d\{(\zeta, W) \in \mathbb R_+ \times \mathbb R^d ~|~\zeta W_k > z_k\}$. 
+
+Notice that $\{(\zeta_i, W^{(i)}), i \ge 1\}$ is still a Poisson process with intensity $\zeta^{-2} d\zeta f_W(w)dw$, thus we have : 
+
+\begin{align*}
+\mathbb P(Z \le z) & = \mathbb P(N(A) = 0) \\
+& = \exp\Big[-\int_{(0, \infty ) \times \mathbb{R}^d} \indic_A(\zeta, w) \zeta^{-2}d\zeta f_W(w) dw\Big] \\
+& = \exp\Big[-\int_0^\infty \mathbb P(\zeta>\min_{k=1,\dots, d} \frac{z_k}{W_k}) \zeta^{-2}d\zeta\Big]\\
+& = \exp\Big[-\int_0^\infty \mathbb P(\max_{k=1,\dots, d} \frac{W_k}{z_k} > \frac 1\zeta)\zeta^{-2}d\zeta\Big]\\
+& = \exp\Big[-\int_0^\infty \mathbb P(\max_{k=1,\dots, d} \frac{W_k}{z_k} > u)du\Big]\\
+& = \exp\Big[- \mathbb E\Big(\max_{k=1,\dots, d} \frac{W_k}{z_k}\Big)\Big]\\
+\end{align*}
+
+and so we finally get : 
+
+$$
+\mathbb P(Z \le z) = \exp\Big[- \int_{\mathbb R ^d }\max_{k=1,\dots, d} \frac{w_k}{z_k} f_W(w)dw\Big]
+$$
+
+that means we can write the exponent measure function as : 
+
+$$
+H(z) = \int_{\mathbb R ^d }\max_{k=1,\dots, d} \frac{w_k}{z_k} f_W(w)dw.
+$$
+
+With this formula, we notice that the density of the random vector of the spectral representation appears explicitly inside the exponent measure function, which characterize the distribution of MGPD corresponding to the max-stable vector $Z$.
+
+# Hammersley-Clifford theorem
+
+We identify the space $\mathcal X$ as $V= \{1,\dots, d\}$. We will denote by $\mathcal G=(V,E)$ the graph of nodes $V$ and the edges $E$.
+
+We define too the notion of decomposition in a graph : a partition $A, B, C \subset V$ is said to be a decomposition of $\mathcal G=(V, E)$ into the components $\mathcal G_{A \cup B}$ and $\mathcal G_{C \cup B}$ if :
+
+- $B$ separates $A$ from $C$.
+
+- the restriction to $B$ of the graph is complete.
+
+The decomposition is proper if $A$ and $C$ are not empty.
+
+We say that the graph $\mathcal G=(V,E)$ is decomposable if the graph is complete, or if there is a proper decomposition such that the subgraph are decomposable too.
+
+*I wanted to define these notion to formulate the following theorem properly.*
+
+## Classical graphical model
+
+When we have the classical notion of conditional independence in graphical models, it exists a theorem which associate all these independence with a factorization of the density : it is the **Hammersley-Clifford theorem**. 
+
+**Theorem. ** Let $X$ a graphical model according to a graph $\mathcal G=(V,E)$ such that the density $f_X$ is positive and continuous. If the graph $\mathcal G$ is decomposable, then we can factorize the density as follow : 
+$$
+f_X(x) = \frac{\prod_{C\in \mathcal C} f_C(x_C)}{\prod_{D\in \mathcal D}f_D(x_D)}.
+$$
+
+where $\mathcal C$ is the set of all cliques and $\mathcal D$ is the collection of all the separators of the graph $\mathcal G$.
+
+*Actually, we can write this theorem differently to get an equivalence (with the condition for the graph and the density).*
+
+## Extremal graphical model
+
+For extremal graphical models, the notion of conditional independence is different because the random vector does not belong to a product space : this notion is defined in [@engelkeGraphicalModelsExtremes2020]. 
+
+In the same article, we can find a similar result that we can called as a Hammersley-Clifford theorem for extreme.
+
+**Theorem. ** Let $Y$ an extremal graphical model according to a graph $\mathcal G=(V,E)$ such that the density $f_Y$ is positive and continuous and let $\lambda$ the density of the exponent measure. If the graph $\mathcal G$ is decomposable, then we can factorize the density as follow : 
+$$
+f_Y(y) = \frac{1}{H(1)} \frac{\prod_{C\in \mathcal C} \lambda_C(y_C)}{\prod_{D\in \mathcal D}\lambda_D(y_D)}, \quad\quad y \in \mathcal L
+$$
+
+where $\mathcal C$ is the set of all cliques and $\mathcal D$ is the collection of all the separators of the graph $\mathcal G$.
+
+*Of course the equivalence that I talked previously is still valid here.*
+
+The difference here is that the factorization concern a family of the density of the exponent measure (and its restrictions).
+
+
+*Now we can talk about what I want to do. In fact, we saw there is a link between the density of the spectral representation and the exponent measure, that we also use for the expression of the density of a Multivariate Generalized Pareto distribution. I wonder if we can get a relation of the form that : let $Y$ a MGPD whose the spectral representation of the corresponding max stable variable $Z$ is $Z_k = \max_{i\ge 1} \zeta_i W^{(i)}_k$. Then we have :*
+$$
+f_W(w) = \frac{\prod_{C\in \mathcal C} f_C(w_C)}{\prod_{D\in \mathcal D}f_D(w_D)}, \quad \forall w \in \mathbb R^d \quad
+ \Longrightarrow \quad f_Y(y) = \frac{1}{H(1)} \frac{\prod_{C\in \mathcal C} \lambda_C(y_C)}{\prod_{D\in \mathcal D}\lambda_D(y_D)}, \quad\forall y \in \mathcal L
+$$
+
+*But I talked about the fact that there is not a unique spectral representation of the max-stable process : the aim would also be to find some condition on the graphs and the random vectors to get the unicity of the graphical representation.*
+
+# Husler-Reiss case
+
+Before continuing to seek assumption and make proofs, let's study the special case when the random vector is a Husler-Reiss Pareto distribution. 
+
+## No-unicity of the spectral representation
+
+Recall the spectral representation of a max-stable Husler-Reiss distribution : 
+$$
+Z_k = \max_{i\ge 1} \zeta_i \exp(W^{(i)}_k - \text{diag}(\Sigma)_k /2),
+$$
+where $\{\zeta_i, i\ge1\}$ is a Poisson process with intensity $\zeta^{-2}d\zeta$ and $W^{(i)}$ are independent copies of a $d$-dimensional centered gaussian distribution with covariance matrix $\Sigma$.
+
+
+We know that the Husler-Reiss distribution depends only of a strictly conditionally negative definite variogram matrix of $W$ : 
+$$
+\Gamma_{ij} = \mathbb E\big[(Y_i-Y_j)^2\big], \quad \quad i,j \in V.
+$$
+
+And this implies that, as we saw above, the spectral representation is not unique and there is a lot of possible Gaussian distribution that lead to the same variogram matrix $\Gamma$. We can therefore consider the set of all possible matrix for each variogram $\Gamma$ : 
+$$
+S_\Gamma = \{\Sigma \in \mathbb R^{d\times d}, \text{semi positive definite} : \indic \text{diag}(\Sigma)^T + \text{diag}(\Sigma) \indic^T - 2 \Sigma = \Gamma \} = \gamma^{-1}(\Gamma)
+$$
+
+*We can notice that $\gamma$ is a linear application.*
+
+So there is an infinite number of matrix, and stochastic representation, but there is one which fit with the Husler-Reiss model.
+
+## Right matrix indentification
+
+In [@hentschelStatisticalInferenceHuslerReiss2023], they build an extended precision matrix $\Theta$ which summarize all the information we need for the conditional independence relationship for the extremal graphical models, in that sense : 
+
+$$
+Y_i \indep_e Y_j ~|~ Y_{V\setminus\{i,j\}} \quad \Longleftrightarrow \quad \Theta_{ij} = 0.
+$$
+
+This matrix can be obtain by using some applications (which are bijections) that garanties a form of unicity of the spectral representation. 
+
+Therefore, let's considere the follwing applications :
+$$
+\sigma: \Gamma \mapsto \Pi(-\frac 1 2 \Gamma) \Pi, \quad \quad \quad \theta: \Gamma \mapsto \sigma(\Gamma)^+
+$$
+where the matrix $A^+$ is the general inverse of $A$, and $\Pi$ the orthogonal projection matrix in the space $<\indic>^\perp$.
+
+They show in [@hentschelStatisticalInferenceHuslerReiss2023] that the above applications are homeomorphisms between the set of the strictly conditionally negative definite variogram matrix $\mathcal D_d$ ad the set of symmetric positive semi-definite matrix with kernel equal to $<\indic>$, denoted by $\mathcal P_d^1$. More they show that : 
+
+$$
+\sigma^{-1}(\Sigma) = \gamma(\Sigma), \quad \quad \theta^{-1}(\Theta) = \gamma(\Theta)
+$$
+
+
+From this, we know that for any variogram matrix $\Gamma$, we can find a covariance matrix $\Sigma_\Gamma \in \mathcal P_d^1$. Thus, by linearity, we can write : 
+$$
+S_\Gamma = \{\Sigma_\Gamma + \Sigma_0, \Sigma_0\in \ker(\gamma)\} \cap S_d^+
+$$
+
+where $S_d^+$ is the set of the covariance matrix.
+
+So, to sumarise, we get a (*unique*) matrix $\Sigma_\Gamma$ such that : 
+
+- $\Sigma_\Gamma^+ = \Theta$.
+
+- every spectral representation of the max-stable Husler-Reiss distribution is controlled by a covariance matrix of the form $\Sigma_\Gamma + \Sigma_0$.
+
+However, we have a problem : $\Sigma_\Gamma^+$ has no inverse, by definition... and so the Gaussian vector is degenerate...
+
+
+*To continue, I would like to find if we can get similar properties for degenerate Gaussian vector in graphical models. Then I would like to explore the different possible matrices and the corresponding graphical model and see if there exist a relationship between it and the Husler-Reiss graphical model (graph inclusion etc...).*
+
+### References
+

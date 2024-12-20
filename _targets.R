@@ -210,6 +210,23 @@ list(
     path = "./src/trivariate.Rmd",
     output_format = "pdf_document",
     output_file = here("report","trivariate.pdf")
+    ),
+  
+  # Spectral representation for graphical models documents
+  ## HTML
+  tar_render(
+    spectral_html, 
+    path = "./src/spectral.Rmd",
+    output_format = "readthedown",
+    output_file = here("public","spectral.html")
+    ),
+  
+  ## PDF
+  tar_render(
+    spectral_pdf, error = "continue",  
+    path = "./src/spectral.Rmd",
+    output_format = "pdf_document",
+    output_file = here("report","spectral.pdf")
     )
 )
 
