@@ -12,6 +12,7 @@ output:
     toc: true
     number_sections: true
 bibliography: biblio.bib
+always_allow_html: true
 ---
 
 \newcommand{\indep}{\perp \!\! \perp}
@@ -25,7 +26,12 @@ pacman::p_load(targets,
                graphicalExtremes,
                ggplot2, 
                hrbrthemes, 
-               gridExtra)
+               gridExtra,
+               plotly,
+               fMultivar,
+               dplyr,
+               tidyr)
+source("./src/functions.R")
 extrafont::loadfonts()
 ```
 
@@ -292,8 +298,6 @@ tar_load(plot_all_matrix_coef)
 plot_all_matrix_coef
 ```
 
-
-
 Perhaps, there is an effect of the fact that our values are very small. To see this effect, let's build the absolute and relative error for the coefficient computation and see what we can say.
 
 ```{r plot_error_matrix, echo = FALSE,  fig.height = 8}
@@ -311,6 +315,92 @@ $$
 which is true when $Y_1^3 \indep Y_2^3$, not when $Y_1^3 \indep Y_2^3 ~ | ~ Y_3^3$.
 
 *To get the relation, except using the factorization of the density, I don't know really how to formulate the conditional independence using probabilities because the notion of conditional probabilities given a random variable is very weird and not that intuitive (because it's conditional given a particular $\sigma$-algebra)...*
+
+
+**Link between trivariate and bivariate**
+
+We would like to express the trivariate coefficient in terms of bivariate extremal coefficient and $SECO$ in the case where $d=3$. Let's recall that we can show : 
+
+$$
+\chi_{123} = 3 - \Lambda_{12}(1,1) -\Lambda_{13}(1,1)-\Lambda_{23}(1,1)+\Lambda_{123}(1,1,1)
+$$
+
+Then we have : 
+
+\begin{align*}
+  \chi_{123} &= 3 - \Lambda_{12}(1,1) -\Lambda_{13}(1,1)-\Lambda_{23}(1,1)+\Lambda_{123}(1,1,1) \\
+  & = 1 + \chi_{12} - \Lambda_{13}(1,1)-\Lambda_{23}(1,1)+\Lambda_{123}(1,1,1) \\
+  & = \chi_{12} + \chi_{13}-(1 + \Lambda_{23}(1,1)-\Lambda_{123}(1,1,1)) \\
+  & = \chi_{12} + \chi_{13}-SECO_{\{1\}, \{2,3\}} \\
+\end{align*}
+
+In the same way, we can also write : 
+
+$$
+\chi_{123} = \chi_{12} + \chi_{23}-SECO_{\{2\}, \{1,3\}} =\chi_{13} + \chi_{23}-SECO_{\{3\}, \{1, 2\}}
+$$
+
+
+```{r, echo=FALSE}
+#| fig.cap: Scatter plot of the trivariate coefficient over the three bivariate coefficient.
+#| fig.link: fig-biv-tri
+tar_load(plot_chi_over_trichi)
+plot_chi_over_trichi
+```
+
+We can also represent the general scatter plot overall : 
+
+```{r, message=FALSE, echo=FALSE}
+tar_load(all_matrix_coeff)
+
+plot_ly(
+  all_matrix_coeff,
+  x = ~chi_12, y = ~chi_23, z = ~chi_13,
+  color = ~tri_chi
+  ) |> layout(title = "3D Plot over all the bivariate coefficient")
+```
+
+This shape is easy to explain. Indeed, let's take a look at the expression of the bivariate coefficient in the case where we have conditional independence between 1 and 2 knowing 3 : 
+
+$$
+\chi_{12} = 2-2\Phi(\sqrt{b+c}/2),\quad \chi_{13} = 2-2\Phi(\sqrt{b}/2), \quad
+\chi_{23} = 2-2\Phi(\sqrt{c}/2)
+$$
+
+Now, let's consider the mapping $g: x \mapsto 2-2\Phi(\sqrt{x}/2)$ pour $x > 0$. Then, it is a bijection between $\mathbb R_+^*$ and $[0,1]$. so we can find the inverse of this application, denoted by $g^{-1}$. Therefore, we can write : 
+
+$$
+\chi_{12} = g(b+c) = f(\chi_{13}, \chi_{23})
+$$
+with $f(x,y) = g(g^{-1}(x) + g^{-1}(y))$. 
+
+Thus, the scatter plot $(\chi_{12}, \chi_{13}, \chi_{23})$ is a parameterised surface.
+
+More, when we plot the scatter plot between one bivariate coefficient and the trivariate coefficient, the paramaterized representation can explain the difference between the first plot and the others. 
+
+Actually, the trivariate coefficient depends of two parameters $b$ and $c$ that we can find in the variogram matrix $\Gamma$, and this is also the case for $\chi_{12}$. However, $\chi_{13}$ and $\chi_{23}$ are parameterised by $b$ and $c$ respectively (so is the image of a uni-dimensional function). 
+
+The question is : *the shape of this scatter plot is due to the fact that there exist a conditional independence between the components, or just to mathematical properties induce by the bivariate representation of both coefficient ?* 
+
+Let's take now a $3 \times 3$ variogram matrix such that :
+$$
+a = b+10c
+$$
+(to keep the bivariate representation and loose the conditional independence).
+
+```{r coef10, echo = FALSE}
+#| fig.cap: Scatter plot of the trivariate coefficient over the three bivariate coefficient.
+tar_load(plot_chi10_over_trichi10)
+plot_chi10_over_trichi10
+```
+
+Well, even if we have a better fitting between the scatter plot and the line $y=x$, we can notice there is an inequality that is always verified between the trivariate coefficient and the bivariate ones. It is : 
+
+$$
+\chi_{123} \le \chi_{12} \wedge \chi_{13} \wedge \chi_{23}
+$$
+that we can call the tri-bivariate inequality, and is true.
+
 
 # Proofs
 
@@ -401,6 +491,35 @@ $$
 \chi^A_{ij} \le \sum_{k\in A} \chi^k_{ij}
 $$
 which is what we wanted.
+
+## Tri-bivariate inequality
+
+Let's show that :
+
+$$
+\chi_{123} \le \chi_{12}
+$$
+
+the others can be show in the same way. 
+
+Let $q \in (0,1)$, we have :
+
+\begin{align*}
+\mathbb P(F(X_1)>q,F(X_2)>q~|~F(X_3)>q) &= \frac{\mathbb P(F(X_1)>q,F(X_2)>q,F(X_3)>q)}{\mathbb P(F(X_3)>q)} \\
+&\le \frac{\mathbb P(F(X_1)>q,F(X_2)>q)}{\mathbb P(F(X_3)>q)} \\
+&\le  \frac{\mathbb P(F(X_2)>q)}{\mathbb P(F(X_3)>q)} \mathbb P(F(X_1)>q~|~F(X_2)>q) \\
+&\le  \mathbb P(F(X_1)>q~|~F(X_2)>q) \\
+\end{align*}
+
+If we take the limit of both side, we get :
+$$
+\chi_{123} \le \chi_{12}
+$$
+
+The same proof's structure holds for the other bivariate coefficient, so we can deduce that : 
+$$
+\chi_{123} \le \chi_{12} \wedge \chi_{13} \wedge \chi_{23}
+$$
 
 
 ### References

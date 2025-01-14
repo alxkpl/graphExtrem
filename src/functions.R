@@ -21,7 +21,7 @@ random_Gamma12 <- function(k){
     a <- b + c
     Gamma <- matrix(c(0, a, b, a, 0, c, b, c, 0), nr = 3)
   }
-  return(matrix(c(a, b, c), nc =3))
+  return(matrix(c(a, b, c), nc = 3))
 }
 
 #' Transform a set of variogram's parameter to a matrix.
@@ -81,11 +81,16 @@ lambda_2 <- function(Gamma_params){
   rho_2 <- (a + c - b) / (2 * sqrt(a * c))
   rho_3 <- (b + c - a) / (2 * sqrt(b * c))
   
+  
+  if(sum(round(abs(c(rho_1, rho_2, rho_3)), 8) >= 1)){
+    return(NA)
+  }else{
   return(
     pnorm2d(x = sqrt(a) / 2, y = sqrt(b) / 2, rho = rho_1)[1] +
       pnorm2d(x = sqrt(a) / 2, y = sqrt(c) / 2, rho = rho_2)[1] +
       pnorm2d(x = sqrt(b) / 2, y = sqrt(c) / 2, rho = rho_3)[1] 
     )
+  }
 }
 
 

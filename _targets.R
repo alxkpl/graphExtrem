@@ -45,7 +45,7 @@ list(
     iteration = "vector"               # the output of the replicates is a list
   ),
   
-  # Computation of the trivariate coefficient for all the simulation
+  # Computation of the trivariate coefficient and all chi for all the simulations
   tar_target(
     chi_trivariate_simulation_results,
     data.frame(num_sim = 1:nrow(Gamma_cond_indep_12_replicate),
@@ -53,6 +53,9 @@ list(
                row.names = NULL) |> 
       rowwise() |> 
       mutate(tri_chi = chi_trivariate_HR(c(X1, X2, X3)),
+             chi_12 = 2 - theta(X1), 
+             chi_13 = 2 - theta(X2), 
+             chi_23 = 2 - theta(X3), 
              prod_chi = (2 - theta(X2)) * (2 - theta(X3)))
   ),
 
@@ -65,6 +68,24 @@ list(
       rowwise() |> 
       mutate(tri_chi = cond_trivariate_HR(c(X1, X2, X3), 3))
     
+  ),
+  
+  # All the possible coefficient for the matrix)
+  tar_target(
+    all_matrix_coeff,
+    expand.grid(b = seq(0.1,10, 0.05), c = seq(0.1,10, 0.05)) |>
+      as_tibble() |>
+      mutate(a = b + c) |> 
+      rowwise() |> 
+      mutate(tri_chi = chi_trivariate_HR(c(a, b, c)),
+             chi_12 = 2 - theta(a), 
+             chi_13 = 2 - theta(b), 
+             chi_23 = 2 - theta(c),
+             prod_chi = (2 - theta(b)) * (2 - theta(c))) |>
+      mutate(a10 = b + 10 * c) |> 
+      rowwise() |>
+      mutate(tri_chi10 = chi_trivariate_HR(c(a10, b, c)),
+             chi10_12 = 2 - theta(a10)) 
   ),
   
   # Resulting plots 
@@ -140,17 +161,6 @@ list(
       theme_ipsum(base_family = "serif")
   ),
   
-  
-  tar_target(
-    all_matrix_coeff,
-    expand.grid(b = seq(0.1,10, 0.05), c = seq(0.1,10, 0.05)) |>
-      as_tibble() |>
-      mutate(a = b + c) |> 
-      rowwise() |> 
-      mutate(tri_chi = chi_trivariate_HR(c(a, b, c)),
-             prod_chi = (2 - theta(b)) * (2 - theta(c))) 
-  ),
-  
   tar_target(
     plot_all_matrix_coef,
     all_matrix_coeff |> 
@@ -192,6 +202,55 @@ list(
       
       grid.arrange(grobs = list(p1, p2), nrow = 2)
       }
+  ),
+  tar_target(
+    plot_chi_over_trichi,
+    all_matrix_coeff |> 
+      rowwise() |>
+      filter(
+        checkGamma(to_matrix(c(a, b, c)), returnBoolean =  TRUE, alert = FALSE)
+      ) |>
+      pivot_longer(cols = starts_with("chi_"),
+                   values_to = "chi",
+                   names_to = "Coefficient", 
+                   names_prefix = "chi_") |>
+      ggplot() + 
+      aes(x = chi, y = tri_chi, group = Coefficient) +
+      geom_point(col = "grey78") +
+      geom_abline(aes(color = "y=x", slope = 1, intercept = 0),
+                  linewidth = 1, show.legend = TRUE) +
+      facet_grid(.~Coefficient) +
+      theme_ipsum(base_family = "serif") +
+      scale_color_manual(values = "darkorange") +
+      labs(x = expression(chi[ij]), y = expression(chi[123]),
+           color = "legend",
+           title = " ", 
+           caption = expression(paste("The conditional independance is knowing ",
+                                      Y[3], ".")))
+  ),
+  
+  tar_target(
+    plot_chi10_over_trichi10,
+    all_matrix_coeff |>
+      rename(chi10_13 = chi_13, 
+             chi10_23 = chi_23) |>
+      filter(!is.na(tri_chi10)) |>
+      pivot_longer(cols = starts_with("chi10_"),
+                   values_to = "chi",
+                   names_to = "Coefficient", 
+                   names_prefix = "chi10_") |>
+      ggplot() + 
+      aes(x = chi, y = tri_chi10, group = Coefficient) +
+      geom_point(col = "grey78") +
+      geom_abline(aes(color = "y=x", slope = 1, intercept = 0),
+                  linewidth = 1, show.legend = TRUE) +
+      facet_grid(.~Coefficient) +
+      theme_ipsum(base_family = "serif") +
+      scale_color_manual(values = "darkorange") +
+      labs(x = expression(chi[ij]), y = expression(chi[123]),
+           color = "legend",
+           title = " ", 
+           caption = "Here, we have the relation a = b + 10c")
   ),
   
   #----------------------------- Export document -------------------------------
