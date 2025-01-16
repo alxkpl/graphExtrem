@@ -1204,7 +1204,23 @@ latent model</h1>
     <h2><a href="#content">Conditional independance on extremal linear
 latent model</a></h2>
     <div id="toc">
-      
+      <ul>
+      <li><a href="#the-latent-linear-model" id="toc-the-latent-linear-model">The latent linear model</a>
+      <ul>
+      <li><a href="#presentation" id="toc-presentation">Presentation</a></li>
+      <li><a href="#induced-properties" id="toc-induced-properties">Induced properties</a></li>
+      </ul></li>
+      <li><a href="#conditionnal-independance-over-z" id="toc-conditionnal-independance-over-z">Conditionnal
+      independance over <span class="math inline">\(Z\)</span></a>
+      <ul>
+      <li><a href="#heuristic-and-definition" id="toc-heuristic-and-definition">Heuristic and
+      definition</a></li>
+      <li><a href="#properties" id="toc-properties">Properties</a></li>
+      <li><a href="#extremal-independance" id="toc-extremal-independance">Extremal independance</a></li>
+      <li><a href="#extremal-conditionnal-independance" id="toc-extremal-conditionnal-independance">Extremal conditionnal
+      independance</a></li>
+      </ul></li>
+      </ul>
     </div>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
@@ -1219,7 +1235,73 @@ Alexandre</p>
    
 <!-- Don't indent these lines or it will mess pre blocks indentation --> 
 <div id="main">
-
+<p>In this document, we want to define a new notion on conditional
+independence for a particular model and see if it corresponds to the
+“classic” extremal conditional independence.</p>
+<div id="the-latent-linear-model" class="section level1">
+<h1>The latent linear model</h1>
+<div id="presentation" class="section level2">
+<h2>Presentation</h2>
+<p>Let’s consider a random vector <span class="math inline">\(X\)</span>
+of <span class="math inline">\(\mathbb R^d\)</span> such that we have
+the following representation :</p>
+<p><span class="math display">\[
+X = M Z +\varepsilon
+\]</span> where <span class="math inline">\(Z\)</span> represents a
+unobservable random vector of <span class="math inline">\(\mathbb
+R^K\)</span> (identified as the latent variable), <span class="math inline">\(M\)</span> is a <span class="math inline">\(d\times K\)</span> matrix and <span class="math inline">\(\varepsilon \in \mathbb R^d\)</span> a random
+noise.</p>
+<p>For the next assumptions, we will use the same context as <span class="citation">(Boulin 2024)</span>, and so : - <span class="math inline">\(K\)</span> is not known and the dimensional
+parameters <span class="math inline">\(d\)</span> and <span class="math inline">\(K\)</span> can increase and be larger than <span class="math inline">\(n\)</span>, the number of observation.</p>
+<ul>
+<li>all the components of the random vector <span class="math inline">\(Z\)</span> are asymptocally independent with a
+tail indexx equal to one. It means that we can express the exponential
+measure as below :</li>
+</ul>
+<p><span class="math display">\[
+\Lambda_Z = \sum_{k=1}^K \delta_0 \otimes \dots \otimes \Lambda_{Z_k}
+\otimes \dots \otimes \delta_0, \quad \quad \Lambda_{Z_k}(dy) = y^{-2}dy
+\]</span> - the random noise <span class="math inline">\(\varepsilon\)</span> possess a distribution with a
+tail that is lighter than the factors (<em>what does it mean
+?</em>).</p>
+</div>
+<div id="induced-properties" class="section level2">
+<h2>Induced properties</h2>
+<p>Theses assumptions give to the random vector <span class="math inline">\(X\)</span> the regular variation property and
+bring also a spectral measure <span class="math inline">\(\Phi\)</span>
+which have a discrete representation</p>
+<p><span class="math display">\[
+\Phi(.) =\sum_{k=1}^K ||A_{.k}|| \delta_{\frac{A_{.k}}{||A_{.k}||}}(.),
+\]</span> with <span class="math inline">\(\delta_x(.)\)</span> the
+Dirac measure on <span class="math inline">\(x\)</span>.</p>
+<p><em>I don’t really see why all of this is true…</em></p>
+</div>
+</div>
+<div id="conditionnal-independance-over-z" class="section level1">
+<h1>Conditionnal independance over <span class="math inline">\(Z\)</span></h1>
+<div id="heuristic-and-definition" class="section level2">
+<h2>Heuristic and definition</h2>
+</div>
+<div id="properties" class="section level2">
+<h2>Properties</h2>
+</div>
+<div id="extremal-independance" class="section level2">
+<h2>Extremal independance</h2>
+</div>
+<div id="extremal-conditionnal-independance" class="section level2">
+<h2>Extremal conditionnal independance</h2>
+<div id="references" class="section level3 unnumbered">
+<h3 class="unnumbered">References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-boulinVariableClusteringMultivariate2024" class="csl-entry">
+Boulin, Alexis. 2024. <span>“Variable Clustering of Multivariate Time
+Series According to the Dependence of Their Extremes.”</span> PhD
+thesis, Universit<span>é</span> C<span>ô</span>te d’Azur.
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 
    
