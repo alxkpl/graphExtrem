@@ -161,6 +161,8 @@ list(
       theme_ipsum(base_family = "serif")
   ),
   
+  # Heatmap of the quotient tri_chi/prod_chi over a grid of all possible value for 
+  # b and c in the variogram matrix when 1 indep 2 | 3
   tar_target(
     plot_all_matrix_coef,
     all_matrix_coeff |> 
@@ -174,7 +176,9 @@ list(
       theme_ipsum(base_family = "serif", grid = FALSE, axis_title_size = 12)
   ),
   
-  
+  # Error of the quotient tri_chi/prod_chi over a grid of all possible value for 
+  # b and c in the variogram matrix when 1 indep 2 | 3, but the expecting results 
+  # was a mistake
   tar_target(
     plot_all_matrix_error,
     {
@@ -203,6 +207,9 @@ list(
       grid.arrange(grobs = list(p1, p2), nrow = 2)
       }
   ),
+  
+  # Trying to see a relationship between bivariate chi and trivariate chi using 
+  # the SECO representation formula when 1 indep 2 | 3
   tar_target(
     plot_chi_over_trichi,
     all_matrix_coeff |> 
@@ -229,6 +236,8 @@ list(
                                       Y[3], ".")))
   ),
   
+  # Verification if the linear form comes from conditional independence or the 
+  # parametric representation 
   tar_target(
     plot_chi10_over_trichi10,
     all_matrix_coeff |>
@@ -286,7 +295,24 @@ list(
     path = "./src/spectral.Rmd",
     output_format = "pdf_document",
     output_file = here("report","spectral.pdf")
-    )
+    ),
+  
+  # Conditional independance on extremal linear latent model documents
+  ## HTML
+  tar_render(
+    latent_html, 
+    path = "./src/latent.Rmd",
+    output_format = "readthedown",
+    output_file = here("public","latent.html")
+  ),
+  
+  ## PDF
+  tar_render(
+    latent_pdf, error = "continue",  
+    path = "./src/latent.Rmd",
+    output_format = "pdf_document",
+    output_file = here("report","latent.pdf")
+  )
 )
 
 #-------------------------------------------------------------------------------

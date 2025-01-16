@@ -1,0 +1,81 @@
+---
+title: "Conditional independance on extremal linear latent model"
+author: "CAPEL Alexandre"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc_depth: 2
+    number_sections: true
+    fig_caption: true
+    pandoc_args: ["-F","pandoc-crossref"]
+  pdf_document:
+    toc: true
+    number_sections: true
+bibliography: biblio.bib
+always_allow_html: true
+---
+
+\newcommand{\indep}{\perp \!\! \perp}
+\newcommand{\indic}{1\!\!1}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+In this document, we want to define a new notion on conditional independence for a particular model and see if it corresponds to the "classic" extremal conditional independence. 
+
+# The latent linear model
+
+## Presentation 
+
+Let's consider a random vector $X$ of $\mathbb R^d$ such that we have the following representation : 
+
+$$
+X = M Z +\varepsilon
+$$
+where $Z$ represents a unobservable random vector of $\mathbb R^K$ (identified as the latent variable), $M$ is a $d\times K$ matrix and $\varepsilon \in \mathbb R^d$ a random noise. 
+
+For the next assumptions, we will use the same context as [@boulinVariableClusteringMultivariate2024], and so : 
+
+- $K$ is not known and the dimensional parameters $d$ and $K$ can increase and be larger than $n$, the number of observation. 
+
+- all the components of the random vector $Z$ are asymptotically independent with a tail indexx equal to one. It means that we can express the exponential measure as below : 
+
+$$
+\Lambda_Z = \sum_{k=1}^K \delta_0 \otimes \dots \otimes \Lambda_{Z_k} \otimes \dots \otimes \delta_0, \quad \quad \Lambda_{Z_k}(dy) = y^{-2}dy
+$$
+
+- the random noise $\varepsilon$ possess a distribution with a tail that is lighter than the factors (*what does it mean ?*).
+
+
+## Induced properties
+
+Theses assumptions give to the random vector $X$ the regular variation property and bring also a spectral measure $\Phi$ which have a discrete representation : 
+
+$$
+\Phi(.) =\sum_{k=1}^K ||A_{.k}|| \delta_{\frac{A_{.k}}{||A_{.k}||}}(.),
+$$
+with $\delta_x(.)$ the Dirac measure on $x$.
+
+*I don't really see why all of this is true...*
+
+Thus, we can compute the limits for the maxima $n$ replications of $X$ 
+
+
+# Conditionnal independance over $Z$ 
+
+## Heuristic and definition
+
+## Properties
+
+## Extremal independance
+
+## Extremal conditionnal independance
+
+### References
+
+
+
+
+
