@@ -1251,30 +1251,35 @@ X = M Z +\varepsilon
 unobservable random vector of <span class="math inline">\(\mathbb
 R^K\)</span> (identified as the latent variable), <span class="math inline">\(M\)</span> is a <span class="math inline">\(d\times K\)</span> matrix and <span class="math inline">\(\varepsilon \in \mathbb R^d\)</span> a random
 noise.</p>
-<p>For the next assumptions, we will use the same context as <span class="citation">(Boulin 2024)</span>, and so : - <span class="math inline">\(K\)</span> is not known and the dimensional
-parameters <span class="math inline">\(d\)</span> and <span class="math inline">\(K\)</span> can increase and be larger than <span class="math inline">\(n\)</span>, the number of observation.</p>
+<p>For the next assumptions, we will use the same context as <span class="citation">(Boulin 2024)</span>, and so :</p>
 <ul>
-<li>all the components of the random vector <span class="math inline">\(Z\)</span> are asymptocally independent with a
+<li><p><span class="math inline">\(K\)</span> is not known and the
+dimensional parameters <span class="math inline">\(d\)</span> and <span class="math inline">\(K\)</span> can increase and be larger than <span class="math inline">\(n\)</span>, the number of observation.</p></li>
+<li><p>all the components of the random vector <span class="math inline">\(Z\)</span> are asymptotically independent with a
 tail indexx equal to one. It means that we can express the exponential
-measure as below :</li>
+measure as below :</p></li>
 </ul>
 <p><span class="math display">\[
 \Lambda_Z = \sum_{k=1}^K \delta_0 \otimes \dots \otimes \Lambda_{Z_k}
 \otimes \dots \otimes \delta_0, \quad \quad \Lambda_{Z_k}(dy) = y^{-2}dy
-\]</span> - the random noise <span class="math inline">\(\varepsilon\)</span> possess a distribution with a
-tail that is lighter than the factors (<em>what does it mean
-?</em>).</p>
+\]</span></p>
+<ul>
+<li>the random noise <span class="math inline">\(\varepsilon\)</span>
+possess a distribution with a tail that is lighter than the factors
+(<em>what does it mean ?</em>).</li>
+</ul>
 </div>
 <div id="induced-properties" class="section level2">
 <h2>Induced properties</h2>
 <p>Theses assumptions give to the random vector <span class="math inline">\(X\)</span> the regular variation property and
 bring also a spectral measure <span class="math inline">\(\Phi\)</span>
-which have a discrete representation</p>
+which have a discrete representation :</p>
 <p><span class="math display">\[
 \Phi(.) =\sum_{k=1}^K ||A_{.k}|| \delta_{\frac{A_{.k}}{||A_{.k}||}}(.),
 \]</span> with <span class="math inline">\(\delta_x(.)\)</span> the
 Dirac measure on <span class="math inline">\(x\)</span>.</p>
 <p><em>I don’t really see why all of this is true…</em></p>
+<p>Thus, we can compute the limits for the maxima <span class="math inline">\(n\)</span> replications of <span class="math inline">\(X\)</span></p>
 </div>
 </div>
 <div id="conditionnal-independance-over-z" class="section level1">
