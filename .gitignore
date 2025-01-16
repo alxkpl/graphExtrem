@@ -6,6 +6,7 @@ _targets/
 # System specific files
 *.DS_Store
 .Rproj.user
+Rplots*
 # Latex
 *.syntex.gz
 *.out
