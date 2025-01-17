@@ -13,3 +13,5 @@ Rplots*
 *.log
 *.aux
 *.toc
+# Others
+*.svg
