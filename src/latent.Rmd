@@ -25,11 +25,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 In this document, we want to define a new notion on conditional independence for a particular model and see if it corresponds to the "classic" extremal conditional independence. 
 
+Let $V = \{1,\dots, d\}$.
+
 # The latent linear model
 
 ## Presentation 
 
-Let's consider a random vector $X$ of $\mathbb R^d$ such that we have the following representation : 
+Let's consider a random vector $X$ of $\mathbb R^V$ (indexed by $V$) such that we have the following representation : 
 
 $$
 X = M Z +\varepsilon
@@ -54,7 +56,7 @@ $$
 Theses assumptions give to the random vector $X$ the regular variation property and bring also a spectral measure $\Phi$ which have a discrete representation : 
 
 $$
-\Phi(.) =\sum_{k=1}^K ||A_{.k}|| \delta_{\frac{A_{.k}}{||A_{.k}||}}(.),
+\Phi(.) =\sum_{k=1}^K ||M_{.k}|| \delta_{\frac{M_{.k}}{||M_{.k}||}}(.),
 $$
 with $\delta_x(.)$ the Dirac measure on $x$.
 
@@ -177,16 +179,88 @@ We can see quickly that this expression is not derivable and the exponent measur
 
 Thus, the model of independence that we will consider here is the conditional independence over a Levy measure $\Lambda$ as defined in [@engelkeGraphicalModelsInfinite2024].
 
-In particular, they show that there exist an equivalence between independence and the decomposition of the exponent measure.
+In particular, they show that there exist an equivalence between independence and the decomposition of the exponent measure. 
 
 **Theorem.** Let $A, B$ a partition of $V$ and assume that the exponent measure follows the explosiveness assumption. Then the following statements are equivalent :  
 
-- $A \indep B ~~[\Lambda]$
+- $A \indep B ~~[\Lambda]$.
 
-- 
+- $\Lambda(y_A \neq 0 \text{ and } y_B \neq 0) = 0$.
 
+
+Thus, we need to show two things : first that our spectral measure verifies the explosiveness assumption, and then, that we can show the second statement of above is true. 
+
+### Explosiveness assumption
+
+We can recall the explosiveness assumption before show that our model verify it. 
+
+Let $\Lambda$ an exponential measure defined on $\mathbb R^V$. We say that the measure $\Lambda$ follows the explosiveness assumtpion if :
+$$
+\Lambda(y_v \neq 0) = \Lambda_{\{v\}}\Big((0, \infty)\Big) \in \{0, \infty\}, \quad \forall v \in V
+$$
+
+Fortunately, the one-dimensional marginal is easy to compute with a good choice of set : 
+$$
+\Lambda_{\{v\}}\Big((\frac1n, \infty)\Big) = n \sum_{k=1}^K m_{kj}.
+$$
+Thus if we consider the set $(0, \infty) = \bigcup_{i=1}^\infty (\frac1n, \infty)$, we can deduce by monotony of the measure that : 
+$$
+\Lambda(y_v \neq 0) = \lim_{n \rightarrow \infty}\Lambda_{\{v\}}\Big((\frac1n, \infty)\Big) = \lim_{n \rightarrow \infty}n \sum_{k=1}^K m_{kj} = \begin{cases}  0, \text{ if } \sum_{k=1}^K m_{kj} =0 \\ \infty, \text{ else } \end{cases}
+$$
+
+<div style="text-align:right;">$\square$</div>
+
+### Same independence
+
+Now, we can use the theorem from [@engelkeGraphicalModelsInfinite2024] to show that our new independence relation is the same as them. 
+
+So, let's assume that $X_A \indep_Z X_B$. Then we have $I_A \cap I_B = \emptyset$. Then we can rewrite the expression of the exponent measure as :
+
+$$
+\Lambda(\mathcal E \setminus [0,x]) = \sum_{k \in I_A} \bigvee_{j \in A}^d \big(\frac{M_{kj}}{x_j}\big) + \sum_{k \in I_B} \bigvee_{j \in B}^d \big(\frac{M_{kj}}{x_j}\big) = \Lambda_A(\mathcal E_A \setminus [0,x_A]) + \Lambda_B(\mathcal E_B \setminus [0,x_B])
+$$
+
+However, we also have the general relation : 
+
+\begin{align*}
+\Lambda(\mathcal E \setminus [0,x]) &= 
+\Lambda \Big[(\mathcal E_A \setminus [0,x_A])\times[0,x_B]^B\Big] + \Lambda\Big[[0,x_A]^A \times (\mathcal E_B \setminus [0,x_B])\Big]+ \Lambda \Big[(\mathcal E_A \setminus [0,x_A])\times(\mathcal E_B \setminus [0,x_B]) \Big] \\ 
+&= \Lambda \Big[(\mathcal E_A \setminus [0,x_A])\times\mathcal E_B \Big] + \Lambda \Big[\mathcal E_A \times (\mathcal E_B \setminus [0,x_B])\Big] - \Lambda\Big[(\mathcal E_A \setminus [0,x_A])\times(\mathcal E_B \setminus [0,x_B])\Big] \\
+& =\Lambda_A\Big[\mathcal E_A \setminus [0,x_A]\Big] + \Lambda_B\Big[\mathcal E_B \setminus [0,x_B]\Big] - \Lambda\Big[(\mathcal E_A \setminus [0,x_A])\times(\mathcal E_B \setminus [0,x_B])\Big]
+\end{align*}
+
+
+So, by using the alternative formula of the exponent measure, we can deduce that : 
+$$
+\Lambda\Big[(\mathcal E_A \setminus [0,x_A])\times(\mathcal E_B \setminus [0,x_B])\Big] =0, \quad \forall (x_A,x_B) \in \mathcal E_A \times \mathcal E_B
+$$
+
+Let's consider the family : 
+$$
+R_n = (\mathcal E_A \setminus [0,\frac1n])\times(\mathcal E_B \setminus [0,\frac1n])
+$$
+Of course, we have : 
+$$
+\bigcup_{n=1}^\infty R_n = \{y_A \neq 0 \text{ and } y_B \neq 0\}
+$$
+Thus, by monotony of the measure and the fact that $\Lambda(R_n) = 0$, for all $n \in \mathbb N^*$, we get : 
+
+$$
+\Lambda(y_A \neq 0 \text{ and } y_B \neq 0) = \lim_{n \rightarrow \infty} \Lambda(R_n) = 0
+$$
+
+<div style="text-align:right;">$\square$</div>
+
+Everything seems to be good to continue and we would like to see if our new conditional independence relation fits well with the conditional independence over a measure.
 
 ## Extremal conditionnal independance
+
+The goal of this section is to see if we have :
+$$
+X_A \indep_Z X_B ~|~ X_C \Longleftrightarrow A \indep B ~| ~C ~ [\Lambda]
+$$
+
+
 
 ### References
 

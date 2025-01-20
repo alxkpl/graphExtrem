@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-01-17" />
+        <meta name="date" content="2025-01-20" />
     
     <title>Conditional independance on extremal linear latent model</title>
 
@@ -1225,7 +1225,7 @@ latent model</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-01-17</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-01-20</p>
           </div>
    </div>
      
@@ -1238,13 +1238,14 @@ Alexandre</p>
 <p>In this document, we want to define a new notion on conditional
 independence for a particular model and see if it corresponds to the
 “classic” extremal conditional independence.</p>
+<p>Let <span class="math inline">\(V = \{1,\dots, d\}\)</span>.</p>
 <div id="the-latent-linear-model" class="section level1">
 <h1>The latent linear model</h1>
 <div id="presentation" class="section level2">
 <h2>Presentation</h2>
 <p>Let’s consider a random vector <span class="math inline">\(X\)</span>
-of <span class="math inline">\(\mathbb R^d\)</span> such that we have
-the following representation :</p>
+of <span class="math inline">\(\mathbb R^V\)</span> (indexed by <span class="math inline">\(V\)</span>) such that we have the following
+representation :</p>
 <p><span class="math display">\[
 X = M Z +\varepsilon
 \]</span> where <span class="math inline">\(Z\)</span> represents a
@@ -1275,7 +1276,7 @@ possess a distribution with a tail that is lighter than the factors
 bring also a spectral measure <span class="math inline">\(\Phi\)</span>
 which have a discrete representation :</p>
 <p><span class="math display">\[
-\Phi(.) =\sum_{k=1}^K ||A_{.k}|| \delta_{\frac{A_{.k}}{||A_{.k}||}}(.),
+\Phi(.) =\sum_{k=1}^K ||M_{.k}|| \delta_{\frac{M_{.k}}{||M_{.k}||}}(.),
 \]</span> with <span class="math inline">\(\delta_x(.)\)</span> the
 Dirac measure on <span class="math inline">\(x\)</span>.</p>
 <p><em>I don’t really see why all of this is true…</em></p>
@@ -1437,12 +1438,100 @@ assume that the exponent measure follows the explosiveness assumption.
 Then the following statements are equivalent :</p>
 <ul>
 <li><p><span class="math inline">\(A \perp \!\! \perp B
-~~[\Lambda]\)</span></p></li>
-<li></li>
+~~[\Lambda]\)</span>.</p></li>
+<li><p><span class="math inline">\(\Lambda(y_A \neq 0 \text{ and } y_B
+\neq 0) = 0\)</span>.</p></li>
 </ul>
+<p>Thus, we need to show two things : first that our spectral measure
+verifies the explosiveness assumption, and then, that we can show the
+second statement of above is true.</p>
+<div id="explosiveness-assumption" class="section level3">
+<h3>Explosiveness assumption</h3>
+<p>We can recall the explosiveness assumption before show that our model
+verify it.</p>
+<p>Let <span class="math inline">\(\Lambda\)</span> an exponential
+measure defined on <span class="math inline">\(\mathbb R^V\)</span>. We
+say that the measure <span class="math inline">\(\Lambda\)</span>
+follows the explosiveness assumtpion if : <span class="math display">\[
+\Lambda(y_v \neq 0) = \Lambda_{\{v\}}\Big((0, \infty)\Big) \in \{0,
+\infty\}, \quad \forall v \in V
+\]</span></p>
+<p>Fortunately, the one-dimensional marginal is easy to compute with a
+good choice of set : <span class="math display">\[
+\Lambda_{\{v\}}\Big((\frac1n, \infty)\Big) = n \sum_{k=1}^K m_{kj}.
+\]</span> Thus if we consider the set <span class="math inline">\((0,
+\infty) = \bigcup_{i=1}^\infty (\frac1n, \infty)\)</span>, we can deduce
+by monotony of the measure that : <span class="math display">\[
+\Lambda(y_v \neq 0) = \lim_{n \rightarrow
+\infty}\Lambda_{\{v\}}\Big((\frac1n, \infty)\Big) = \lim_{n \rightarrow
+\infty}n \sum_{k=1}^K m_{kj} = \begin{cases}  0, \text{ if }
+\sum_{k=1}^K m_{kj} =0 \\ \infty, \text{ else } \end{cases}
+\]</span></p>
+<div style="text-align:right;">
+<span class="math inline">\(\square\)</span>
+</div>
+</div>
+<div id="same-independence" class="section level3">
+<h3>Same independence</h3>
+<p>Now, we can use the theorem from <span class="citation">(Engelke,
+Ivanovs, and Strokorb 2024)</span> to show that our new independence
+relation is the same as them.</p>
+<p>So, let’s assume that <span class="math inline">\(X_A \perp \!\!
+\perp_Z X_B\)</span>. Then we have <span class="math inline">\(I_A \cap
+I_B = \emptyset\)</span>. Then we can rewrite the expression of the
+exponent measure as :</p>
+<p><span class="math display">\[
+\Lambda(\mathcal E \setminus [0,x]) = \sum_{k \in I_A} \bigvee_{j \in
+A}^d \big(\frac{M_{kj}}{x_j}\big) + \sum_{k \in I_B} \bigvee_{j \in B}^d
+\big(\frac{M_{kj}}{x_j}\big) = \Lambda_A(\mathcal E_A \setminus [0,x_A])
++ \Lambda_B(\mathcal E_B \setminus [0,x_B])
+\]</span></p>
+<p>However, we also have the general relation :</p>
+<p><span class="math display">\[\begin{align*}
+\Lambda(\mathcal E \setminus [0,x]) &amp;=
+\Lambda \Big[(\mathcal E_A \setminus [0,x_A])\times[0,x_B]^B\Big] +
+\Lambda\Big[[0,x_A]^A \times (\mathcal E_B \setminus [0,x_B])\Big]+
+\Lambda \Big[(\mathcal E_A \setminus [0,x_A])\times(\mathcal E_B
+\setminus [0,x_B]) \Big] \\
+&amp;= \Lambda \Big[(\mathcal E_A \setminus [0,x_A])\times\mathcal E_B
+\Big] + \Lambda \Big[\mathcal E_A \times (\mathcal E_B \setminus
+[0,x_B])\Big] - \Lambda\Big[(\mathcal E_A \setminus
+[0,x_A])\times(\mathcal E_B \setminus [0,x_B])\Big] \\
+&amp; =\Lambda_A\Big[\mathcal E_A \setminus [0,x_A]\Big] +
+\Lambda_B\Big[\mathcal E_B \setminus [0,x_B]\Big] -
+\Lambda\Big[(\mathcal E_A \setminus [0,x_A])\times(\mathcal E_B
+\setminus [0,x_B])\Big]
+\end{align*}\]</span></p>
+<p>So, by using the alternative formula of the exponent measure, we can
+deduce that : <span class="math display">\[
+\Lambda\Big[(\mathcal E_A \setminus [0,x_A])\times(\mathcal E_B
+\setminus [0,x_B])\Big] =0, \quad \forall (x_A,x_B) \in \mathcal E_A
+\times \mathcal E_B
+\]</span></p>
+<p>Let’s consider the family : <span class="math display">\[
+R_n = (\mathcal E_A \setminus [0,\frac1n])\times(\mathcal E_B \setminus
+[0,\frac1n])
+\]</span> Of course, we have : <span class="math display">\[
+\bigcup_{n=1}^\infty R_n = \{y_A \neq 0 \text{ and } y_B \neq 0\}
+\]</span> Thus, by monotony of the measure and the fact that <span class="math inline">\(\Lambda(R_n) = 0\)</span>, for all <span class="math inline">\(n \in \mathbb N^*\)</span>, we get :</p>
+<p><span class="math display">\[
+\Lambda(y_A \neq 0 \text{ and } y_B \neq 0) = \lim_{n \rightarrow
+\infty} \Lambda(R_n) = 0
+\]</span></p>
+<div style="text-align:right;">
+<span class="math inline">\(\square\)</span>
+</div>
+<p>Everything seems to be good to continue and we would like to see if
+our new conditional independence relation fits well with the conditional
+independence over a measure.</p>
+</div>
 </div>
 <div id="extremal-conditionnal-independance" class="section level2">
 <h2>Extremal conditionnal independance</h2>
+<p>The goal of this section is to see if we have : <span class="math display">\[
+X_A \perp \!\! \perp_Z X_B ~|~ X_C \Longleftrightarrow A \perp \!\!
+\perp B ~| ~C ~ [\Lambda]
+\]</span></p>
 <div id="references" class="section level3 unnumbered">
 <h3 class="unnumbered">References</h3>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
