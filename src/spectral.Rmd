@@ -16,6 +16,12 @@ bibliography: biblio.bib
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+source("src/functions.R")
+pacman::p_load(ggplot2,
+               ggnetwork,
+               graphicalExtremes,
+               igraph, 
+               targets)
 ```
 
 
@@ -240,6 +246,46 @@ However, we have a problem : $\Sigma_\Gamma^+$ has no inverse, by definition... 
 
 
 *To continue, I would like to find if we can get similar properties for degenerate Gaussian vector in graphical models. Then I would like to explore the different possible matrices and the corresponding graphical model and see if there exist a relationship between it and the Husler-Reiss graphical model (graph inclusion etc...).*
+
+## Simulation analysis 
+
+In this section, we would like to see if we can find a matrix $\Sigma \in S_\Gamma$ such that the induced graph is not included in the corresponding Husler-Reiss graphical model. 
+
+Let's consider a four dimensional Husler-Reiss graphical model with the graph : 
+
+```{r graph, echo=FALSE, fig.align='center', fig.height=3, fig.width=5}
+#| fig.cap: Graph for our variogram simulation
+tar_load(graphical_model_parameters)
+
+g <- graphical_model_parameters$graph
+
+layout <- layout_with_fr(g)
+nodes <- data.frame(
+  id = 1:4, 
+  x = layout[, 1], 
+  y = layout[, 2]
+)
+edges <- data.frame(
+  from = as.numeric(tail_of(g, E(g))),
+  to = as.numeric(head_of(g, E(g))),
+  x = layout[tail_of(g, E(g)), 1],
+  y = layout[tail_of(g, E(g)), 2],
+  xend = layout[head_of(g, E(g)), 1],
+  yend = layout[head_of(g, E(g)), 2]
+)
+
+# Tracer le graphe avec ggplot2
+ggplot() +
+  geom_segment(data = edges,
+               aes(x = x, y = y, xend = xend, yend = yend), color = "grey") +
+  geom_point(data = nodes, 
+             aes(x = x, y = y), color = "darkorange", size = 9) +
+  geom_text(data = nodes, 
+            aes(x = x, y = y, label = id)) +
+  theme_void(base_family = "Arial") 
+```
+
+
 
 ### References
 
