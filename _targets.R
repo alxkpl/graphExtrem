@@ -18,7 +18,8 @@ tar_option_set(packages = c("graphicalExtremes",
                             "rmdformats",
                             "hrbrthemes",
                             "gridExtra", 
-                            "igraph"))
+                            "igraph",
+                            "pracma"))
 
 #-------------------------------------------------------------------------------
 #                                   PIPELINE
@@ -300,9 +301,24 @@ list(
       tibble() |> 
       rowwise() |>
       mutate(
-        d_zero = pracma::newtonRaphson(\(.) (solve(S + ker_gamma(c(a, b, c, .))))[1, 2], -1)$root # search the last coefficient where the precision matrix is null at 1-2 entry
+        d_zero = newtonRaphson(\(.) (solve(S + ker_gamma(c(a, b, c, .))))[1, 2], -1)$root # search the last coefficient where the precision matrix is null at 1-2 entry
       )
     }
+  ),
+  # Notes : we use solve here because everyone is invertible but we should use pinv() from pracma
+  # to compute the Moore-Penrose inverse (these two fit when existence). 
+  
+  # Number of the previous matrices that are semi-definite positive
+  tar_target(
+    number_alternative_graph,
+      {
+        S <- graphical_model_parameters$Sigma_Gamma
+        alternative_graph_research |> 
+          rowwise() |>
+          filter(semi_def(S + ker_gamma(c(a, b, c, d_zero)))) |> # check if the matrix is semi-def pos
+          ungroup() |>
+          count(name = "Number of semi definite positive")
+        }
   ),
   
   #----------------------------- Export document -------------------------------
