@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-01-21" />
+        <meta name="date" content="2025-01-22" />
     
     <title>Spectral representation for extremal graphical model</title>
 
@@ -1111,6 +1111,75 @@ src: url(data:font/ttf;base64,AAEAAAARAQAABAAQR0RFRgs+Cz8AAjwQAAAAQEdQT1MXWeoAAA
 </script>
     
     
+        <style type="text/css">code{white-space: pre;}</style>
+    <style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+background-color: #ffffff;
+color: #a0a0a0;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0; padding-left: 4px; }
+div.sourceCode
+{ color: #1f1c1b; background-color: #ffffff; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span { color: #1f1c1b; } 
+code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } 
+code span.an { color: #ca60ca; } 
+code span.at { color: #0057ae; } 
+code span.bn { color: #b08000; } 
+code span.bu { color: #644a9b; font-weight: bold; } 
+code span.cf { color: #1f1c1b; font-weight: bold; } 
+code span.ch { color: #924c9d; } 
+code span.cn { color: #aa5500; } 
+code span.co { color: #898887; } 
+code span.cv { color: #0095ff; } 
+code span.do { color: #607880; } 
+code span.dt { color: #0057ae; } 
+code span.dv { color: #b08000; } 
+code span.er { color: #bf0303; text-decoration: underline; } 
+code span.ex { color: #0095ff; font-weight: bold; } 
+code span.fl { color: #b08000; } 
+code span.fu { color: #644a9b; } 
+code span.im { color: #ff5500; } 
+code span.in { color: #b08000; } 
+code span.kw { color: #1f1c1b; font-weight: bold; } 
+code span.op { color: #1f1c1b; } 
+code span.ot { color: #006e28; } 
+code span.pp { color: #006e28; } 
+code span.re { color: #0057ae; background-color: #e0e9f8; } 
+code span.sc { color: #3daee9; } 
+code span.ss { color: #ff5500; } 
+code span.st { color: #bf0303; } 
+code span.va { color: #0057ae; } 
+code span.vs { color: #bf0303; } 
+code span.wa { color: #bf0303; } 
+</style>
     
     
     <!-- tabsets -->
@@ -1229,12 +1298,14 @@ graphical model</a></h2>
       indentification</a></li>
       <li><a href="#simulation-analysis" id="toc-simulation-analysis">Simulation analysis</a></li>
       </ul></li>
+      <li><a href="#conditional-independance-in-the-degenerate-gaussian-vector" id="toc-conditional-independance-in-the-degenerate-gaussian-vector">Conditional
+      independance in the degenerate gaussian vector</a></li>
       </ul>
     </div>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-01-21</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-01-22</p>
           </div>
    </div>
      
@@ -1527,7 +1598,8 @@ S_d^+
 \]</span></p>
 <p>where <span class="math inline">\(S_d^+\)</span> is the set of the
 covariance matrix.</p>
-<p>So, to sumarise, we get a (<em>unique</em>) matrix <span class="math inline">\(\Sigma_\Gamma\)</span> such that :</p>
+<p>So, to sumarise, we get a (<em>unique</em>) representative matrix
+<span class="math inline">\(\Sigma_\Gamma\)</span> such that :</p>
 <ul>
 <li><p><span class="math inline">\(\Sigma_\Gamma^+ =
 \Theta\)</span>.</p></li>
@@ -1556,6 +1628,91 @@ the graph :</p>
 Graph for our variogram simulation
 </p>
 </div>
+<p>Thanks to the <code>graphicalExtremes</code> package, we can generate
+randomly a variogram matrix such that the induced Husler-Reiss graphical
+model is the same as the graph above. Thus, we get these following
+matrix :</p>
+<pre><code>##           [,1]      [,2]      [,3]      [,4]
+## [1,] 0.0000000 0.2103068 0.5665426 0.8431731
+## [2,] 0.2103068 0.0000000 0.2988806 0.5755112
+## [3,] 0.5665426 0.2988806 0.0000000 0.2766306
+## [4,] 0.8431731 0.5755112 0.2766306 0.0000000</code></pre>
+<p>with a precision matrix :</p>
+<pre><code>##            [,1]      [,2]       [,3]      [,4]
+## [1,]  4.8179953 -5.280282  0.4622863  0.000000
+## [2,] -5.2802815  9.132742 -3.8524603  0.000000
+## [3,]  0.4622863 -3.852460  7.0051035 -3.614929
+## [4,]  0.0000000  0.000000 -3.6149295  3.614929</code></pre>
+<p>(we saw here that we can build the graph from this matrix).</p>
+<p>We can even get the representative matrix <span class="math inline">\(\Sigma_\Gamma\)</span> as defined at the previous
+section :</p>
+<pre><code>##             [,1]        [,2]        [,3]        [,4]
+## [1,]  0.23181532  0.05974642 -0.11120205 -0.18035969
+## [2,]  0.05974642  0.09798434 -0.04428656 -0.11344421
+## [3,] -0.11120205 -0.04428656  0.11232313  0.04316549
+## [4,] -0.18035969 -0.11344421  0.04316549  0.25063841</code></pre>
+<p>We would like to see if there exist a matrix <span class="math inline">\(\Sigma_0 \in \ker \gamma\)</span> such that :</p>
+<ul>
+<li><p><span class="math inline">\(\Sigma_\Gamma+ \Sigma_0\)</span> is a
+semi definite positive matrix.</p></li>
+<li><p>the precision matrix of <span class="math inline">\(\Sigma_\Gamma+ \Sigma_0\)</span> produce a null
+coefficient in the entry 12 (arbitrary choice).</p></li>
+</ul>
+<div id="kernel-characterisation" class="section level3">
+<h3>Kernel characterisation</h3>
+<p>By definition, we can see that a matrix <span class="math inline">\(\Sigma\)</span> belongs to the kernel of the
+linear application <span class="math inline">\(\gamma\)</span> iff :
+<span class="math display">\[
+\Sigma_{ij} = \frac{\Sigma_{ii}+\Sigma_{jj}}2, \quad \quad \forall
+i,j\in V
+\]</span> We notice this is a vector space of dimension <span class="math inline">\(d\)</span> and the matrices are characterised by
+the value on their diagonal.</p>
+<p><em>This characterisation is analytic and easy to compute in the
+computer.</em></p>
+</div>
+<div id="research-of-a-good-matrix" class="section level3">
+<h3>Research of a good matrix</h3>
+<p>Let’s go back to our case. We set the dimension to <span class="math inline">\(d = 4\)</span>. Thus, the space <span class="math inline">\(S_\Gamma\)</span> can be decribed as :</p>
+<p><span class="math display">\[
+S_\Gamma = \Big\{\Sigma_\Gamma + \frac12\big(1\!\!1(a~~b~~c~~d)&#39; +
+(a~~b~~c~~d) 1\!\!1&#39; \big) ~|~ a,b,c,d \in \mathbb R\Big\} \cap
+S^+_d
+\]</span></p>
+<p>So, if we fix the three firsts parameters <span class="math inline">\(a,b\)</span> and <span class="math inline">\(c\)</span> seek a matrix with conditional
+independence between 1 and 2 is equivalent to find the zero (if it
+exists) of the function :</p>
+<p><span class="math display">\[\begin{align}
+f : ~ &amp;\mathbb R \rightarrow \mathbb R \\
+&amp; d \mapsto \Big(\Sigma_\Gamma + \frac12\big(1\!\!1(a~~b~~c~~d)&#39;
++ (a~~b~~c~~d) 1\!\!1&#39; \big)\Big)^+_{12}
+\end{align}\]</span></p>
+<p>Moreover, for such <span class="math inline">\(d_0\)</span>, we also
+need to check if the matrix is semi definite positive.</p>
+<p><em>The calculation are made with a grid between <span class="math inline">\(-2\)</span> and <span class="math inline">\(2\)</span> with <span class="math inline">\(0.2\)</span> step for each coefficient (everything
+is in <code>alternative_graph_research</code> target).</em></p>
+<p><em>We use a Newton algorithm to find the zero, from the
+<code>pracma</code> library.</em></p>
+<p>In this configuration, we find none matrix :</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>alternative_graph_research <span class="sc">|&gt;</span> </span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">semi_def</span>(Sigma_Gamma <span class="sc">+</span> <span class="fu">ker_gamma</span>(<span class="fu">c</span>(a, b, c, d_zero)))) <span class="sc">|&gt;</span> <span class="co"># check if the matrix is semi-def pos</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="fu">count</span>(<span class="at">name =</span> <span class="st">&quot;Number of semi definite positive&quot;</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 1 × 1
+##   `Number of semi definite positive`
+##                                &lt;int&gt;
+## 1                                  0</code></pre>
+<p>To conclude with this first simulation, we did not find a matrix
+whose the graphical model induced is not include in the variogram
+one.</p>
+<p><em>I need to try this with different matrices and different node
+(for example node 3 and 4 or node 2 and 3) to have a larger point of
+view.</em></p>
+</div>
+</div>
+</div>
+<div id="conditional-independance-in-the-degenerate-gaussian-vector" class="section level1">
+<h1>Conditional independance in the degenerate gaussian vector</h1>
 <div id="references" class="section level3 unnumbered">
 <h3 class="unnumbered">References</h3>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
@@ -1580,7 +1737,6 @@ Mathieu Ribatet</span>, <span>Cle</span><span></span>ment
 <span>Dombry</span>, and <span>Marco Oesting</span>.”</span> 2016. In
 <em>Extreme <span>Value Modeling</span> and <span>Risk
 Analysis</span></em>. <span>Chapman and Hall/CRC</span>.
-</div>
 </div>
 </div>
 </div>

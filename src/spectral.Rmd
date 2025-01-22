@@ -21,7 +21,8 @@ pacman::p_load(ggplot2,
                ggnetwork,
                graphicalExtremes,
                igraph, 
-               targets)
+               targets, 
+               dplyr)
 ```
 
 
@@ -236,7 +237,7 @@ $$
 
 where $S_d^+$ is the set of the covariance matrix.
 
-So, to sumarise, we get a (*unique*) matrix $\Sigma_\Gamma$ such that : 
+So, to sumarise, we get a (*unique*) representative matrix $\Sigma_\Gamma$ such that : 
 
 - $\Sigma_\Gamma^+ = \Theta$.
 
@@ -285,7 +286,83 @@ ggplot() +
   theme_void(base_family = "Arial") 
 ```
 
+Thanks to the `graphicalExtremes` package, we can generate randomly a variogram matrix such that the induced Husler-Reiss graphical model is the same as the graph above. Thus, we get these following matrix : 
 
+```{r variogram, echo=FALSE}
+graphical_model_parameters$Gamma
+```
+
+with a precision matrix : 
+```{r precision, echo= FALSE}
+graphical_model_parameters$Theta
+```
+
+(we saw here that we can build the graph from this matrix).
+
+We can even get the representative matrix $\Sigma_\Gamma$ as defined at the previous section : 
+
+```{r representative-matrix, echo=FALSE}
+Sigma_Gamma <- graphical_model_parameters$Sigma_Gamma
+Sigma_Gamma
+```
+
+We would like to see if there exist a matrix $\Sigma_0 \in \ker \gamma$ such that :
+
+- $\Sigma_\Gamma+ \Sigma_0$ is a semi definite positive matrix.
+
+- the precision matrix of $\Sigma_\Gamma+ \Sigma_0$ produce a null coefficient in the entry 12 (arbitrary choice).
+
+### Kernel characterisation 
+
+By definition, we can see that a matrix $\Sigma$ belongs to the kernel of the linear application $\gamma$ iff : 
+$$
+\Sigma_{ij} = \frac{\Sigma_{ii}+\Sigma_{jj}}2, \quad \quad \forall i,j\in V
+$$
+We notice this is a vector space of dimension $d$ and the matrices are characterised by the value on their diagonal.
+
+*This characterisation is analytic and easy to compute in the computer.*
+
+### Research of a good matrix
+
+Let's go back to our case. We set the dimension to $d = 4$. Thus, the space $S_\Gamma$ can be decribed as : 
+
+$$
+S_\Gamma = \Big\{\Sigma_\Gamma + \frac12\big(\indic (a~~b~~c~~d)' + (a~~b~~c~~d) \indic' \big) ~|~ a,b,c,d \in \mathbb R\Big\} \cap S^+_d
+$$
+
+So, if we fix the three firsts parameters $a,b$ and $c$ seek a matrix with conditional independence between 1 and 2 is equivalent to find the zero (if it exists) of the function : 
+
+\begin{align}
+f : ~ &\mathbb R \rightarrow \mathbb R \\
+& d \mapsto \Big(\Sigma_\Gamma + \frac12\big(\indic (a~~b~~c~~d)' + (a~~b~~c~~d) \indic' \big)\Big)^+_{12}
+\end{align}
+
+Moreover, for such $d_0$, we also need to check if the matrix is semi definite positive.
+
+*The calculation are made with a grid between $-2$ and $2$ with $0.2$ step for each coefficient (everything is in `alternative_graph_research` target).*
+
+*We used a Newton algorithm to find the zero, from the `pracma` library.*
+
+In this configuration, we find none matrix : 
+
+```{r matrix-search, eval=FALSE}
+alternative_graph_research |> 
+  rowwise() |>
+  filter(semi_def(Sigma_Gamma + ker_gamma(c(a, b, c, d_zero)))) |> # check if the matrix is semi-def pos
+  ungroup() |>
+  count(name = "Number of semi definite positive")
+```
+
+```{r number-matrix, echo=FALSE}
+tar_load(number_alternative_graph)  
+number_alternative_graph
+```
+
+To conclude with this first simulation, we did not find a matrix whose the graphical model induced is not include in the variogram one.
+
+*I need to try this with different matrices and different node (for example node 3 and 4 or node 2 and 3) to have a larger point of view.*
+
+# Conditional independance in the degenerate gaussian vector
 
 ### References
 
