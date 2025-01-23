@@ -65,7 +65,7 @@ with $\delta_x(.)$ the Dirac measure on $x$.
 Thus, we can compute the limit distribution for the maxima $n$ replications of $X$ : 
 
 $$
-\lim_{n \rightarrow \infty} \mathbb P(\bigvee_{j = 1}^n c_n^{-1}X_n < x) = \exp\Big[\sum_{k=1}^K \bigvee_{j = 1}^d \big(\frac{M_{kj}}{x_j}\big)\Big], \quad \quad x \in \mathbb R_+^d
+\lim_{n \rightarrow \infty} \mathbb P(\bigvee_{j = 1}^n c_n^{-1}X_n < x) = \exp\Big[\sum_{k=1}^K \bigvee_{j = 1}^d \big(\frac{M_{jk}}{x_j}\big)\Big], \quad \quad x \in \mathbb R_+^d
 $$
 The maxima of vectors is defined as componentwise maxima. 
 
@@ -172,7 +172,7 @@ Assume that $C= \emptyset$. We want to show that the independence over $Z$ is eq
 First, let's take a look to the exponential measure of $X$ using the expression from above : 
 
 $$
-\Lambda_X(\mathcal E \setminus [0,x]) = \sum_{k=1}^K \bigvee_{j = 1}^d \big(\frac{M_{kj}}{x_j}\big)
+\Lambda_X(\mathcal E \setminus [0,x]) = \sum_{k=1}^K \bigvee_{j = 1}^d \big(\frac{M_{jk}}{x_j}\big)
 $$
 
 We can see quickly that this expression is not derivable and the exponent measure does not have a density function over the Lebesgue measure.
@@ -201,11 +201,11 @@ $$
 
 Fortunately, the one-dimensional marginal is easy to compute with a good choice of set : 
 $$
-\Lambda_{\{v\}}\Big((\frac1n, \infty)\Big) = n \sum_{k=1}^K m_{kj}.
+\Lambda_{\{v\}}\Big((\frac1n, \infty)\Big) = n \sum_{k=1}^K m_{jk}.
 $$
 Thus if we consider the set $(0, \infty) = \bigcup_{i=1}^\infty (\frac1n, \infty)$, we can deduce by monotony of the measure that : 
 $$
-\Lambda(y_v \neq 0) = \lim_{n \rightarrow \infty}\Lambda_{\{v\}}\Big((\frac1n, \infty)\Big) = \lim_{n \rightarrow \infty}n \sum_{k=1}^K m_{kj} = \begin{cases}  0, \text{ if } \sum_{k=1}^K m_{kj} =0 \\ \infty, \text{ else } \end{cases}
+\Lambda(y_v \neq 0) = \lim_{n \rightarrow \infty}\Lambda_{\{v\}}\Big((\frac1n, \infty)\Big) = \lim_{n \rightarrow \infty}n \sum_{k=1}^K m_{jk} = \begin{cases}  0, \text{ if } \sum_{k=1}^K m_{jk} =0 \\ \infty, \text{ else } \end{cases}
 $$
 
 <div style="text-align:right;">$\square$</div>
@@ -217,7 +217,7 @@ Now, we can use the theorem from [@engelkeGraphicalModelsInfinite2024] to show t
 So, let's assume that $X_A \indep_Z X_B$. Then we have $I_A \cap I_B = \emptyset$. Then we can rewrite the expression of the exponent measure as :
 
 $$
-\Lambda(\mathcal E \setminus [0,x]) = \sum_{k \in I_A} \bigvee_{j \in A}^d \big(\frac{M_{kj}}{x_j}\big) + \sum_{k \in I_B} \bigvee_{j \in B}^d \big(\frac{M_{kj}}{x_j}\big) = \Lambda_A(\mathcal E_A \setminus [0,x_A]) + \Lambda_B(\mathcal E_B \setminus [0,x_B])
+\Lambda(\mathcal E \setminus [0,x]) = \sum_{k \in I_A} \bigvee_{j \in A} \big(\frac{M_{jk}}{x_j}\big) + \sum_{k \in I_B} \bigvee_{j \in B} \big(\frac{M_{jk}}{x_j}\big) = \Lambda_A(\mathcal E_A \setminus [0,x_A]) + \Lambda_B(\mathcal E_B \setminus [0,x_B])
 $$
 
 However, we also have the general relation : 

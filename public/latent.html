@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-01-20" />
+        <meta name="date" content="2025-01-23" />
     
     <title>Conditional independance on extremal linear latent model</title>
 
@@ -1225,7 +1225,7 @@ latent model</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-01-20</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-01-23</p>
           </div>
    </div>
      
@@ -1284,7 +1284,7 @@ Dirac measure on <span class="math inline">\(x\)</span>.</p>
 <p><span class="math display">\[
 \lim_{n \rightarrow \infty} \mathbb P(\bigvee_{j = 1}^n c_n^{-1}X_n &lt;
 x) = \exp\Big[\sum_{k=1}^K \bigvee_{j = 1}^d
-\big(\frac{M_{kj}}{x_j}\big)\Big], \quad \quad x \in \mathbb R_+^d
+\big(\frac{M_{jk}}{x_j}\big)\Big], \quad \quad x \in \mathbb R_+^d
 \]</span> The maxima of vectors is defined as componentwise maxima.</p>
 <p><em>I am sure this comes from the expression of the spectral measure
 <span class="math inline">\(\Phi\)</span> I need to understand
@@ -1423,7 +1423,7 @@ Distribution.</p>
 <p>First, let’s take a look to the exponential measure of <span class="math inline">\(X\)</span> using the expression from above :</p>
 <p><span class="math display">\[
 \Lambda_X(\mathcal E \setminus [0,x]) = \sum_{k=1}^K \bigvee_{j = 1}^d
-\big(\frac{M_{kj}}{x_j}\big)
+\big(\frac{M_{jk}}{x_j}\big)
 \]</span></p>
 <p>We can see quickly that this expression is not derivable and the
 exponent measure does not have a density function over the Lebesgue
@@ -1458,14 +1458,14 @@ follows the explosiveness assumtpion if : <span class="math display">\[
 \]</span></p>
 <p>Fortunately, the one-dimensional marginal is easy to compute with a
 good choice of set : <span class="math display">\[
-\Lambda_{\{v\}}\Big((\frac1n, \infty)\Big) = n \sum_{k=1}^K m_{kj}.
+\Lambda_{\{v\}}\Big((\frac1n, \infty)\Big) = n \sum_{k=1}^K m_{jk}.
 \]</span> Thus if we consider the set <span class="math inline">\((0,
 \infty) = \bigcup_{i=1}^\infty (\frac1n, \infty)\)</span>, we can deduce
 by monotony of the measure that : <span class="math display">\[
 \Lambda(y_v \neq 0) = \lim_{n \rightarrow
 \infty}\Lambda_{\{v\}}\Big((\frac1n, \infty)\Big) = \lim_{n \rightarrow
-\infty}n \sum_{k=1}^K m_{kj} = \begin{cases}  0, \text{ if }
-\sum_{k=1}^K m_{kj} =0 \\ \infty, \text{ else } \end{cases}
+\infty}n \sum_{k=1}^K m_{jk} = \begin{cases}  0, \text{ if }
+\sum_{k=1}^K m_{jk} =0 \\ \infty, \text{ else } \end{cases}
 \]</span></p>
 <div style="text-align:right;">
 <span class="math inline">\(\square\)</span>
@@ -1481,9 +1481,9 @@ relation is the same as them.</p>
 I_B = \emptyset\)</span>. Then we can rewrite the expression of the
 exponent measure as :</p>
 <p><span class="math display">\[
-\Lambda(\mathcal E \setminus [0,x]) = \sum_{k \in I_A} \bigvee_{j \in
-A}^d \big(\frac{M_{kj}}{x_j}\big) + \sum_{k \in I_B} \bigvee_{j \in B}^d
-\big(\frac{M_{kj}}{x_j}\big) = \Lambda_A(\mathcal E_A \setminus [0,x_A])
+\Lambda(\mathcal E \setminus [0,x]) = \sum_{k \in I_A} \bigvee_{j \in A}
+\big(\frac{M_{jk}}{x_j}\big) + \sum_{k \in I_B} \bigvee_{j \in B}
+\big(\frac{M_{jk}}{x_j}\big) = \Lambda_A(\mathcal E_A \setminus [0,x_A])
 + \Lambda_B(\mathcal E_B \setminus [0,x_B])
 \]</span></p>
 <p>However, we also have the general relation :</p>
