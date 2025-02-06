@@ -20,6 +20,8 @@ always_allow_html: true
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load("igraph",
+               "evd")
 ```
 
 
@@ -260,7 +262,110 @@ $$
 X_A \indep_Z X_B ~|~ X_C \Longleftrightarrow A \indep B ~| ~C ~ [\Lambda]
 $$
 
+### Simulation study 
 
+We would like to see if it is the case in a very simple case. 
+
+Let's consider a graph $\mathcal G = (V,E)$ which is a path. For $d = 10$, it corresponds to :
+
+```{r path-graph, echo=FALSE, fig.height=4, fig.width=7, fig.align='center'}
+#| fig.cap: Path with $10$ vertices.
+g <- make_graph(edges = c(1, 2, 
+                          2, 3,
+                          3, 4,
+                          4, 5,
+                          5, 6,
+                          6, 7,
+                          7, 8,
+                          8, 9,
+                          9, 10), 
+                n = 10, 
+                directed = FALSE)
+
+layout <- layout_with_fr(g)
+nodes <- data.frame(
+  id = 1:10, 
+  x = layout[, 1], 
+  y = layout[, 2]
+)
+edges <- data.frame(
+  from = as.numeric(tail_of(g, E(g))),
+  to = as.numeric(head_of(g, E(g))),
+  x = layout[tail_of(g, E(g)), 1],
+  y = layout[tail_of(g, E(g)), 2],
+  xend = layout[head_of(g, E(g)), 1],
+  yend = layout[head_of(g, E(g)), 2]
+)
+
+# Tracer le graphe avec ggplot2
+ggplot() +
+  geom_segment(data = edges,
+               aes(x = x, y = y, xend = xend, yend = yend), color = "grey") +
+  geom_point(data = nodes, 
+             aes(x = x, y = y), color = "darkorange", size = 9) +
+  geom_text(data = nodes, 
+            aes(x = x, y = y, label = id)) +
+  theme_void(base_family = "Arial") 
+
+```
+
+We would like to simulate a simple matrix $M$ such that the graphical model defined in the beginning respects the upper graph structure. We recall that the conditional independence relationship is based on the no-zero coefficient of the $M$ matrix.
+
+<center>
+![Matrix $M$ format (stars are non zero values).](../figure/dessin.png)
+</center>
+
+We can easily verify that a matrix with this type of format respect a graph structure of a path. 
+
+**Setup and Methods**
+
+- for $m=10$ vertices we need to simulate a latent random vector $Z$ of size $K = 5 + 2(m-1) = 23$ to respect the matrix format as presented above.
+
+- we simulated a sample of $n = 10^5$.
+
+- the seeking of the classic graphical model is done using the MST algorithm using empirical extremal coefficient as [@engelkeStructureLearningExtremal2022] (*we need to verify if we are in the context of the article*).
+
+We can recall that the empirical estimator for $\chi_{ij}$ as : 
+$$
+\hat \chi_{ij} = \frac 1k \sum_{l = 1}^n \indic_{\{\tilde F_i(X_{li}) > 1 - \frac kn, ~\tilde F_i(X_{lj}) > 1 - \frac kn\}}.
+$$
+
+where $\tilde F_i$ is the empirical distribution function of $X_i$.
+
+At the end, we built the following graph : 
+
+```{r graph.estimation, echo = FALSE}
+#| fig.cap: Estimated graph using MST on empirical extremal coefficient.
+
+tar_load(latent_10_graph_estimation)
+g <- latent_10_graph_estimation
+layout <- layout_with_fr(g)
+nodes <- data.frame(
+  id = 1:10, 
+  x = layout[, 1], 
+  y = layout[, 2]
+)
+edges <- data.frame(
+  from = as.numeric(tail_of(g, E(g))),
+  to = as.numeric(head_of(g, E(g))),
+  x = layout[tail_of(g, E(g)), 1],
+  y = layout[tail_of(g, E(g)), 2],
+  xend = layout[head_of(g, E(g)), 1],
+  yend = layout[head_of(g, E(g)), 2]
+)
+
+# Tracer le graphe avec ggplot2
+ggplot() +
+  geom_segment(data = edges,
+               aes(x = x, y = y, xend = xend, yend = yend), color = "grey") +
+  geom_point(data = nodes, 
+             aes(x = x, y = y), color = "darkorange", size = 9) +
+  geom_text(data = nodes, 
+            aes(x = x, y = y, label = id)) +
+  theme_void(base_family = "Arial") 
+```
+
+Unfortunately, it does not match with what we expected. Perhaps we need to add something to our conditional model to be able to conclude anything about the classic extremal conditional independence.
 
 ### References
 
