@@ -17,7 +17,9 @@ tar_option_set(packages = c("graphicalExtremes",
                             "here",
                             "rmdformats",
                             "hrbrthemes",
-                            "gridExtra"))
+                            "gridExtra",
+                            "igraph",
+                            "evd"))
 
 #-------------------------------------------------------------------------------
 #                                   PIPELINE
@@ -260,6 +262,64 @@ list(
            color = "legend",
            title = " ", 
            caption = "Here, we have the relation a = b + 10c")
+  ),
+  
+  #------------- Conditional independence on linear latent model ---------------
+  # Setting the simulation parameters
+  tar_target(
+    latent_10_sim_parameters,
+    {
+      d <- 10
+      K <- 23
+      coef <- 20 * runif(5*d) - 10.  # all the no zero coefficients 
+      
+      mat <- coef[1:5]
+      for(i in 2:d){
+        mat <- c(mat, rep(0,K - 3), coef[((i-1) * 5 + 1):(5*i)])
+      }
+      M <- matrix(mat, byrow = T, nc = K)
+      list(d = d, 
+           K = K,
+           M = M,
+           n = 1e5,
+           gamma = 0.5)
+    }
+  ),
+  
+  # Simulation of the linear latent model with "path type" graphical model
+  # according to the first version of our conditional independence
+  tar_target(
+    latent_10_simulation, 
+    {
+      n <- latent_10_sim_parameters$n
+      d <- latent_10_sim_parameters$d
+      z_raw <- rfrechet(n * latent_10_sim_parameters$K,
+                        shape = latent_10_sim_parameters$gamma)
+      z_sample <- matrix(z_raw, nrow = latent_10_sim_parameters$K)
+      epsilon <- matrix(rnorm(d * n), nrow = d)
+      t(latent_10_sim_parameters$M%*%z_sample + epsilon)
+    }
+    
+  ),
+  
+  # Estimation of the "classic" extremal independence using MST algorithm to build
+  # the tree graphical model as done in (Engelke and Volgushev 2022)
+  tar_target(
+    latent_10_graph_estimation, 
+    {
+      n <- latent_10_sim_parameters$n
+      k <- 300
+      res <- (matrixStats::colRanks(latent_10_simulation, 
+                                    ties.method = "max") / n) > 1 - k / n 
+    
+      df <- - log((res %*% t(res)) / k)
+    
+      completeGraph <- graph_from_adjacency_matrix(df,
+                                                   mode='undirected', 
+                                                   weighted = TRUE)
+      
+      mst(completeGraph, algorithm = 'prim')
+    }
   ),
   
   #----------------------------- Export document -------------------------------
