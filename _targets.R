@@ -19,6 +19,7 @@ tar_option_set(packages = c("graphicalExtremes",
                             "hrbrthemes",
                             "gridExtra", 
                             "igraph",
+                            "evd",
                             "pracma"))
 
 #-------------------------------------------------------------------------------
