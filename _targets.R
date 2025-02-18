@@ -17,9 +17,10 @@ tar_option_set(packages = c("graphicalExtremes",
                             "here",
                             "rmdformats",
                             "hrbrthemes",
-                            "gridExtra",
+                            "gridExtra", 
                             "igraph",
-                            "evd"))
+                            "evd",
+                            "pracma"))
 
 #-------------------------------------------------------------------------------
 #                                   PIPELINE
@@ -264,6 +265,63 @@ list(
            caption = "Here, we have the relation a = b + 10c")
   ),
   
+  #-------------------------- Spectral representation --------------------------
+  # Set the graph and a corresponding variogram matrix for a Husler-Reiss graphical model
+  # (we use the package graphicalExtremes in order to do that)
+  tar_target(
+    graphical_model_parameters,
+    {
+      # Graph creation
+      g <- make_graph(edges = c(1, 2, 
+                                1, 3,
+                                2, 3, 
+                                3, 4), 
+                      n = 4, 
+                      directed = FALSE)
+      
+      Gamma <- generate_random_graphical_Gamma(g)     # corresponding variogram
+      Theta <- Gamma2Theta(Gamma)                     # corresponding theta
+      Sigma_Gamma <- Theta2Sigma(Theta)               # general inverse of theta
+      list(
+        graph = g, 
+        Gamma = Gamma,
+        Theta = Theta,
+        Sigma_Gamma = Sigma_Gamma
+      )
+    }
+  ),
+  
+  # Seeking of a matrix whose the inverse get an null entry in 12 (and thus the graphical 
+  # model has no edge between node 1 and node 2)
+  tar_target(
+    alternative_graph_research,
+    {    
+      x <- seq(-5, 5, by = 0.2)                        # set the mesh
+      S <- graphical_model_parameters$Sigma_Gamma
+      expand.grid(a = x, b = x, c = x) |>
+        tibble() |> 
+        rowwise() |>
+        mutate(
+          d_zero = newtonRaphson(\(.) (solve(S + ker_gamma(c(a, b, c, .))))[1, 2], -1)$root # search the last coefficient where the precision matrix is null at 1-2 entry
+        )
+    }
+  ),
+  # Notes : we use solve here because everyone is invertible but we should use pinv() from pracma
+  # to compute the Moore-Penrose inverse (these two fit when existence). 
+  
+  # Number of the previous matrices that are semi-definite positive
+  tar_target(
+    number_alternative_graph,
+    {
+      S <- graphical_model_parameters$Sigma_Gamma
+      alternative_graph_research |> 
+        rowwise() |>
+        filter(semi_def(S + ker_gamma(c(a, b, c, d_zero)))) |> # check if the matrix is semi-def pos
+        ungroup() |>
+        count(name = "Number of semi definite positive")
+    }
+  ),
+  
   #------------- Conditional independence on linear latent model ---------------
   # Setting the simulation parameters
   tar_target(
@@ -319,9 +377,8 @@ list(
                                                    weighted = TRUE)
       
       mst(completeGraph, algorithm = 'prim')
-    }
-  ),
-  
+    }),
+ 
   #----------------------------- Export document -------------------------------
   # Trivariate coefficient documents
   ## HTML

@@ -124,3 +124,39 @@ cond_trivariate_HR <- function(Gamma_params, i){
       chi_trivariate_HR(Gamma_params) / (2 - theta(Gamma_params[i]))
       )
 }
+
+
+#' Give a matrix of null variogram, parameterised by the diagonal values
+#'
+#' @param diagonal Numeric vector : diagonal's value of a matrix
+#'
+#' @returns A matrix which belong to the kernel of the linear application gamma, 
+#' computing the variogram for a given matrix. It is characterized by the relation :
+#'                          a_ij = (a_ii + a_jj) / 2
+#' @examples
+#' ker_gamma(1:4)
+ker_gamma <- function(diagonal){
+  
+  n <- length(diagonal)                 # dimension of the matrix
+  
+  one <- rep(1, n)                      # vector with only ones
+  
+  return(0.5 * (one%*%t(diagonal) + diagonal%*%t(one)))
+}
+
+
+#' Semi-definite checker
+#'
+#' @param matrix A symmetric matrix.
+#'
+#' @returns TRUE if the matrix is semi-definite positive, FALSE otherwise. The 
+#' verification is done by checking the sign of the eigen-values of the matrix.
+#'
+#' @examples
+#' 
+semi_def <- function(matrix){
+  return(
+    !sum(eigen(matrix)$values < -1e-10)        # for numerical errors
+    )
+}
+
