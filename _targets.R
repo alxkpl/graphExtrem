@@ -429,7 +429,24 @@ list(
     path = "./src/latent.Rmd",
     output_format = "pdf_document",
     output_file = here("report","latent.pdf")
-  )
+  ),
+
+# Variable clustering for Husler-Reiss graphical models
+## HTML
+tar_render(
+  cluster_html, 
+  path = "./src/cluster.Rmd",
+  output_format = "readthedown",
+  output_file = here("public","cluster.html")
+),
+
+## PDF
+tar_render(
+  cluster_pdf, error = "continue",  
+  path = "./src/cluster.Rmd",
+  output_format = "pdf_document",
+  output_file = here("report","cluster.pdf")
+)
 )
 
 #-------------------------------------------------------------------------------
