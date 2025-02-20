@@ -1,0 +1,27 @@
+---
+title: "Variable clustering for Husler-Reiss graphical models"
+author: "CAPEL Alexandre"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc_depth: 2
+    number_sections: true
+    fig_caption: true
+    pandoc_args: ["-F","pandoc-crossref"]
+  pdf_document:
+    toc: true
+    number_sections: true
+bibliography: biblio.bib
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We want to use the graphical model tools for extreme value theory to build a new way of clustering variable, as done for the graphical models for Gaussian vector [@touwClusterpathGaussianGraphical2024].
+
+
+
+
+
