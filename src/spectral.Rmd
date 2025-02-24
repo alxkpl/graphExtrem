@@ -226,7 +226,7 @@ where the matrix $A^+$ is the general inverse of $A$, and $\Pi$ the orthogonal p
 They show in [@hentschelStatisticalInferenceHuslerReiss2023] that the above applications are homeomorphisms between the set of the strictly conditionally negative definite variogram matrix $\mathcal D_d$ ad the set of symmetric positive semi-definite matrix with kernel equal to $<\indic>$, denoted by $\mathcal P_d^1$. More they show that : 
 
 $$
-\sigma^{-1}(\Sigma) = \gamma(\Sigma), \quad \quad \theta^{-1}(\Theta) = \gamma(\Theta)
+\sigma^{-1}(\Sigma) = \gamma(\Sigma), \quad \quad \theta^{-1}(\Theta) = \gamma(\Theta^+)
 $$
 
 
