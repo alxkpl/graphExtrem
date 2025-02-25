@@ -198,7 +198,7 @@ We can then get this type of "graph factorisation" which is unique due to precis
 
 
 <center>
-![Graph factorisation thanks to the precision matrix structure](../figure/cluster_graph.png){width=70%}
+![Graph factorisation thanks to the precision matrix structure](../figure/cluster_graph.png){width=90%}
 </center>
 
 $~$
@@ -211,7 +211,7 @@ $$
 L(\Theta) = - \log(|\Theta|) + tr(\Sigma\Theta),
 $$
 
-where $\log(|.|)$ is the logarithm of the determinant and $tr(.)$ the trace.
+where $\log(|\cdot|)$ is the logarithm of the determinant and $tr(\cdot)$ the trace.
 
 To get the maximum likelihood, they use a convex penalty to get the unknown block structure of the precision matrix. Thus, we got this optimisation program : 
 
@@ -222,7 +222,7 @@ $$
 where $\overline \Sigma$ is an estimation of the covariance matrix $\tilde \Sigma$.
 
 
-From now, as we have for $i,j \in C_k$ that $\theta_{.i} = \theta_{.j}$, we will note $\theta_{C_k}$ the vector of the precision matrix of the cluster $C_k$.
+From now, as we have for $i,j \in C_k$ that $\theta_{\cdot i} = \theta_{\cdot j}$, we will note $\theta_{C_k}$ the vector of the precision matrix of the cluster $C_k$.
 
 
 
@@ -232,7 +232,7 @@ In order to find the groups in precision matrix $\tilde \Theta$, we will use the
 
 For these convex optimisation programs, we impose to the penalty function to be of the form : 
 $$
-\mathcal P(\Theta) = \sum_{i<j} w_{ij} D(\theta_{.i}, \theta_{.j}),
+\mathcal P(\Theta) = \sum_{i<j} w_{ij} D(\theta_{\cdot i}, \theta_{\cdot j}),
 $$
 where $w_{ij}$ are some positive weights, and $D$ a distance in $\mathbb R^d$.
 
@@ -246,7 +246,7 @@ We can use a lot of distance :
 
 - in [@touwClusterpathGaussianGraphical2024] they use another distance defined as : 
 $$
-D(\theta_{.i}, \theta_{.j}) = \sqrt{(\theta_{ii} - \theta{jj})^2 + \sum_{k\neq i,j} (\theta_{ik} - \theta_{jk})^2}
+D(\theta_{.i}, \theta_{.j}) = \sqrt{(\theta_{ii} - \theta_{jj})^2 + \sum_{k\neq i,j} (\theta_{ik} - \theta_{jk})^2}
 $$
 which "can be interpreted as a group lasso penalty". 
 
@@ -255,7 +255,7 @@ which "can be interpreted as a group lasso penalty".
 
 The choice of $w_{ij}$ is also free, even if they present one which seems better (or nearer from the data) using : 
 $$
-w_{ij} = \exp(-a ||\theta_{.i} - \theta_{.j}||^2)
+w_{ij} = \exp(-a ||\theta_{\cdot i} - \theta_{\cdot j}||^2)
 $$
 
 where $||.||$ is the $l^2$ norm.
@@ -302,7 +302,7 @@ $$
 L(\Theta) =  \log(|\Theta|_+) + \frac12 tr(\overline \Gamma\Theta),
 $$
 
-where $\overline \Gamma$ is an estimation of the variogram matrix $\Gamma$ and $|.|_+$ the generalised determinant. 
+where $\overline \Gamma$ is an estimation of the variogram matrix $\Gamma$ and $|\cdot|_+$ the generalised determinant. 
 
 For the next, we will first use the $l^2$ norm penalty and we will try to minimize : 
 
@@ -334,7 +334,7 @@ $$
 U R U^t,
 $$
 
-where $U$ is a $d\times K$ matrix such that $u_{ij} = 1$ if $i\in C_j$ and 0 otherwise. 
+where $U$ is a $d\times K$ matrix such that $u_{ij} = 1$ if $i\in C_j$ and $0$ otherwise. 
 
 Then we can deduce the computation of the trace of $\overline \Gamma \Theta$ : 
 
@@ -343,6 +343,48 @@ tr(\overline \Gamma \Theta)= tr(\overline \Gamma URU^t) + \sum_{k=1}^K(a_{kk} - 
 $$
 
 with $\overline \Gamma_k$ the $p_k \times p_k$ matrix computed from $\overline \Gamma$ with the indices in $C_k$.
+
+**Adaptation of the distance**
+
+Let's take square $l^2$ norm penalty for $\mathcal P$. 
+
+For $i, j$ in the same cluster $C_k$ we have : 
+
+$$
+||\theta_{\cdot i} - \theta_{\cdot j}||^2 = 2(a_{kk} - r_{kk})^2
+$$
+
+Here, we wish that for two variables in the same cluster, this distance is equal to zero. 
+
+The distance $D$ from [@touwClusterpathGaussianGraphical2024] is built for this reason. But in our case we can upgrade the distance : indeed, our matrix $\Theta$ have an additionally constraint that rows sum to $0$. Thus, we can remove the $(\theta_{ii} - \theta_{jj})^2$ term as the latter is obviously equal to zero if we are in the same cluster. 
+
+Therefore, we will consider the following squared distance for the next : 
+
+$$
+D^2(\theta_{.i}, \theta_{.j}) =  \sum_{k\neq i,j} (\theta_{ik} - \theta_{jk})^2
+$$
+
+
+Now, it is time to write the penalty formula with the $R$ matrix. We have :
+
+- for $i,j$ in the same cluster $D^2(\theta_{.i}, \theta_{.j}) =0$ (it is the goal of this distance).
+
+- for $i, j$ in respectively the clusters $C_k$ and $C_l$ we have : 
+
+\begin{align*}
+D^2(\theta_{.i}, \theta_{.j}) =& \sum_{t\neq i,j} (\theta_{it} - \theta_{jt})^2 \\ 
+ = &\sum_{m \neq k,l} p_m (r_{km}-r_{lm})^2 +(1-p_k) (r_{kk}-r_{lk})^2+(1-p_l) (r_{ll}-r_{lk})^2\\ 
+ = & \tilde D^2(r_k, r_l).
+\end{align*}
+
+
+Then, by grouping all the terms in $\mathcal P$, we get : 
+
+$$
+\mathcal P(R) = \sum_{l<k} W_{lk} \tilde D^2(r_k, r_l)
+$$
+
+with $W_{lk} = \sum_{i \in C_k}\sum_{j \in C_l}w_{ij}$.
 
 ## Computation of the derivative
 
@@ -357,7 +399,7 @@ with $\overline \Gamma_k$ the $p_k \times p_k$ matrix computed from $\overline \
 
 
 
-
+# Application on fligth delay data 
 
 
 
