@@ -208,15 +208,15 @@ Thus, with this factorisation, we build three clusters with an interpretation of
 For the estimation of the precision matrix, they use the following likelihood : 
 
 $$
-L(\Theta) = - \log(|\Theta|) + tr(\Sigma\Theta),
+L(\Theta) = - \log(|\Theta|) + \text{tr}(\Sigma\Theta),
 $$
 
-where $\log(|\cdot|)$ is the logarithm of the determinant and $tr(\cdot)$ the trace.
+where $\log(|\cdot|)$ is the logarithm of the determinant and $\text{tr}(\cdot)$ the trace.
 
 To get the maximum likelihood, they use a convex penalty to get the unknown block structure of the precision matrix. Thus, we got this optimisation program : 
 
 $$
-\hat \Theta = \arg \min_\Theta \Big[- \log(|\Theta|) + tr(\overline \Sigma\Theta) + \lambda\mathcal P(\Theta)\Big], \quad \quad s.t. \Theta^t = \Theta, ~~\Theta >0
+\hat \Theta = \arg \min_\Theta \Big[- \log(|\Theta|) + \text{tr}(\overline \Sigma\Theta) + \lambda\mathcal P(\Theta)\Big], \quad \quad s.t. \Theta^t = \Theta, ~~\Theta >0
 $$
 
 where $\overline \Sigma$ is an estimation of the covariance matrix $\tilde \Sigma$.
@@ -297,9 +297,9 @@ Now we want to adapt the previous method to the Husler-Reiss graphical models.
 
 ## Maximum likelihood for graphical model
 
-For the estimation of the precision matrix for HRGM, [@hentschelStatisticalInferenceHuslerReiss2023] shows that :  
+For the estimation of the precision matrix for HRGM, [@hentschelStatisticalInferenceHuslerReiss2023] shows that find the $\Theta$ is equivalent to minimise :  
 $$
-L(\Theta) =  \log(|\Theta|_+) + \frac12 tr(\overline \Gamma\Theta),
+L(\Theta) =  -\log(|\Theta|_+) - \frac12 tr(\overline \Gamma\Theta),
 $$
 
 where $\overline \Gamma$ is an estimation of the variogram matrix $\Gamma$ and $|\cdot|_+$ the generalised determinant. 
@@ -339,10 +339,10 @@ where $U$ is a $d\times K$ matrix such that $u_{ij} = 1$ if $i\in C_j$ and $0$ o
 Then we can deduce the computation of the trace of $\overline \Gamma \Theta$ : 
 
 $$
-tr(\overline \Gamma \Theta)= tr(\overline \Gamma URU^t) + \sum_{k=1}^K(a_{kk} - r_{kk})tr(\overline \Gamma_k) \Big(= tr(\overline \Gamma URU^t) -\sum_{l=1}^K p_l \sum_{k=1}^Kr_{kl}tr(\overline \Gamma_k)\Big)
+tr(\overline \Gamma \Theta)= \text{tr}(\overline \Gamma URU^t) + \sum_{k=1}^K(a_{kk} - r_{kk})\text{tr}(\overline \Gamma_{C_k}) \Big(= \text{tr}(\overline \Gamma URU^t) -\sum_{l=1}^K p_l \sum_{k=1}^Kr_{kl}\text{tr}(\overline \Gamma_{C_k})\Big)
 $$
 
-with $\overline \Gamma_k$ the $p_k \times p_k$ matrix computed from $\overline \Gamma$ with the indices in $C_k$.
+with $\overline \Gamma_{C_k}$ the $p_k \times p_k$ matrix computed from $\overline \Gamma$ with the indices in $C_k$.
 
 **Adaptation of the distance**
 
@@ -361,7 +361,7 @@ The distance $D$ from [@touwClusterpathGaussianGraphical2024] is built for this 
 Therefore, we will consider the following squared distance for the next : 
 
 $$
-D^2(\theta_{.i}, \theta_{.j}) =  \sum_{k\neq i,j} (\theta_{ik} - \theta_{jk})^2
+D^2(\theta_{.i}, \theta_{.j}) =  \sum_{t\neq i,j} (\theta_{it} - \theta_{jt})^2
 $$
 
 
@@ -373,24 +373,163 @@ Now, it is time to write the penalty formula with the $R$ matrix. We have :
 
 \begin{align*}
 D^2(\theta_{.i}, \theta_{.j}) =& \sum_{t\neq i,j} (\theta_{it} - \theta_{jt})^2 \\ 
- = &\sum_{m \neq k,l} p_m (r_{km}-r_{lm})^2 +(1-p_k) (r_{kk}-r_{lk})^2+(1-p_l) (r_{ll}-r_{lk})^2\\ 
- = & \tilde D^2(r_k, r_l).
+ = &\sum_{q \neq k,l} p_m (r_{kq}-r_{lq})^2 +(1-p_k) (r_{kk}-r_{lk})^2+(1-p_l) (r_{ll}-r_{lk})^2\\ 
+ = & \tilde D^2(r_{\cdot k}, r_{\cdot l}).
 \end{align*}
 
 
 Then, by grouping all the terms in $\mathcal P$, we get : 
 
 $$
-\mathcal P(R) = \sum_{l<k} W_{lk} \tilde D^2(r_k, r_l)
+\mathcal P(R) = \sum_{l>k} W_{kl} \tilde D^2(r_{\cdot k}, r_{\cdot l})
 $$
 
 with $W_{lk} = \sum_{i \in C_k}\sum_{j \in C_l}w_{ij}$.
 
+Our likelihood can now be expressed as a function of the $R$-matrix. 
+
+
 ## Computation of the derivative
 
+We can see that the penalized negative log-likelihood can be decomposed as a sum of three element : 
+
+$$
+L_\mathcal P(R, \lambda) = L_{log}(R) + L_{trace}(R) + \lambda L_{pen}(R)
+$$
+
+So we just need to compute separately all the derivative for each coefficient (in the upper triangular part, by symmetry). 
+
+### Gradient of $L_{log}(R)$
+
+Let's denote $E = \{(i,j) \in [\!|1, d |\! ]^2, i\le j\}$ and $F = \{(k,l) \in [\!|1, K |\! ]^2, k\le l \}$ and we consider $\mathbb R^E$ and $\mathbb R^F$ the set of real-valued vector indexed by $E$ anf $F$.
+
+One can show that there exists a function $f : \mathbb R^F \rightarrow \mathbb R^E$ such that :
+
+$$
+f(R) = U(\Theta) 
+$$
+
+where $U$ is the application defined in [@hentschelStatisticalInferenceHuslerReiss2023] which maps a matrix to a vector in $\mathbb R^E$ containing the entries in the upper triangular part of the matrix.
+
+Then we can defined also the function $g :\mathbb R^E \rightarrow \mathbb R$ as : 
+$$
+g(U(\Theta)) = - \log(|\Theta|_+)
+$$
+which is well defined by symmetry of $\Theta$.
+
+Thus we can see our sub-loglikelihood as : 
+$$
+L_{log}(R) = g \circ f(R)
+$$
+
+And then use the chain rule formula to get the partial derivative for $n \in F$ : 
+
+$$
+\frac{\partial L_{log}(R)}{\partial r_n} = \sum_{m \in E} \frac{\partial g}{\partial \theta_{m}}(f(R)) \times \frac{\partial f_m}{\partial r_n}(R)
+$$
+
+In the appendix of [@hentschelStatisticalInferenceHuslerReiss2023], they show that : 
+
+$$
+\frac{\partial g(U(\Theta))}{\partial \theta_m} =  \gamma(\Theta^+)_m, \quad \quad \text{for } m \in E
+$$
+
+Now we just have to compute the derivative of $f$. Let $m = (i,j) \in E$.
+We can stress first that : 
+
+$$
+f_m(R) = \begin{cases} r_{kk} - \sum_{l = 1}^K p_kr_{kl} & \text{if } i=j \in C_k \\
+r_{kl} &  \text{if } i\in C_k, ~ j \in C_l,~ i< j \end{cases}
+$$
+
+Then we can deduce the expression below : 
+
+$$
+\frac{\partial f}{\partial r_{kl}} =
+\begin{cases} 
+1  &\text{if } i \in C_k, ~j \in C_l,\text{ or } i \in C_l,~ j \in C_k, \\ 
+- p_k  &\text{if } i=j \in C_k \\ 
+-p_l &\text{if } i=j \in C_l\\ 
+0 & \text{otherwise} \end{cases}
+$$
+
+We can now associate these expressions to deduce that : 
+
+$$
+\frac{\partial L_{log}(R)}{\partial r_{kl}} = -\text{tr}\big[\gamma(\Theta^+)_{C_k}\big] p_k  -   \text{tr}\big[\gamma(\Theta^+)_{C_l}\big] p_l + \sum_{i \in C_k} \sum_{\underset{i<j}{j \in C_l}}\gamma(\Theta^+)_{ij} +\sum_{i \in C_l} \sum_{\underset{i<j}{j \in C_k}} \gamma(\Theta^+)_{ij},
+$$
+
+for $k< l$ and : 
+
+$$
+\frac{\partial L_{log}(R)}{\partial r_{kk}} = \text{tr}\big[\gamma(\Theta^+)_{C_k}\big] (1-p_k)  + \sum_{\underset{i<j}{i,j \in C_k}}\gamma(\Theta^+)_{ij}.
+$$
+
+### Gradient of $L_{trace}(R)$
+
+We recall that : 
+
+$$
+L_{trace}(R) = \text{tr}(\overline \Gamma URU^t) -\sum_{l=1}^K p_l \sum_{k=1}^Kr_{kl}\text{tr}(\overline \Gamma_{C_k})
+$$
+
+As we have for all symmetric matrix $A$ : 
+$$
+\frac{\partial tr(AB)}{\partial b_{ij}} = 2 a_{ij}
+$$
+
+Then we can deduce that for $(k,l) \in F$ : 
+$$
+\frac{\partial L_{trace}(R)}{\partial r_{kl}} = \begin{cases}  2(U^t\overline \Gamma U)_{kk} - p_k \text{tr}(\overline \Gamma_{C_k}), & \text{if } k=l \\ 2(U^t\overline \Gamma U)_{kl} - p_k \text{tr}(\overline \Gamma_{C_l})- p_l \text{tr}(\overline \Gamma_{C_k}) & \text{otherwise.} \end{cases}
+$$
+
+### Gradient of $L_{pen}(R)$
 
 
+We recall that : 
 
+$$
+L_{pen}(R) = \sum_{l'>k'} W_{k'l'} \tilde D^2(r_{\cdot k'}, r_{\cdot l'})
+$$
+
+So we just need to compute the derivative of $\tilde D^2$ for each coefficient $r_{kl}$. 
+
+Let $(k,l) \in F$.
+
+Thus, for $k<l$, we have : 
+
+$$
+\frac{\partial D^2(r_{\cdot k'}, r_{\cdot l'})}{\partial r_{kl}} =
+\begin{cases} 
+2p_k(r_{kl} -r_{kk'}) & \text{if } k \neq k', l = l'\\ 
+2p_l(r_{kl} -r_{ll'}) & \text{if } k = k', l \neq l'\\ 
+2(p_k-1)(r_{kl} -r_{kk}) +2(p_l-1)(r_{kl} -r_{ll}) & \text{if } k = k', l = l'\\ 
+0 & \text{otherwise.}
+\end{cases}
+$$
+
+and for $k'<l'$ : 
+
+$$
+\frac{\partial D^2(r_{\cdot k'}, r_{\cdot l'})}{\partial r_{kk}} =
+\begin{cases} 
+2(p_k-1)(r_{kk} -r_{kl'}) & \text{if } k = k' \\ 
+2(p_k-1)(r_{kk} -r_{k'k}) & \text{if } k = l'\\ 
+0 & \text{otherwise.}
+\end{cases}
+$$
+
+We can deduce the derivatives : 
+
+$$
+\frac{\partial L_{pen}(R)}{\partial r_{kl}} = \sum_{k'=1}^{l-1} 2W_{k'l}p_k(r_{kl} -r_{kk'}) + 
+\sum_{l'=k+1}^{K} 2W_{kl'}p_l(r_{kl} -r_{ll'}) +2W_{kl}(r_{kk} +r_{ll}-2r_{kl})
+$$
+
+and : 
+$$
+\frac{\partial L_{pen}(R)}{\partial r_{kk}} = 2(p_k-1)\sum_{q=1}^K W_{qk}(r_{kk} -r_{kq}) 
+$$
 
 
 ## Simulation study

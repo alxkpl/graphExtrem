@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-02-25" />
+        <meta name="date" content="2025-02-26" />
     
     <title>Variable clustering for Husler-Reiss graphical models</title>
 
@@ -1231,12 +1231,14 @@ graphical models</a></h2>
       derivative</a></li>
       <li><a href="#simulation-study" id="toc-simulation-study">Simulation study</a></li>
       </ul></li>
+      <li><a href="#application-on-fligth-delay-data" id="toc-application-on-fligth-delay-data">Application on fligth
+      delay data</a></li>
       </ul>
     </div>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-02-25</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-02-26</p>
           </div>
    </div>
      
@@ -1463,17 +1465,17 @@ interpretation of conditional independence between them.</p>
 <p>For the estimation of the precision matrix, they use the following
 likelihood :</p>
 <p><span class="math display">\[
-L(\Theta) = - \log(|\Theta|) + tr(\Sigma\Theta),
+L(\Theta) = - \log(|\Theta|) + \text{tr}(\Sigma\Theta),
 \]</span></p>
 <p>where <span class="math inline">\(\log(|\cdot|)\)</span> is the
-logarithm of the determinant and <span class="math inline">\(tr(\cdot)\)</span> the trace.</p>
+logarithm of the determinant and <span class="math inline">\(\text{tr}(\cdot)\)</span> the trace.</p>
 <p>To get the maximum likelihood, they use a convex penalty to get the
 unknown block structure of the precision matrix. Thus, we got this
 optimisation program :</p>
 <p><span class="math display">\[
-\hat \Theta = \arg \min_\Theta \Big[- \log(|\Theta|) + tr(\overline
-\Sigma\Theta) + \lambda\mathcal P(\Theta)\Big], \quad \quad s.t.
-\Theta^t = \Theta, ~~\Theta &gt;0
+\hat \Theta = \arg \min_\Theta \Big[- \log(|\Theta|) +
+\text{tr}(\overline \Sigma\Theta) + \lambda\mathcal P(\Theta)\Big],
+\quad \quad s.t. \Theta^t = \Theta, ~~\Theta &gt;0
 \]</span></p>
 <p>where <span class="math inline">\(\overline \Sigma\)</span> is an
 estimation of the covariance matrix <span class="math inline">\(\tilde
@@ -1583,9 +1585,10 @@ graphical models.</p>
 <div id="maximum-likelihood-for-graphical-model" class="section level2">
 <h2>Maximum likelihood for graphical model</h2>
 <p>For the estimation of the precision matrix for HRGM, <span class="citation">(Hentschel, Engelke, and Segers 2023)</span> shows that
-:<br />
+find the <span class="math inline">\(\Theta\)</span> is equivalent to
+minimise :<br />
 <span class="math display">\[
-L(\Theta) =  \log(|\Theta|_+) + \frac12 tr(\overline \Gamma\Theta),
+L(\Theta) =  -\log(|\Theta|_+) - \frac12 tr(\overline \Gamma\Theta),
 \]</span></p>
 <p>where <span class="math inline">\(\overline \Gamma\)</span> is an
 estimation of the variogram matrix <span class="math inline">\(\Gamma\)</span> and <span class="math inline">\(|\cdot|_+\)</span> the generalised
@@ -1620,12 +1623,12 @@ U R U^t,
 <p>where <span class="math inline">\(U\)</span> is a <span class="math inline">\(d\times K\)</span> matrix such that <span class="math inline">\(u_{ij} = 1\)</span> if <span class="math inline">\(i\in C_j\)</span> and <span class="math inline">\(0\)</span> otherwise.</p>
 <p>Then we can deduce the computation of the trace of <span class="math inline">\(\overline \Gamma \Theta\)</span> :</p>
 <p><span class="math display">\[
-tr(\overline \Gamma \Theta)= tr(\overline \Gamma URU^t) +
-\sum_{k=1}^K(a_{kk} - r_{kk})tr(\overline \Gamma_k) \Big(= tr(\overline
-\Gamma URU^t) -\sum_{l=1}^K p_l \sum_{k=1}^Kr_{kl}tr(\overline
-\Gamma_k)\Big)
+tr(\overline \Gamma \Theta)= \text{tr}(\overline \Gamma URU^t) +
+\sum_{k=1}^K(a_{kk} - r_{kk})\text{tr}(\overline \Gamma_{C_k}) \Big(=
+\text{tr}(\overline \Gamma URU^t) -\sum_{l=1}^K p_l
+\sum_{k=1}^Kr_{kl}\text{tr}(\overline \Gamma_{C_k})\Big)
 \]</span></p>
-<p>with <span class="math inline">\(\overline \Gamma_k\)</span> the
+<p>with <span class="math inline">\(\overline \Gamma_{C_k}\)</span> the
 <span class="math inline">\(p_k \times p_k\)</span> matrix computed from
 <span class="math inline">\(\overline \Gamma\)</span> with the indices
 in <span class="math inline">\(C_k\)</span>.</p>
@@ -1648,8 +1651,8 @@ we are in the same cluster.</p>
 <p>Therefore, we will consider the following squared distance for the
 next :</p>
 <p><span class="math display">\[
-D^2(\theta_{.i}, \theta_{.j}) =  \sum_{k\neq i,j} (\theta_{ik} -
-\theta_{jk})^2
+D^2(\theta_{.i}, \theta_{.j}) =  \sum_{t\neq i,j} (\theta_{it} -
+\theta_{jt})^2
 \]</span></p>
 <p>Now, it is time to write the penalty formula with the <span class="math inline">\(R\)</span> matrix. We have :</p>
 <ul>
@@ -1662,22 +1665,165 @@ clusters <span class="math inline">\(C_k\)</span> and <span class="math inline">
 <p><span class="math display">\[\begin{align*}
 D^2(\theta_{.i}, \theta_{.j}) =&amp; \sum_{t\neq i,j} (\theta_{it} -
 \theta_{jt})^2 \\
-= &amp;\sum_{m \neq k,l} p_m (r_{km}-r_{lm})^2 +(1-p_k)
+= &amp;\sum_{q \neq k,l} p_m (r_{kq}-r_{lq})^2 +(1-p_k)
 (r_{kk}-r_{lk})^2+(1-p_l) (r_{ll}-r_{lk})^2\\
-= &amp; \tilde D^2(r_k, r_l).
+= &amp; \tilde D^2(r_{\cdot k}, r_{\cdot l}).
 \end{align*}\]</span></p>
 <p>Then, by grouping all the terms in <span class="math inline">\(\mathcal P\)</span>, we get :</p>
 <p><span class="math display">\[
-\mathcal P(R) = \sum_{l&lt;k} W_{lk} \tilde D^2(r_k, r_l)
+\mathcal P(R) = \sum_{l&gt;k} W_{kl} \tilde D^2(r_{\cdot k}, r_{\cdot
+l})
 \]</span></p>
 <p>with <span class="math inline">\(W_{lk} = \sum_{i \in C_k}\sum_{j \in
 C_l}w_{ij}\)</span>.</p>
+<p>Our likelihood can now be expressed as a function of the <span class="math inline">\(R\)</span>-matrix.</p>
 </div>
 <div id="computation-of-the-derivative" class="section level2">
 <h2>Computation of the derivative</h2>
+<p>We can see that the penalized negative log-likelihood can be
+decomposed as a sum of three element :</p>
+<p><span class="math display">\[
+L_\mathcal P(R, \lambda) = L_{log}(R) + L_{trace}(R) + \lambda
+L_{pen}(R)
+\]</span></p>
+<p>So we just need to compute separately all the derivative for each
+coefficient (in the upper triangular part, by symmetry).</p>
+<div id="gradient-of-l_logr" class="section level3">
+<h3>Gradient of <span class="math inline">\(L_{log}(R)\)</span></h3>
+<p>Let’s denote <span class="math inline">\(E = \{(i,j) \in [\!|1, d |\!
+]^2, i\le j\}\)</span> and <span class="math inline">\(F = \{(k,l) \in
+[\!|1, K |\! ]^2, k\le l \}\)</span> and we consider <span class="math inline">\(\mathbb R^E\)</span> and <span class="math inline">\(\mathbb R^F\)</span> the set of real-valued vector
+indexed by <span class="math inline">\(E\)</span> anf <span class="math inline">\(F\)</span>.</p>
+<p>One can show that there exists a function <span class="math inline">\(f : \mathbb R^F \rightarrow \mathbb R^E\)</span>
+such that :</p>
+<p><span class="math display">\[
+f(R) = U(\Theta)
+\]</span></p>
+<p>where <span class="math inline">\(U\)</span> is the application
+defined in <span class="citation">(Hentschel, Engelke, and Segers
+2023)</span> which maps a matrix to a vector in <span class="math inline">\(\mathbb R^E\)</span> containing the entries in the
+upper triangular part of the matrix.</p>
+<p>Then we can defined also the function <span class="math inline">\(g
+:\mathbb R^E \rightarrow \mathbb R\)</span> as : <span class="math display">\[
+g(U(\Theta)) = - \log(|\Theta|_+)
+\]</span> which is well defined by symmetry of <span class="math inline">\(\Theta\)</span>.</p>
+<p>Thus we can see our sub-loglikelihood as : <span class="math display">\[
+L_{log}(R) = g \circ f(R)
+\]</span></p>
+<p>And then use the chain rule formula to get the partial derivative for
+<span class="math inline">\(n \in F\)</span> :</p>
+<p><span class="math display">\[
+\frac{\partial L_{log}(R)}{\partial r_n} = \sum_{m \in E} \frac{\partial
+g}{\partial \theta_{m}}(f(R)) \times \frac{\partial f_m}{\partial
+r_n}(R)
+\]</span></p>
+<p>In the appendix of <span class="citation">(Hentschel, Engelke, and
+Segers 2023)</span>, they show that :</p>
+<p><span class="math display">\[
+\frac{\partial g(U(\Theta))}{\partial \theta_m} =  \gamma(\Theta^+)_m,
+\quad \quad \text{for } m \in E
+\]</span></p>
+<p>Now we just have to compute the derivative of <span class="math inline">\(f\)</span>. Let <span class="math inline">\(m =
+(i,j) \in E\)</span>. We can stress first that :</p>
+<p><span class="math display">\[
+f_m(R) = \begin{cases} r_{kk} - \sum_{l = 1}^K p_kr_{kl} &amp; \text{if
+} i=j \in C_k \\
+r_{kl} &amp;  \text{if } i\in C_k, ~ j \in C_l,~ i&lt; j \end{cases}
+\]</span></p>
+<p>Then we can deduce the expression below :</p>
+<p><span class="math display">\[
+\frac{\partial f}{\partial r_{kl}} =
+\begin{cases}
+1  &amp;\text{if } i \in C_k, ~j \in C_l,\text{ or } i \in C_l,~ j \in
+C_k, \\
+- p_k  &amp;\text{if } i=j \in C_k \\
+-p_l &amp;\text{if } i=j \in C_l\\
+0 &amp; \text{otherwise} \end{cases}
+\]</span></p>
+<p>We can now associate these expressions to deduce that :</p>
+<p><span class="math display">\[
+\frac{\partial L_{log}(R)}{\partial r_{kl}} =
+-\text{tr}\big[\gamma(\Theta^+)_{C_k}\big]
+p_k  -   \text{tr}\big[\gamma(\Theta^+)_{C_l}\big] p_l + \sum_{i \in
+C_k} \sum_{\underset{i&lt;j}{j \in C_l}}\gamma(\Theta^+)_{ij} +\sum_{i
+\in C_l} \sum_{\underset{i&lt;j}{j \in C_k}} \gamma(\Theta^+)_{ij},
+\]</span></p>
+<p>for <span class="math inline">\(k&lt; l\)</span> and :</p>
+<p><span class="math display">\[
+\frac{\partial L_{log}(R)}{\partial r_{kk}} =
+\text{tr}\big[\gamma(\Theta^+)_{C_k}\big] (1-p_k)  +
+\sum_{\underset{i&lt;j}{i,j \in C_k}}\gamma(\Theta^+)_{ij}.
+\]</span></p>
+</div>
+<div id="gradient-of-l_tracer" class="section level3">
+<h3>Gradient of <span class="math inline">\(L_{trace}(R)\)</span></h3>
+<p>We recall that :</p>
+<p><span class="math display">\[
+L_{trace}(R) = \text{tr}(\overline \Gamma URU^t) -\sum_{l=1}^K p_l
+\sum_{k=1}^Kr_{kl}\text{tr}(\overline \Gamma_{C_k})
+\]</span></p>
+<p>As we have for all symmetric matrix <span class="math inline">\(A\)</span> : <span class="math display">\[
+\frac{\partial tr(AB)}{\partial b_{ij}} = 2 a_{ij}
+\]</span></p>
+<p>Then we can deduce that for <span class="math inline">\((k,l) \in
+F\)</span> : <span class="math display">\[
+\frac{\partial L_{trace}(R)}{\partial r_{kl}} =
+\begin{cases}  2(U^t\overline \Gamma U)_{kk} - p_k \text{tr}(\overline
+\Gamma_{C_k}), &amp; \text{if } k=l \\ 2(U^t\overline \Gamma U)_{kl} -
+p_k \text{tr}(\overline \Gamma_{C_l})- p_l \text{tr}(\overline
+\Gamma_{C_k}) &amp; \text{otherwise.} \end{cases}
+\]</span></p>
+</div>
+<div id="gradient-of-l_penr" class="section level3">
+<h3>Gradient of <span class="math inline">\(L_{pen}(R)\)</span></h3>
+<p>We recall that :</p>
+<p><span class="math display">\[
+L_{pen}(R) = \sum_{l&#39;&gt;k&#39;} W_{k&#39;l&#39;} \tilde
+D^2(r_{\cdot k&#39;}, r_{\cdot l&#39;})
+\]</span></p>
+<p>So we just need to compute the derivative of <span class="math inline">\(\tilde D^2\)</span> for each coefficient <span class="math inline">\(r_{kl}\)</span>.</p>
+<p>Let <span class="math inline">\((k,l) \in F\)</span>.</p>
+<p>Thus, for <span class="math inline">\(k&lt;l\)</span>, we have :</p>
+<p><span class="math display">\[
+\frac{\partial D^2(r_{\cdot k&#39;}, r_{\cdot l&#39;})}{\partial r_{kl}}
+=
+\begin{cases}
+2p_k(r_{kl} -r_{kk&#39;}) &amp; \text{if } k \neq k&#39;, l = l&#39;\\
+2p_l(r_{kl} -r_{ll&#39;}) &amp; \text{if } k = k&#39;, l \neq l&#39;\\
+2(p_k-1)(r_{kl} -r_{kk}) +2(p_l-1)(r_{kl} -r_{ll}) &amp; \text{if } k =
+k&#39;, l = l&#39;\\
+0 &amp; \text{otherwise.}
+\end{cases}
+\]</span></p>
+<p>and for <span class="math inline">\(k&#39;&lt;l&#39;\)</span> :</p>
+<p><span class="math display">\[
+\frac{\partial D^2(r_{\cdot k&#39;}, r_{\cdot l&#39;})}{\partial r_{kk}}
+=
+\begin{cases}
+2(p_k-1)(r_{kk} -r_{kl&#39;}) &amp; \text{if } k = k&#39; \\
+2(p_k-1)(r_{kk} -r_{k&#39;k}) &amp; \text{if } k = l&#39;\\
+0 &amp; \text{otherwise.}
+\end{cases}
+\]</span></p>
+<p>We can deduce the derivatives :</p>
+<p><span class="math display">\[
+\frac{\partial L_{pen}(R)}{\partial r_{kl}} = \sum_{k&#39;=1}^{l-1}
+2W_{k&#39;l}p_k(r_{kl} -r_{kk&#39;}) +
+\sum_{l&#39;=k+1}^{K} 2W_{kl&#39;}p_l(r_{kl} -r_{ll&#39;})
++2W_{kl}(r_{kk} +r_{ll}-2r_{kl})
+\]</span></p>
+<p>and : <span class="math display">\[
+\frac{\partial L_{pen}(R)}{\partial r_{kk}} = 2(p_k-1)\sum_{q=1}^K
+W_{qk}(r_{kk} -r_{kq})
+\]</span></p>
+</div>
 </div>
 <div id="simulation-study" class="section level2">
 <h2>Simulation study</h2>
+</div>
+</div>
+<div id="application-on-fligth-delay-data" class="section level1">
+<h1>Application on fligth delay data</h1>
 <div id="references" class="section level3 unnumbered">
 <h3 class="unnumbered">References</h3>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
@@ -1712,7 +1858,6 @@ Generalized <span>Pareto</span> Distributions.”</span>
 Touw, D. J. W., A. Alfons, P. J. F. Groenen, and I. Wilms. 2024.
 <span>“Clusterpath <span>Gaussian Graphical Modeling</span>.”</span>
 arXiv. <a href="https://doi.org/10.48550/arXiv.2407.00644">https://doi.org/10.48550/arXiv.2407.00644</a>.
-</div>
 </div>
 </div>
 </div>
