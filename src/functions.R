@@ -163,7 +163,7 @@ semi_def <- function(matrix){
 }
 
 #----------------------- Gradient descent for clustering -----------------------
-## Computation of the gradient of the trace split in tow elements
+## Functions for the building of some particular matrices
 
 #' Computation of the matrix of clusters
 #'
@@ -189,6 +189,38 @@ U_matrix <- function(clusters){
   return(U)
 }
 
+#' From R matrix compute theta matrix
+#'
+#' @param R a K x K matrix : the matrix of the clusters coefficients
+#' @param clusters a list of vector : each vector gives the element of a cluster.
+#'
+#' @returns Return the theta matrix from the value of the R matrix of clusters
+#' coefficient using :
+#' 
+#'                            theta = U R U^t + A 
+#'                            
+#' where U is the cluster matrix and a diagonal matrix such that the rows of theta sum 
+#' to zero : 
+#'                            a_ii = - sum_l p_l r_kl
+#' for i in cluster C_k.
+#'
+#' @examples
+#' 
+#' R <- matrix(c(1, 2,
+#'               2, 5), nr = 2)
+#' clusters <- list(c(1,2,3),c(4,5))
+#' build_theta(R, clusters)
+#' 
+build_theta <- function(R, clusters){
+  U <- U_matrix(clusters)
+  URUt <- U %*% R %*% t(U)
+  a <-  - rowSums(URUt)
+  return(
+    URUt + diag(a)
+  )
+}
+
+
 #' Compute the trace cluster matrix vector.
 #'
 #' @param gamma a dxd matrix : an estimation of the variogram gamma.
@@ -211,6 +243,8 @@ trace_vector <- function(gamma, clusters){
   }
   return(T.vector)
 }
+
+## Computation of the gradient of the trace split in tow elements
 
 #' Computation of the first element of the trace's gradient
 #'
@@ -285,8 +319,92 @@ dtrace <- function(gamma){
   }
 }
 
+## Computation of the gradient of the penalty
+
+#' The composed gradient between f(R) and another function
+#'
+#' @param clusters a list of vector : each vector gives the element of a cluster.
+#' @param A a dxd matrix : the jacobian matrix of a function g.
+#' @returns If A = J(g) where J is the jacobian matrix of g, row_f_gradient compute
+#' the derivative of (g o f)(R), with f the function defined in section 4.3.1 of 
+#' cluster document
+#'
+#' @examples
+#' clusters <- list(c(1,3), 2)
+#' A <- matrix(c(0,2,1,2,0,4,1,4,0), nc = 3)
+#' row_f_gradient(A, clusters)
+row_f_gradient <- function(A, clusters){
+    U <- U_matrix(clusters)
+    indic <- rep(1, length(clusters))
+    T.vector <- trace_vector(A, clusters)
+    
+    tUAU <- t(U) %*% A %*% U
+    trAp <- tcrossprod(T.vector * p, indic)
+    return(
+      tUAU - (trAp + t(trAp)) + diag((1 + p) * T.vector - .5 * diag(tUAU))
+      )
+}
+
+#' Variogram transformation application gamma
+#'
+#' @param sigma A d x d numeric matrix
+#'
+#' @returns For a symmetric positive matrix sigma (covariance matrix), return the 
+#' corresponding variogram matrix.
+#'
+#' @examples
+#' s_sigma <- matrix(rnorm(16, 2), nc  = 4)
+#' gamma_function(s_sigma %*% t(s_sigma))
+gamma_function <- function(sigma){
+  indic <- rep(1, nrow(sigma))
+  return(
+    tcrossprod(diag(sigma), indic) + tcrossprod(indic, diag(sigma)) - 2 * sigma
+  )
+}
 
 
+#' Moore-Penrose pseudo inverse
+#'
+#' @param A a d x d symmetric positive semi-definite matrix.
+#'
+#' @returns Computes the Moore-Penrose inverse of a matrix. The calculation is 
+#' done thanks to an article and if  : 
+#'                                A = L L^t 
+#' then we have : 
+#'                        A^+ = L (L^t L)^-1 (L^t L)^-1 L^t
+#' 
+#' @export
+#'
+#' @examples
+#'A <- matrix(c(1,2,3,
+#'              2,5,6,
+#'              3,6,9), nc = 3)
+#' psolve(A)
+psolve <- function(A){
+  options(warn = -1)
+  chol.res <- chol(A, pivot = TRUE)
+  options(warn = 0)
+  L <- t(chol.res[1:attr(chol.res, "rank"), attr(chol.res, "pivot")])
+  return(
+    L %*% solve(t(L) %*% L) %*% solve(t(L) %*% L) %*% t(L)
+  )
+}
+
+#' Title
+#'
+#' @param R 
+#' @param clusters 
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+dlog <- function(R, clusters){
+  Theta_p <- psolve(build_theta(R, clusters))
+  return(
+    row_f_gradient(gamma_function(Theta_p), clusters)
+  )
+}
 
 #------------------------------- Others functions ------------------------------
 
