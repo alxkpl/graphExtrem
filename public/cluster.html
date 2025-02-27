@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-02-26" />
+        <meta name="date" content="2025-02-27" />
     
     <title>Variable clustering for Husler-Reiss graphical models</title>
 
@@ -1240,7 +1240,7 @@ graphical models</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-02-26</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-02-27</p>
           </div>
    </div>
      
@@ -1626,14 +1626,16 @@ U R U^t,
 <p>Then we can deduce the computation of the trace of <span class="math inline">\(\overline \Gamma \Theta\)</span> :</p>
 <p><span class="math display">\[
 tr(\overline \Gamma \Theta)= \text{tr}(\overline \Gamma URU^t) +
-\sum_{k=1}^K(a_{kk} - r_{kk})\text{tr}(\overline \Gamma_{C_k}) \Big(=
-\text{tr}(\overline \Gamma URU^t) -\sum_{l=1}^K p_l
-\sum_{k=1}^Kr_{kl}\text{tr}(\overline \Gamma_{C_k})\Big)
+\sum_{k=1}^K(a_{kk} - r_{kk})\text{tr}(\overline \Gamma_{C_k})
 \]</span></p>
 <p>with <span class="math inline">\(\overline \Gamma_{C_k}\)</span> the
 <span class="math inline">\(p_k \times p_k\)</span> matrix computed from
 <span class="math inline">\(\overline \Gamma\)</span> with the indices
-in <span class="math inline">\(C_k\)</span>.</p>
+in <span class="math inline">\(C_k\)</span>. But as <span class="math inline">\(\overline \Gamma\)</span> get only zero in its
+diagonal, we finally obtain :</p>
+<p><span class="math display">\[
+tr(\overline \Gamma \Theta) = \text{tr}(\overline \Gamma URU^t)
+\]</span></p>
 <p><strong>Adaptation of the distance</strong></p>
 <p>Let’s take square <span class="math inline">\(l^2\)</span> norm
 penalty for <span class="math inline">\(\mathcal P\)</span>.</p>
@@ -1763,24 +1765,27 @@ matrix of clusters <span class="math inline">\(U\)</span>.</p>
 &amp;= \text{tr}\big[\gamma(\Theta^+)_{C_k}\big] (1-p_k) + \frac 12
 u_k^t\gamma(\Theta^+)u_k
 \end{align*}\]</span></p>
+<p>But all matrices obtained from the <span class="math inline">\(\gamma\)</span> application get only zeros in
+their diagonal so the final expression is :</p>
+<p><span class="math display">\[
+\frac{\partial L_{log}(R)}{\partial r_{kl}} = \begin{cases} \frac 12
+u_k^t\gamma(\Theta^+)u_k &amp; \text{if } k=l,
+\\u_k^t\gamma(\Theta^+)u_l &amp; \text{otherwise.}\end{cases}
+\]</span></p>
 </div>
 <div id="gradient-of-l_tracer" class="section level3">
 <h3>Gradient of <span class="math inline">\(L_{trace}(R)\)</span></h3>
 <p>We recall that :</p>
 <p><span class="math display">\[
-L_{trace}(R) = \text{tr}(\overline \Gamma URU^t) -\sum_{l=1}^K p_l
-\sum_{k=1}^Kr_{kl}\text{tr}(\overline \Gamma_{C_k})
+L_{trace}(R) = \text{tr}(\overline \Gamma URU^t)
 \]</span></p>
 <p>As we have for all symmetric matrix <span class="math inline">\(A\)</span> : <span class="math display">\[
 \frac{\partial tr(AB)}{\partial b_{ij}} = 2 a_{ij}
 \]</span></p>
 <p>Then we can deduce that for <span class="math inline">\((k,l) \in
 F\)</span> : <span class="math display">\[
-\frac{\partial L_{trace}(R)}{\partial r_{kl}} =
-\begin{cases}  2(U^t\overline \Gamma U)_{kk} - p_k \text{tr}(\overline
-\Gamma_{C_k}), &amp; \text{if } k=l \\ 2(U^t\overline \Gamma U)_{kl} -
-p_k \text{tr}(\overline \Gamma_{C_l})- p_l \text{tr}(\overline
-\Gamma_{C_k}) &amp; \text{otherwise.} \end{cases}
+\frac{\partial L_{trace}(R)}{\partial r_{kl}} = 2(U^t\overline \Gamma
+U)_{kl}
 \]</span></p>
 </div>
 <div id="gradient-of-l_penr" class="section level3">
