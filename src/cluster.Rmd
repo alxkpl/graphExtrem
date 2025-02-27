@@ -453,17 +453,22 @@ $$
 0 & \text{otherwise} \end{cases}
 $$
 
-We can now associate these expressions to deduce that : 
+We can now associate these expressions to deduce for $k < l$ that : 
 
-$$
-\frac{\partial L_{log}(R)}{\partial r_{kl}} = -\text{tr}\big[\gamma(\Theta^+)_{C_k}\big] p_k  -   \text{tr}\big[\gamma(\Theta^+)_{C_l}\big] p_l + \sum_{i \in C_k} \sum_{\underset{i<j}{j \in C_l}}\gamma(\Theta^+)_{ij} +\sum_{i \in C_l} \sum_{\underset{i<j}{j \in C_k}} \gamma(\Theta^+)_{ij},
-$$
+\begin{align*}
+\frac{\partial L_{log}(R)}{\partial r_{kl}} &= -\text{tr}\big[\gamma(\Theta^+)_{C_k}\big] p_k  -   \text{tr}\big[\gamma(\Theta^+)_{C_l}\big] p_l + \sum_{i \in C_k} \sum_{\underset{i<j}{j \in C_l}}\gamma(\Theta^+)_{ij} +\sum_{i \in C_l} \sum_{\underset{i<j}{j \in C_k}} \gamma(\Theta^+)_{ij} \\
+& = u_k^t\gamma(\Theta^+)u_l -\text{tr}\big[\gamma(\Theta^+)_{C_k}\big] p_k  -   \text{tr}\big[\gamma(\Theta^+)_{C_l}\big] p_l,
+\end{align*}
 
-for $k< l$ and : 
+with $u_k$ the k-th column of the matrix of clusters $U$. 
 
-$$
-\frac{\partial L_{log}(R)}{\partial r_{kk}} = \text{tr}\big[\gamma(\Theta^+)_{C_k}\big] (1-p_k)  + \sum_{\underset{i<j}{i,j \in C_k}}\gamma(\Theta^+)_{ij}.
-$$
+Moreover if $k=l$, we get : 
+
+\begin{align*}
+\frac{\partial L_{log}(R)}{\partial r_{kk}} &= \text{tr}\big[\gamma(\Theta^+)_{C_k}\big] (1-p_k)  + \sum_{\underset{i<j}{i,j \in C_k}}\gamma(\Theta^+)_{ij} \\
+&= \text{tr}\big[\gamma(\Theta^+)_{C_k}\big] (1-p_k) + \frac 12 u_k^t\gamma(\Theta^+)u_k
+\end{align*}
+
 
 ### Gradient of $L_{trace}(R)$
 
@@ -530,6 +535,9 @@ and :
 $$
 \frac{\partial L_{pen}(R)}{\partial r_{kk}} = 2(p_k-1)\sum_{q=1}^K W_{qk}(r_{kk} -r_{kq}) 
 $$
+
+## Choice of a step for descent
+
 
 
 ## Simulation study

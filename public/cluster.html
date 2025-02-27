@@ -1229,6 +1229,8 @@ graphical models</a></h2>
       expression</a></li>
       <li><a href="#computation-of-the-derivative" id="toc-computation-of-the-derivative">Computation of the
       derivative</a></li>
+      <li><a href="#choice-of-a-step-for-descent" id="toc-choice-of-a-step-for-descent">Choice of a step for
+      descent</a></li>
       <li><a href="#simulation-study" id="toc-simulation-study">Simulation study</a></li>
       </ul></li>
       <li><a href="#application-on-fligth-delay-data" id="toc-application-on-fligth-delay-data">Application on fligth
@@ -1740,20 +1742,27 @@ C_k, \\
 -p_l &amp;\text{if } i=j \in C_l\\
 0 &amp; \text{otherwise} \end{cases}
 \]</span></p>
-<p>We can now associate these expressions to deduce that :</p>
-<p><span class="math display">\[
-\frac{\partial L_{log}(R)}{\partial r_{kl}} =
+<p>We can now associate these expressions to deduce for <span class="math inline">\(k &lt; l\)</span> that :</p>
+<p><span class="math display">\[\begin{align*}
+\frac{\partial L_{log}(R)}{\partial r_{kl}} &amp;=
 -\text{tr}\big[\gamma(\Theta^+)_{C_k}\big]
 p_k  -   \text{tr}\big[\gamma(\Theta^+)_{C_l}\big] p_l + \sum_{i \in
 C_k} \sum_{\underset{i&lt;j}{j \in C_l}}\gamma(\Theta^+)_{ij} +\sum_{i
-\in C_l} \sum_{\underset{i&lt;j}{j \in C_k}} \gamma(\Theta^+)_{ij},
-\]</span></p>
-<p>for <span class="math inline">\(k&lt; l\)</span> and :</p>
-<p><span class="math display">\[
-\frac{\partial L_{log}(R)}{\partial r_{kk}} =
+\in C_l} \sum_{\underset{i&lt;j}{j \in C_k}} \gamma(\Theta^+)_{ij} \\
+&amp; = u_k^t\gamma(\Theta^+)u_l
+-\text{tr}\big[\gamma(\Theta^+)_{C_k}\big]
+p_k  -   \text{tr}\big[\gamma(\Theta^+)_{C_l}\big] p_l,
+\end{align*}\]</span></p>
+<p>with <span class="math inline">\(u_k\)</span> the k-th column of the
+matrix of clusters <span class="math inline">\(U\)</span>.</p>
+<p>Moreover if <span class="math inline">\(k=l\)</span>, we get :</p>
+<p><span class="math display">\[\begin{align*}
+\frac{\partial L_{log}(R)}{\partial r_{kk}} &amp;=
 \text{tr}\big[\gamma(\Theta^+)_{C_k}\big] (1-p_k)  +
-\sum_{\underset{i&lt;j}{i,j \in C_k}}\gamma(\Theta^+)_{ij}.
-\]</span></p>
+\sum_{\underset{i&lt;j}{i,j \in C_k}}\gamma(\Theta^+)_{ij} \\
+&amp;= \text{tr}\big[\gamma(\Theta^+)_{C_k}\big] (1-p_k) + \frac 12
+u_k^t\gamma(\Theta^+)u_k
+\end{align*}\]</span></p>
 </div>
 <div id="gradient-of-l_tracer" class="section level3">
 <h3>Gradient of <span class="math inline">\(L_{trace}(R)\)</span></h3>
@@ -1817,6 +1826,9 @@ k&#39;, l = l&#39;\\
 W_{qk}(r_{kk} -r_{kq})
 \]</span></p>
 </div>
+</div>
+<div id="choice-of-a-step-for-descent" class="section level2">
+<h2>Choice of a step for descent</h2>
 </div>
 <div id="simulation-study" class="section level2">
 <h2>Simulation study</h2>
