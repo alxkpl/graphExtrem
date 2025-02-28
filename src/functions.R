@@ -244,7 +244,181 @@ trace_vector <- function(gamma, clusters){
   return(T.vector)
 }
 
-## Computation of the gradient of the trace split in tow elements
+#' Variogram transformation application gamma
+#'
+#' @param sigma A d x d numeric matrix
+#'
+#' @returns For a symmetric positive matrix sigma (covariance matrix), return the 
+#' corresponding variogram matrix.
+#'
+#' @examples
+#' s_sigma <- matrix(rnorm(16, 2), nc  = 4)
+#' gamma_function(s_sigma %*% t(s_sigma))
+gamma_function <- function(sigma){
+  indic <- rep(1, nrow(sigma))
+  return(
+    tcrossprod(diag(sigma), indic) + tcrossprod(indic, diag(sigma)) - 2 * sigma
+  )
+}
+
+
+crout_factorisation <- function(A, tol = 1e-12){
+  n <- nrow(A)
+  d <- rep(0, n)
+  L <- diag(rep(1, n))
+  d[1] <- A[1, 1]
+  for(i in 2:n){
+    for(j in 1:(i - 1)){
+      L[i, j] <- (1 / d[j]) * (A[i, j] - sum(L[i, ] * L[j, ] * d))
+    }
+    d[i] <- A[i, i] - sum(d*(L[i, ])**2)
+  }
+  
+  return(L %*% diag(sqrt(d*(d>tol))))
+}
+
+
+
+#' Moore-Penrose pseudo inverse
+#'
+#' @param A a d x d symmetric positive semi-definite matrix.
+#'
+#' @returns Computes the Moore-Penrose inverse of a matrix. The calculation is 
+#' done thanks to an article and if  : 
+#'                                A = L L^t 
+#' then we have : 
+#'                        A^+ = L (L^t L)^-1 (L^t L)^-1 L^t
+#' 
+#' @export
+#'
+#' @examples
+#'A <- matrix(c(1,2,3,
+#'              2,5,6,
+#'              3,6,9), nc = 3)
+#' psolve(A)
+psolve <- function(A, tol = 1e-12){
+
+  S <- crout_factorisation(A, tol = tol)
+  
+  L <- S[, which(diag(S) != 0)]
+  
+  return(
+    L %*% solve(t(L) %*% L) %*% solve(t(L) %*% L) %*% t(L)
+  )
+}
+
+## Computation of the gradient of the initial loglikelihood
+
+#' Title
+#'
+#' @param gamma 
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+#' R <- matrix(c(0.5, -1,
+#'               -1, -1), nr = 2)
+#' clusters <- list(c(1,3), c(2,4))
+#' gamma <- matrix(c(0,2,1,0,
+#'                   2,0,4,1,
+#'                   1,4,0,7,
+#'                   0,1,7,0), nc = 4)
+#' gradient <- dlog(gamma)
+#' gradient(R, clusters)
+dlog <- function(gamma){
+  function(R, clusters){
+    U <- U_matrix(clusters) 
+    G_theta_p <- build_theta(R, clusters) |> 
+                    psolve() |> 
+                    gamma_function()
+    return(
+      t(U) %*% (G_theta_p - gamma) %*% U - .5 * diag(t(U) %*% G_theta_p %*% U)
+    )
+  }
+}
+
+
+## Computation of the gradient of the penalty
+
+
+
+#------------------------------- Others functions ------------------------------
+
+## Decomposition of the gradient computation using finite difference
+
+#' Function applied after one step in one coordinate.
+#'
+#' @param f a function which takes values in the set of real number.
+#' @param theta a matrix dxd.
+#' @param h a positive number : the step size.
+#'
+#' @returns Return a function giving the value of the function f when we apply 
+#' one step in one coefficient of the matrix theta.
+#'
+#' @examples
+#' f <- \(.) sum(.)
+#' theta <- diag(1, nr = 5, nc = 5)
+#' f_h <- coord_function_step(f, theta, 0.1)
+#' f_h(c(1,1))
+coord_function_step <- function(f, theta, h){
+  function(index){
+    d <- nrow(theta)
+    i <- index[1]
+    j <- index[2]
+    step <- matrix(ifelse((1:(d**2)%%d == i%%d)*(0:(d**2-1)%/%d + 1 == j), h, 0),
+                   nc = d)
+    return(f(theta + step))
+  }
+}
+
+#' Computation of the partial derivative of a function.
+#'
+#' @param f a function which takes values in the set of real number.
+#' @param theta a matrix dxd.
+#' @param h a positive number : the step size.
+#'
+#' @returns Return a function giving the partial derivative of the function f 
+#' for one coefficient of theta.
+#' 
+#' @examples
+#' f <- \(.) sum(.)
+#' theta <- diag(1, nr = 5, nc = 5)
+#' df_ij <- coord_diff_finite(f, theta, 0.1)
+#' df_ij(c(1,1))
+coord_diff_finite <- function(f, theta, h){
+  function(index){
+    f_h <- coord_function_step(f, theta, h)
+    return((f_h(index) - f(theta)) / h)
+  }
+}
+
+#' Computation of the gradient matrix of the function
+#'
+#' @param f a function which takes values in the set of real number.
+#' @param theta a matrix dxd.
+#' @param h a positive number : the step size.
+#'
+#' @returns Return the full gradient (approximated by finite difference) of the
+#' function f at the point theta
+#'
+#' @examples
+#' f <- \(.) sum(.)
+#' theta <- diag(1, nr = 5, nc = 5)
+#' gradient_diff_finite(f, theta, 0.1)
+gradient_diff_finite <- function(f, theta, h){
+  df_ij <- coord_diff_finite(f, theta, h)
+  
+  d <- nrow(theta)
+  gradient <- matrix(rep(0, d*d), nc = d)
+  for(i in 1:d){
+    for(j in 1:d){
+      gradient[i, j] <- df_ij(c(i,j))
+    }
+  }
+  return(gradient)
+}
+
 
 #' Computation of the first element of the trace's gradient
 #'
@@ -334,151 +508,15 @@ dtrace <- function(gamma){
 #' A <- matrix(c(0,2,1,2,0,4,1,4,0), nc = 3)
 #' row_f_gradient(A, clusters)
 row_f_gradient <- function(A, clusters){
-    U <- U_matrix(clusters)
-    indic <- rep(1, length(clusters))
-    T.vector <- trace_vector(A, clusters)
-    
-    tUAU <- t(U) %*% A %*% U
-    trAp <- tcrossprod(T.vector * p, indic)
-    return(
-      tUAU - (trAp + t(trAp)) + diag((1 + p) * T.vector - .5 * diag(tUAU))
-      )
-}
-
-#' Variogram transformation application gamma
-#'
-#' @param sigma A d x d numeric matrix
-#'
-#' @returns For a symmetric positive matrix sigma (covariance matrix), return the 
-#' corresponding variogram matrix.
-#'
-#' @examples
-#' s_sigma <- matrix(rnorm(16, 2), nc  = 4)
-#' gamma_function(s_sigma %*% t(s_sigma))
-gamma_function <- function(sigma){
-  indic <- rep(1, nrow(sigma))
-  return(
-    tcrossprod(diag(sigma), indic) + tcrossprod(indic, diag(sigma)) - 2 * sigma
-  )
-}
-
-
-#' Moore-Penrose pseudo inverse
-#'
-#' @param A a d x d symmetric positive semi-definite matrix.
-#'
-#' @returns Computes the Moore-Penrose inverse of a matrix. The calculation is 
-#' done thanks to an article and if  : 
-#'                                A = L L^t 
-#' then we have : 
-#'                        A^+ = L (L^t L)^-1 (L^t L)^-1 L^t
-#' 
-#' @export
-#'
-#' @examples
-#'A <- matrix(c(1,2,3,
-#'              2,5,6,
-#'              3,6,9), nc = 3)
-#' psolve(A)
-psolve <- function(A){
-  options(warn = -1)
-  chol.res <- chol(A, pivot = TRUE)
-  options(warn = 0)
-  L <- t(chol.res[1:attr(chol.res, "rank"), attr(chol.res, "pivot")])
-  return(
-    L %*% solve(t(L) %*% L) %*% solve(t(L) %*% L) %*% t(L)
-  )
-}
-
-#' Title
-#'
-#' @param R 
-#' @param clusters 
-#'
-#' @returns
-#' @export
-#'
-#' @examples
-dlog <- function(R, clusters){
-  Theta_p <- psolve(build_theta(R, clusters))
-  return(
-    row_f_gradient(gamma_function(Theta_p), clusters)
-  )
-}
-
-#------------------------------- Others functions ------------------------------
-
-## Decomposition of the gradient computation using finite difference
-
-#' Function applied after one step in one coordinate.
-#'
-#' @param f a function which takes values in the set of real number.
-#' @param theta a matrix dxd.
-#' @param h a positive number : the step size.
-#'
-#' @returns Return a function giving the value of the function f when we apply 
-#' one step in one coefficient of the matrix theta.
-#'
-#' @examples
-#' f <- \(.) sum(.)
-#' theta <- diag(1, nr = 5, nc = 5)
-#' f_h <- coord_function_step(f, theta, 0.1)
-#' f_h(c(1,1))
-coord_function_step <- function(f, theta, h){
-  function(index){
-    d <- nrow(theta)
-    i <- index[1]
-    j <- index[2]
-    step <- matrix(ifelse((1:(d**2)%%d == i%%d)*(0:(d**2-1)%/%d + 1 == j), h, 0),
-                   nc = d)
-    return(f(theta + step))
-  }
-}
-
-#' Computation of the partial derivative of a function.
-#'
-#' @param f a function which takes values in the set of real number.
-#' @param theta a matrix dxd.
-#' @param h a positive number : the step size.
-#'
-#' @returns Return a function giving the partial derivative of the function f 
-#' for one coefficient of theta.
-#' 
-#' @examples
-#' f <- \(.) sum(.)
-#' theta <- diag(1, nr = 5, nc = 5)
-#' df_ij <- coord_diff_finite(f, theta, 0.1)
-#' df_ij(c(1,1))
-coord_diff_finite <- function(f, theta, h){
-  function(index){
-    f_h <- coord_function_step(f, theta, h)
-    return((f_h(index) - f(theta)) / h)
-  }
-}
-
-#' Computation of the gradient matrix of the function
-#'
-#' @param f a function which takes values in the set of real number.
-#' @param theta a matrix dxd.
-#' @param h a positive number : the step size.
-#'
-#' @returns Return the full gradient (approximated by finite difference) of the
-#' function f at the point theta
-#'
-#' @examples
-#' f <- \(.) sum(.)
-#' theta <- diag(1, nr = 5, nc = 5)
-#' gradient_diff_finite(f, theta, 0.1)
-gradient_diff_finite <- function(f, theta, h){
-  df_ij <- coord_diff_finite(f, theta, h)
+  U <- U_matrix(clusters)
+  indic <- rep(1, length(clusters))
+  T.vector <- trace_vector(A, clusters)
   
-  d <- nrow(theta)
-  gradient <- matrix(rep(0, d*d), nc = d)
-  for(i in 1:d){
-    for(j in 1:d){
-      gradient[i, j] <- df_ij(c(i,j))
-    }
-  }
-  return(gradient)
+  tUAU <- t(U) %*% A %*% U
+  trAp <- tcrossprod(T.vector * p, indic)
+  return(
+    tUAU - (trAp + t(trAp)) + diag((1 + p) * T.vector - .5 * diag(tUAU))
+  )
 }
+
 
