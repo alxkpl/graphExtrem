@@ -272,8 +272,11 @@ gamma_function <- function(sigma){
 #'                                   A = L' L 
 #'
 #' @examples
-#' 
-#' 
+#'A <- matrix(c(1,2,3,
+#'              2,5,6,
+#'              3,6,9), nc = 3)
+#' L <- crout_factorisation(A)
+#' L %*% t(L)
 crout_factorisation <- function(A, tol = 1e-12){
   n <- nrow(A)
   d <- rep(0, n)
@@ -298,7 +301,7 @@ crout_factorisation <- function(A, tol = 1e-12){
 #' @returns Computes the Moore-Penrose inverse of a matrix. The calculation is 
 #' done thanks to an article and if  : 
 #'                                A = L L^t 
-#' then we have : 
+#' (with L having no zero-columns) then we have : 
 #'                        A^+ = L (L^t L)^-1 (L^t L)^-1 L^t
 #' 
 #' @export
