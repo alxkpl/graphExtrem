@@ -292,8 +292,6 @@ crout_factorisation <- function(A, tol = 1e-12){
   return(L %*% diag(sqrt(d*(d>tol))))
 }
 
-
-
 #' Moore-Penrose pseudo inverse
 #'
 #' @param A a d x d symmetric positive semi-definite matrix.
@@ -322,11 +320,12 @@ psolve <- function(A, tol = 1e-12){
   )
 }
 
-#' Title
+#' Computation of the clustered weight matrix
 #'
-#' @param weights 
+#' @param weights a d x d symmetric matrix with a zero diagonal.
 #'
-#' @returns
+#' @returns A function of clusters : the weight matrix for each pair of clusters :
+#'                          W_kl = sum_(i in C_k) sum_(j in C_l) w_ij
 #' @export
 #'
 #' @examples
