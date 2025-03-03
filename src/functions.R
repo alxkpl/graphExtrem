@@ -366,9 +366,9 @@ weight_clustered <- function(weights){
 #'                   2,0,4,1,
 #'                   1,4,0,7,
 #'                   0,1,7,0), nc = 4)
-#' gradient <- gradient_nloglike(gamma)
+#' gradient <- nloglike_grad_np(gamma)
 #' gradient(R, clusters)
-gradient_nloglike <- function(gamma){
+nloglike_grad_np <- function(gamma){
   function(R, clusters){
     # Get tu U matrix of clusters indicators
     U <- U_matrix(clusters) 
