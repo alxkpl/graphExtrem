@@ -163,7 +163,7 @@ semi_def <- function(matrix){
 }
 
 #----------------------- Gradient descent for clustering -----------------------
-## Functions for the building of some particular matrices
+##========= Functions for the building of some particular matrices =============
 
 #' Computation of the matrix of clusters
 #'
@@ -262,6 +262,18 @@ gamma_function <- function(sigma){
 }
 
 
+#' Crout factorization algorithm
+#'
+#' @param A a d x d symmetric positive matrix.
+#' @param tol a positive value : tolerance for the zero diagonal
+#'
+#' @returns The LU Crout decomposition of a matrix A. For A a symmetric positive 
+#' matrix, there exists a LU decomposition such that : 
+#'                                   A = L' L 
+#'
+#' @examples
+#' 
+#' 
 crout_factorisation <- function(A, tol = 1e-12){
   n <- nrow(A)
   d <- rep(0, n)
@@ -307,7 +319,29 @@ psolve <- function(A, tol = 1e-12){
   )
 }
 
-## Computation of the gradient of the initial loglikelihood
+#' Title
+#'
+#' @param weights 
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+#' clusters <- list(c(1,2,3), c(4,5))
+#' W <- matrix(1:25, nc = 5)"
+#' W_c <- weight_clustered(W)
+#' W_c(clusters)
+weight_clustered <- function(weights){
+  function(clusters){
+    U <- U_matrix(clusters) 
+    return(
+      t(U) %*% weights %*% U
+    )
+  }
+}
+
+
+##======= Computation of the gradient of the initial loglikelihood =============
 
 #' Title
 #'
@@ -339,9 +373,50 @@ dlog <- function(gamma){
 }
 
 
-## Computation of the gradient of the penalty
+##================= Computation of the gradient of the penalty =================
+
+#' Title
+#'
+#' @param R 
+#' @param clusters 
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+D_tilde2_r <- function(R, clusters){
+  function(k, l){
+    if(k == l){
+      return(0)
+    }else{
+      p <- sapply(clusters, length)
+      return(
+        sum((p - ((1:K) %in% c(1,1))) * (R[k, ] - R[l, ])**2)
+        )
+    }
+  }
+}
+
+penalty <- function(weights){
+  get_W <- weight_clustered(weights)
+  function(R, clusters){
+    K <- length(clusters)
+    D2 <- D_tilde2_r(R, clusters)
+    W <- get_W(clusters) 
+    D <- matrix(rep(0, K * K), nc = K)
+    for(k in 2:K){
+      for(l in 1:(k-1)){
+        D[k, l] <- D2[k, l]
+      }
+    }
+    return(
+      sum(D * W)
+    )
+  }
+}
 
 
+dpen 
 
 #------------------------------- Others functions ------------------------------
 
