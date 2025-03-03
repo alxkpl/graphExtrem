@@ -345,12 +345,18 @@ weight_clustered <- function(weights){
 
 ##======= Computation of the gradient of the initial loglikelihood =============
 
-#' Title
+#' Gradient of the negative log likelihood without penalty
 #'
-#' @param gamma 
+#' @param gamma a d x d variogram matrix.
 #'
-#' @returns
-#' @export
+#' @returns A function of the R matrix and clusters and compute the gradient 
+#' matrix of the negative log likelihood for a fixed variogram gamma. The gradient 
+#' matrix can be computed by : 
+#' 
+#'                        dnllh = dlog + dtrace
+#' where :
+#'      - dlog = t(U) g(Theta_p) U - 0.5 diag(t(U) g(Theta_p) U)  
+#'      - dtrace = - t(U) gamma U   
 #'
 #' @examples
 #' R <- matrix(c(0.5, -1,
@@ -360,17 +366,26 @@ weight_clustered <- function(weights){
 #'                   2,0,4,1,
 #'                   1,4,0,7,
 #'                   0,1,7,0), nc = 4)
-#' gradient <- dlog(gamma)
+#' gradient <- gradient_nloglike(gamma)
 #' gradient(R, clusters)
-dlog <- function(gamma){
+gradient_nloglike <- function(gamma){
   function(R, clusters){
+    # Get tu U matrix of clusters indicators
     U <- U_matrix(clusters) 
+    
+    # Computation of gamma(Theta_p) with Theta_p the Penrose inverse of Theta
     G_theta_p <- build_theta(R, clusters) |> 
                     psolve() |> 
                     gamma_function()
-    return(
-      t(U) %*% (G_theta_p - gamma) %*% U - .5 * diag(t(U) %*% G_theta_p %*% U)
-    )
+    
+    # Gradient of log part
+    dlog <- t(U) %*% (G_theta_p - gamma) %*% U - .5 * diag(t(U) %*% G_theta_p %*% U)
+   
+    # Gradient of trace part
+    dtrace <- - t(U) %*% gamma %*% U
+    
+    return(dlog + dtrace)
+    
   }
 }
 
