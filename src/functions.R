@@ -252,7 +252,7 @@ trace_vector <- function(gamma, clusters){
 #' corresponding variogram matrix.
 #'
 #' @examples
-#' s_sigma <- matrix(rnorm(16, 2), nc  = 4)
+#' s_sigma <- matrix(rnorm(16, 2), nc = 4)
 #' gamma_function(s_sigma %*% t(s_sigma))
 gamma_function <- function(sigma){
   indic <- rep(1, nrow(sigma))
@@ -468,6 +468,49 @@ penalty <- function(weights){
     )
   }
 }
+
+
+#' Intermediate function for gradient penalty computation
+#'
+#' @param R K x K symmetric matrix.
+#' @param clusters a list of vector : each vector gives the element of a cluster.
+#' @param weights a d x d symmetric matrix with a zero diagonal.
+#'
+#' @returns A function which compute a particular scalar product which appears in
+#' the computation of the gradient of the penalty. The formula is given by : 
+#'                        sum_{k'<l} W_k'l (r_kl - r_kk')
+#'                        sum_{k<l'} W_kl' (r_kl - r_ll')
+#'                        sum_{q} W_kq (r_kl - r_kq)
+#' see equations in section 4.3.3 for details.
+#'
+#' @examples
+#' 
+#' 
+#' 
+inter_prod <- function(R, clusters, weights){
+  get_W <- weight_clustered(weights)
+  K <- length(clusters)               # Number of clusters
+  p <- sapply(clusters, length)       # Vector of cluster's size
+  W <- get_W(clusters)                # Weights clustered
+  
+  function(k, l){
+    if(k==l){
+      return(
+        W[k, ] %*% (R[k, k] - R[, k]) 
+      )
+    }
+    if(k < l){
+      indic <- 1 * (1:K < l)
+      
+      return(W[l, ] %*% (R[k, l] - R[, k]) * indic)
+    }else{
+      indic <- 1 * (1:K > k)
+      
+      return(W[k, ] %*% (R[k, l] - R[, l]) * indic)
+    }
+  }
+}
+
 
 
 #------------------------------- Others functions ------------------------------
