@@ -570,20 +570,27 @@ penalty_grad <- function(weights){
 #' @param h a positive number : the step size.
 #'
 #' @returns Return a function giving the value of the function f when we apply 
-#' one step in one coefficient of the matrix theta.
+#' one step in one coefficient of the symmetric matrix theta.
 #'
 #' @examples
 #' f <- \(.) sum(.)
 #' theta <- diag(1, nr = 5, nc = 5)
 #' f_h <- coord_function_step(f, theta, 0.1)
-#' f_h(c(1,1))
+#' f_h(1, 2)
 coord_function_step <- function(f, theta, h){
-  function(index){
+  function(i, j){
     d <- nrow(theta)
-    i <- index[1]
-    j <- index[2]
-    step <- matrix(ifelse((1:(d**2)%%d == i%%d)*(0:(d**2-1)%/%d + 1 == j), h, 0),
+    if(i == j){
+      step <- diag(h * (1:d == i))
+      return(
+        f(theta + step)
+      )
+    }
+    u_step <- matrix(ifelse((1:(d**2)%%d == i%%d)*(0:(d**2-1)%/%d + 1 == j), h, 0),
                    nc = d)
+    
+    step <- u_step + t(u_step) - diag(diag(u_step))
+    
     return(f(theta + step))
   }
 }
@@ -601,11 +608,11 @@ coord_function_step <- function(f, theta, h){
 #' f <- \(.) sum(.)
 #' theta <- diag(1, nr = 5, nc = 5)
 #' df_ij <- coord_diff_finite(f, theta, 0.1)
-#' df_ij(c(1,1))
+#' df_ij(1, 2)
 coord_diff_finite <- function(f, theta, h){
-  function(index){
+  function(i, j){
     f_h <- coord_function_step(f, theta, h)
-    return((f_h(index) - f(theta)) / h)
+    return((f_h(i, j) - f(theta)) / h)
   }
 }
 
@@ -626,12 +633,13 @@ gradient_diff_finite <- function(f, theta, h){
   df_ij <- coord_diff_finite(f, theta, h)
   
   d <- nrow(theta)
-  gradient <- matrix(rep(0, d*d), nc = d)
+  u_gradient <- matrix(rep(0, d * d), nc = d)
   for(i in 1:d){
-    for(j in 1:d){
-      gradient[i, j] <- df_ij(c(i,j))
+    for(j in i:d){
+      u_gradient[i, j] <- df_ij(i, j)
     }
   }
+  gradient <- u_gradient + t(u_gradient) - diag(diag(u_gradient))
   return(gradient)
 }
 
