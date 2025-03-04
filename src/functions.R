@@ -367,8 +367,44 @@ gen_det <- function(A, tol = 1e-10){
     prod(res[res > tol])
   )
 }
-##======= Computation of the gradient of the initial loglikelihood =============
+##======= Computation of the gradient of the initial log-likelihood ============
 
+#' Negative log-likelihood computation.
+#'
+#' @param gamma A d x d matrix: the empirical variogram matrix
+#'
+#' @returns For a fixed variogram gamma, compute for a set of clusters and 
+#' corresponding R matrix, the value of the associated negative likelihood defined
+#' by : 
+#'                  nllh = - log(|theta|_+) - 1/2 trace(gamma * theta)
+#' where |.|_+ is the generalised determinant.
+#' 
+#' @examples
+#' R <- matrix(c(0.5, -1,
+#'               -1, -1), nr = 2)
+#' clusters <- list(c(1,3), c(2,4))
+#' gamma <- matrix(c(0,2,1,0,
+#'                   2,0,4,1,
+#'                   1,4,0,7,
+#'                   0,1,7,0), nc = 4)
+#' nllh <- neg_likelihood(gamma) 
+#' nllh(R, clusters)
+neg_likelihood <- function(gamma){
+  function(R, clusters){
+    # Building of the theta matrix from R
+    theta <- build_theta(R, clusters)
+    
+    # Computation of the log-determinant part
+    log_det <- log(gen_det(theta))
+    
+    # Computation of the trace part
+    tr <- sum(diag(gamma %*% theta))
+    
+    return(
+      - log_det - .5 * tr
+    )
+  }
+}
 
 
 #' Gradient of the negative log likelihood without penalty
