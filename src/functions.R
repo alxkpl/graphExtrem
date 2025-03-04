@@ -347,7 +347,29 @@ weight_clustered <- function(weights){
 }
 
 
+#' Generalised determinant
+#'
+#' @param A a d x d real valued matrix.
+#' @param tol a positive value.
+#'
+#' @returns Compute the generalised determinant of a matrix A. We recall that the 
+#' generalised determinant is an extension of the determinant for singular matrix. 
+#' It corresponds to the product of all the non zero eigen values.
+#'
+#' @examples
+#' A <- matrix(c(1,2,3,
+#'               2,5,6,
+#'               3,6,9), nc = 3)
+#' gen_det(A)
+gen_det <- function(A, tol = 1e-10){
+  res <- eigen(A, only.values = TRUE)$values
+  return(
+    prod(res[res > tol])
+  )
+}
 ##======= Computation of the gradient of the initial loglikelihood =============
+
+
 
 #' Gradient of the negative log likelihood without penalty
 #'
