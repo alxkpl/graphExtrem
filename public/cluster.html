@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-02-27" />
+        <meta name="date" content="2025-03-04" />
     
     <title>Variable clustering for Husler-Reiss graphical models</title>
 
@@ -1240,7 +1240,7 @@ graphical models</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-02-27</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-03-04</p>
           </div>
    </div>
      
@@ -1777,14 +1777,14 @@ u_k^t\gamma(\Theta^+)u_k &amp; \text{if } k=l,
 <h3>Gradient of <span class="math inline">\(L_{trace}(R)\)</span></h3>
 <p>We recall that :</p>
 <p><span class="math display">\[
-L_{trace}(R) = \text{tr}(\overline \Gamma URU^t)
+L_{trace}(R) = -\frac 1 2\text{tr}(\overline \Gamma URU^t)
 \]</span></p>
 <p>As we have for all symmetric matrix <span class="math inline">\(A\)</span> : <span class="math display">\[
 \frac{\partial tr(AB)}{\partial b_{ij}} = 2 a_{ij}
 \]</span></p>
 <p>Then we can deduce that for <span class="math inline">\((k,l) \in
 F\)</span> : <span class="math display">\[
-\frac{\partial L_{trace}(R)}{\partial r_{kl}} = 2(U^t\overline \Gamma
+\frac{\partial L_{trace}(R)}{\partial r_{kl}} = -(U^t\overline \Gamma
 U)_{kl}
 \]</span></p>
 </div>

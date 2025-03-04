@@ -485,7 +485,7 @@ $$
 We recall that : 
 
 $$
-L_{trace}(R) = \text{tr}(\overline \Gamma URU^t)
+L_{trace}(R) = -\frac 1 2\text{tr}(\overline \Gamma URU^t)
 $$
 
 As we have for all symmetric matrix $A$ : 
@@ -495,7 +495,7 @@ $$
 
 Then we can deduce that for $(k,l) \in F$ : 
 $$
-\frac{\partial L_{trace}(R)}{\partial r_{kl}} = 2(U^t\overline \Gamma U)_{kl} 
+\frac{\partial L_{trace}(R)}{\partial r_{kl}} = -(U^t\overline \Gamma U)_{kl} 
 $$
 
 ### Gradient of $L_{pen}(R)$
