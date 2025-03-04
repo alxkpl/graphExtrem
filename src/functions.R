@@ -433,8 +433,6 @@ penalty <- function(weights){
 }
 
 
-dpen 
-
 #------------------------------- Others functions ------------------------------
 
 ## Decomposition of the gradient computation using finite difference
