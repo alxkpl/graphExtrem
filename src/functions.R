@@ -262,7 +262,7 @@ gamma_function <- function(sigma){
 }
 
 
-#' Crout factorization algorithm
+#' Crout factorization algorithm.
 #'
 #' @param A a d x d symmetric positive matrix.
 #' @param tol a positive value : tolerance for the zero diagonal
@@ -334,7 +334,7 @@ psolve <- function(A, tol = 1e-12){
 #'
 #' @examples
 #' clusters <- list(c(1,2,3), c(4,5))
-#' W <- matrix(1:25, nc = 5)"
+#' W <- matrix(1:25, nc = 5)
 #' W_c <- weight_clustered(W)
 #' W_c(clusters)
 weight_clustered <- function(weights){
@@ -413,7 +413,6 @@ nloglike_grad_np <- function(gamma){
 #' D2(1, 2)
 D_tilde2_r <- function(R, clusters){
   function(k, l){
-   
     if(k == l){
       return(0)         # 0 distance for the same cluster even with the symmetry of the matrix
     }else{
@@ -428,16 +427,40 @@ D_tilde2_r <- function(R, clusters){
   }
 }
 
+#' Penalty function.
+#'
+#' @param weights a d x d symmetric matrix with a zero diagonal.
+#'
+#' @returns For fixed weights, returns a function which compute the value of the 
+#' penalty for chosen clusters and corresponding R matrix. We recall the penalty 
+#' is given by : 
+#'                    P(R) = sum_{k<l} W_kl D^2(r_.k, r_.l)
+#' with W_kl the clustered weight for clusters k and l. 
+#'
+#' @examples
+#' R <- matrix(c(0.5, -1,
+#'               -1, -1), nr = 2)
+#' clusters <- list(c(1,3), c(2,4)) 
+#' W <- matrix(c(0, 1, 1, 1,
+#'               1, 0, 1, 1,
+#'               1, 1, 0, 1,
+#'               1, 1, 1, 0), nc = 4)
+#' P <- penalty(W)
+#' P(R, clusters)
 penalty <- function(weights){
+  # Fixing the weights for computing weights clustered
   get_W <- weight_clustered(weights)
   function(R, clusters){
-    K <- length(clusters)
-    D2 <- D_tilde2_r(R, clusters)
-    W <- get_W(clusters) 
-    D <- matrix(rep(0, K * K), nc = K)
-    for(k in 2:K){
-      for(l in 1:(k-1)){
-        D[k, l] <- D2[k, l]
+    # Initialisation
+    K <- length(clusters)                   # Number of clusters
+    D2 <- D_tilde2_r(R, clusters)           # Function for distance between clusters
+    W <- get_W(clusters)                    # Weights clustered
+    D <- matrix(rep(0, K * K), nc = K)      # Distance matrix for clusters
+    
+    # Computation of the distance matrix
+    for(l in 2:K){
+      for(k in 1:(k-1)){        # we keep only the lower triangular part
+        D[k, l] <- D2(k, l) 
       }
     }
     return(
