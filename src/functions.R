@@ -318,7 +318,7 @@ psolve <- function(A, tol = 1e-12){
 
   S <- crout_factorisation(A, tol = tol)
   
-  L <- S[, which(diag(S) != 0)]
+  L <- S[, which(diag(S) != 0)]         # to get now null columns
   
   return(
     L %*% solve(t(L) %*% L) %*% solve(t(L) %*% L) %*% t(L)
@@ -396,22 +396,32 @@ nloglike_grad_np <- function(gamma){
 
 ##================= Computation of the gradient of the penalty =================
 
-#' Title
+#' Cluster distance squared function
 #'
-#' @param R 
-#' @param clusters 
+#' @param R K x K symmetric matrix.
+#' @param clusters a list of vector : each vector gives the element of a cluster.
 #'
-#' @returns
-#' @export
+#' @returns A function of cluster number : compute the square distance between two 
+#' cluster for the distance defined in section 4.2 in cluster document.
 #'
 #' @examples
+#' 
+#' R <- matrix(c(0.5, -1,
+#'               -1, -1), nr = 2)
+#' clusters <- list(c(1,3), c(2,4))
+#' D2 <- D_tilde2_r(R, clusters)
+#' D2(1, 2)
 D_tilde2_r <- function(R, clusters){
   function(k, l){
+   
     if(k == l){
-      return(0)
+      return(0)         # 0 distance for the same cluster even with the symmetry of the matrix
     }else{
-      p <- sapply(clusters, length)
+      # Parameters of clusters
+      K <- length(clusters)               # Number of clusters
+      p <- sapply(clusters, length)       # Vector of cluster's size
       return(
+        # for fixed k, l the square difference is multiplied by 1-p_k and 1-p_l
         sum((p - ((1:K) %in% c(1,1))) * (R[k, ] - R[l, ])**2)
         )
     }
