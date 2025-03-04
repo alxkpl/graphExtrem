@@ -246,10 +246,10 @@ trace_vector <- function(gamma, clusters){
 
 #' Variogram transformation application gamma
 #'
-#' @param sigma A d x d numeric matrix
+#' @param sigma A d x d numeric matrix.
 #'
 #' @returns For a symmetric positive matrix sigma (covariance matrix), return the 
-#' corresponding variogram matrix.
+#' corresponding variogram matrix. Can be used for other but with no interpretation.
 #'
 #' @examples
 #' s_sigma <- matrix(rnorm(16, 2), nc = 4)
@@ -490,7 +490,6 @@ penalty <- function(weights){
 inter_prod <- function(R, clusters, weights){
   get_W <- weight_clustered(weights)
   K <- length(clusters)               # Number of clusters
-  p <- sapply(clusters, length)       # Vector of cluster's size
   W <- get_W(clusters)                # Weights clustered
   
   function(k, l){
@@ -511,6 +510,46 @@ inter_prod <- function(R, clusters, weights){
   }
 }
 
+#' Computation of the penalty's gradient
+#'
+#' @param weights a d x d symmetric matrix with a zero diagonal.
+#'
+#' @returns A function of clusters and corresponding R matrix. Compute the gradient 
+#' with fixed weight. The expression of the gradient is given by :
+#'  dpen_kl = 2p_k inter(k,l) + 2p_l inter(l, k) + 2 W_kl (r_kk + r_ll - 2r_kl)
+#'  dpen_kk = 2 (p_k-1) inter(k, k)
+#' see equations in section 4.3.3 for details.
+#'
+#' @examples
+#' 
+#' 
+#' 
+penalty_grad <- function(weigths){
+  get_W <- weight_clustered(weights)
+  function(R, clusters){
+    # Initialisation
+    K <- length(clusters)               # Number of clusters
+    p <- sapply(clusters, length)       # Vector of cluster's size
+    W <- get_W(clusters)                # Weights clustered
+    
+    dpen <- matrix(rep(0, K * K), nc = K)
+    f <- inter_prod(R, clusters, weights)   # build the intermediate function
+
+    for(k in 1:K){
+      for(l in (k+1):K){
+        dpen[k, l] <- 2 * p[k] * f(k, l) + 2 * p[l] * f(l, k)
+      }
+      dpen[k, k] <- 2 * (p[k] - 1) * f(k, k)
+    }
+    # To get symmetry of the gradient matrix
+    dpen <- t(dpen) + dpen - diag(diag(dpen))
+    
+    # No problem for the diagonal because gamma give a zero diagonal matrix
+    return(
+      dpen + 2 * W * gamma_function(R)
+    )
+  }
+}
 
 
 #------------------------------- Others functions ------------------------------
