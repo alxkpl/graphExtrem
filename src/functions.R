@@ -318,7 +318,7 @@ psolve <- function(A, tol = 1e-12){
 
   S <- crout_factorisation(A, tol = tol)
   
-  L <- S[, which(diag(S) != 0)]         # to get now null columns
+  L <- S[, which(diag(S) != 0)]         # to get no null columns
   
   return(
     L %*% solve(t(L) %*% L) %*% solve(t(L) %*% L) %*% t(L)
