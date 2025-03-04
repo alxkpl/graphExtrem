@@ -495,17 +495,17 @@ inter_prod <- function(R, clusters, weights){
   function(k, l){
     if(k==l){
       return(
-        W[k, ] %*% (R[k, k] - R[, k]) 
+        sum(W[k, ] * (R[k, k] - R[, k]))
       )
     }
     if(k < l){
       indic <- 1 * (1:K < l)
       
-      return(W[l, ] %*% (R[k, l] - R[, k]) * indic)
+      return(sum(W[l, ] * (R[k, l] - R[, k]) * indic))
     }else{
       indic <- 1 * (1:K > k)
       
-      return(W[k, ] %*% (R[k, l] - R[, l]) * indic)
+      return(sum(W[k, ] * (R[k, l] - R[, l]) * indic))
     }
   }
 }
@@ -521,10 +521,17 @@ inter_prod <- function(R, clusters, weights){
 #' see equations in section 4.3.3 for details.
 #'
 #' @examples
+#' R <- matrix(c(0.5, -1,
+#'               -1, -1), nr = 2)
+#' clusters <- list(c(1,3), c(2,4)) 
+#' W <- matrix(c(0, 1, 1, 1,
+#'               1, 0, 1, 1,
+#'               1, 1, 0, 1,
+#'               1, 1, 1, 0), nc = 4)
+#' dpen <- penalty_grad(W)
+#' dpen(R, clusters)
 #' 
-#' 
-#' 
-penalty_grad <- function(weigths){
+penalty_grad <- function(weights){
   get_W <- weight_clustered(weights)
   function(R, clusters){
     # Initialisation
@@ -535,7 +542,7 @@ penalty_grad <- function(weigths){
     dpen <- matrix(rep(0, K * K), nc = K)
     f <- inter_prod(R, clusters, weights)   # build the intermediate function
 
-    for(k in 1:K){
+    for(k in 1:(K-1)){
       for(l in (k+1):K){
         dpen[k, l] <- 2 * p[k] * f(k, l) + 2 * p[l] * f(l, k)
       }
