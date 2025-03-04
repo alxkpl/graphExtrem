@@ -278,7 +278,14 @@ gamma_function <- function(sigma){
 #' L <- crout_factorisation(A)
 #' L %*% t(L)
 crout_factorisation <- function(A, tol = 1e-12){
+  A <- unname(as.matrix(A))
   n <- nrow(A)
+  if(n != ncol(A)){
+    stop("no square matrix.")
+  }
+  if(!semi_def(A)){
+    stop("no positive semi definite matrix.")
+  }
   d <- rep(0, n)
   L <- diag(rep(1, n))
   d[1] <- A[1, 1]
@@ -289,7 +296,7 @@ crout_factorisation <- function(A, tol = 1e-12){
     d[i] <- A[i, i] - sum(d*(L[i, ])**2)
   }
   
-  return(L %*% diag(sqrt(d*(d>tol))))
+  return(L %*% diag(sqrt(d * (d > tol))))
 }
 
 #' Moore-Penrose pseudo inverse
@@ -301,8 +308,6 @@ crout_factorisation <- function(A, tol = 1e-12){
 #'                                A = L L^t 
 #' (with L having no zero-columns) then we have : 
 #'                        A^+ = L (L^t L)^-1 (L^t L)^-1 L^t
-#' 
-#' @export
 #'
 #' @examples
 #'A <- matrix(c(1,2,3,
@@ -326,7 +331,6 @@ psolve <- function(A, tol = 1e-12){
 #'
 #' @returns A function of clusters : the weight matrix for each pair of clusters :
 #'                          W_kl = sum_(i in C_k) sum_(j in C_l) w_ij
-#' @export
 #'
 #' @examples
 #' clusters <- list(c(1,2,3), c(4,5))
