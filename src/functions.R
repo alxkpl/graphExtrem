@@ -477,7 +477,7 @@ D_tilde2_r <- function(R, clusters){
       p <- sapply(clusters, length)       # Vector of cluster's size
       return(
         # for fixed k, l the square difference is multiplied by 1-p_k and 1-p_l
-        sum((p - ((1:K) %in% c(1,1))) * (R[k, ] - R[l, ])**2)
+        sum((p - ((1:K) %in% c(k, l))) * (R[k, ] - R[l, ])**2)
         )
     }
   }
