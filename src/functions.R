@@ -418,7 +418,7 @@ neg_likelihood <- function(gamma){
 #'                        dnllh = dlog + dtrace
 #' where :
 #'      - dlog = t(U) g(Theta_p) U - 0.5 diag(t(U) g(Theta_p) U)  
-#'      - dtrace = - t(U) gamma U   
+#'      - dtrace = - t(U) gamma U  + 0.5 diag(t(U) gamma U)  
 #'
 #' @examples
 #' R <- matrix(c(0.5, -1,
@@ -440,13 +440,11 @@ nloglike_grad_np <- function(gamma){
                     psolve() |> 
                     gamma_function()
     
-    # Gradient of log part
-    dlog <- t(U) %*% (G_theta_p - gamma) %*% U - .5 * diag(t(U) %*% G_theta_p %*% U)
-   
-    # Gradient of trace part
-    dtrace <- - t(U) %*% gamma %*% U
+    # Gradient (factorisation of the formula)
+    dlog <- t(U) %*% (G_theta_p - gamma) %*% U 
+    diag <- - .5 * diag(diag(dlog))
     
-    return(dlog + dtrace)
+    return(dlog + diag)
     
   }
 }
@@ -517,7 +515,7 @@ penalty <- function(weights){
     
     # Computation of the distance matrix
     for(l in 2:K){
-      for(k in 1:(k-1)){        # we keep only the lower triangular part
+      for(k in 1:(l-1)){        # we keep only the lower triangular part
         D[k, l] <- D2(k, l) 
       }
     }
