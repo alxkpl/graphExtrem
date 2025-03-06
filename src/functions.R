@@ -566,6 +566,51 @@ inter_prod <- function(R, clusters, weights){
   }
 }
 
+#' Gradient matrix of distance between tw column
+#'
+#' @param R K x K symmetric matrix.
+#' @param clusters a list of vector : each vector gives the element of a cluster.
+#'
+#' @returns Return a functon of indices (k', l') computing the gradient matrix of 
+#' tilde D^2(r_k', r_l'). See section 4.3.3 in cluster document for details.
+#'
+#' @examples
+#' R <- matrix(c(-1,0,-2,
+#'               0,-3,-1,
+#'               -2,-1,-1), 3)
+#' clusters <- list(c(1,3), c(2), 4)
+#' grad <- gradient_D2(R, clusters)
+#' grad(1, 2)
+gradient_D2 <- function(R, clusters){
+  # Initialisation 
+  K <- length(clusters)                   # Number of clusters
+  p <- sapply(clusters, length)           # Vector of cluster's size
+  function(k, l){
+    A <- matrix(rep(0, K * K), nc = K)
+    
+    # Computation of the non zero row and column
+    A[k, ] <- 2 * p * (R[k, ]- R[l, ])
+    A[, l] <- 2 * p * (R[l, ]- R[k, ])
+    A[k, l] <- 2 * ((p[k] - 1) * (R[k,l] - R[k, k]) + (p[l] - 1) * (R[k,l] - R[l, l]))
+    
+    # Build the symmetry of the gradient (except for the diagonal)
+    grad <- A + t(A)
+    
+    # Computation of the diagonal
+    grad[k, k] <- 2 * (p[k] - 1) * (R[k,k] - R[k, l])
+    grad[l, l] <- 2 * (p[l] - 1) * (R[l,l] - R[k, l])
+    
+    return(
+      grad
+    )
+    
+  }
+}
+
+
+
+
+
 #' Computation of the penalty's gradient
 #'
 #' @param weights a d x d symmetric matrix with a zero diagonal.
@@ -604,6 +649,7 @@ penalty_grad <- function(weights){
       }
       dpen[k, k] <- 2 * (p[k] - 1) * f(k, k)
     }
+    dpen[K, K] <-  2 * (p[K] - 1) * f(K, K)
     # To get symmetry of the gradient matrix
     dpen <- t(dpen) + dpen - diag(diag(dpen))
     
