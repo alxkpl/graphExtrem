@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-03-04" />
+        <meta name="date" content="2025-03-05" />
     
     <title>Variable clustering for Husler-Reiss graphical models</title>
 
@@ -1240,7 +1240,7 @@ graphical models</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-03-04</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-03-05</p>
           </div>
    </div>
      
@@ -1669,8 +1669,8 @@ clusters <span class="math inline">\(C_k\)</span> and <span class="math inline">
 <p><span class="math display">\[\begin{align*}
 D^2(\theta_{.i}, \theta_{.j}) =&amp; \sum_{t\neq i,j} (\theta_{it} -
 \theta_{jt})^2 \\
-= &amp;\sum_{q \neq k,l} p_m (r_{kq}-r_{lq})^2 +(1-p_k)
-(r_{kk}-r_{lk})^2+(1-p_l) (r_{ll}-r_{lk})^2\\
+= &amp;\sum_{q \neq k,l} p_m (r_{kq}-r_{lq})^2 +(p_k-1)
+(r_{kk}-r_{lk})^2+(p_l-1) (r_{ll}-r_{lk})^2\\
 = &amp; \tilde D^2(r_{\cdot k}, r_{\cdot l}).
 \end{align*}\]</span></p>
 <p>Then, by grouping all the terms in <span class="math inline">\(\mathcal P\)</span>, we get :</p>
@@ -1695,7 +1695,7 @@ coefficient (in the upper triangular part, by symmetry).</p>
 <div id="gradient-of-l_logr" class="section level3">
 <h3>Gradient of <span class="math inline">\(L_{log}(R)\)</span></h3>
 <p>Let’s denote <span class="math inline">\(E = \{(i,j) \in [\!|1, d |\!
-]^2, i\le j\}\)</span> and <span class="math inline">\(F = \{(k,l) \in
+]^2, i &lt; j\}\)</span> and <span class="math inline">\(F = \{(k,l) \in
 [\!|1, K |\! ]^2, k\le l \}\)</span> and we consider <span class="math inline">\(\mathbb R^E\)</span> and <span class="math inline">\(\mathbb R^F\)</span> the set of real-valued vector
 indexed by <span class="math inline">\(E\)</span> anf <span class="math inline">\(F\)</span>.</p>
 <p>One can show that there exists a function <span class="math inline">\(f : \mathbb R^F \rightarrow \mathbb R^E\)</span>
@@ -1730,9 +1730,8 @@ Segers 2023)</span>, they show that :</p>
 <p>Now we just have to compute the derivative of <span class="math inline">\(f\)</span>. Let <span class="math inline">\(m =
 (i,j) \in E\)</span>. We can stress first that :</p>
 <p><span class="math display">\[
-f_m(R) = \begin{cases} r_{kk} - \sum_{l = 1}^K p_kr_{kl} &amp; \text{if
-} i=j \in C_k \\
-r_{kl} &amp;  \text{if } i\in C_k, ~ j \in C_l,~ i&lt; j \end{cases}
+f_m(R) =r_{kl},  \quad \text{if } i\in C_k, ~ j \in C_l,~ \text{or }
+i\in C_l, ~ j \in C_k,~
 \]</span></p>
 <p>Then we can deduce the expression below :</p>
 <p><span class="math display">\[
@@ -1740,38 +1739,26 @@ r_{kl} &amp;  \text{if } i\in C_k, ~ j \in C_l,~ i&lt; j \end{cases}
 \begin{cases}
 1  &amp;\text{if } i \in C_k, ~j \in C_l,\text{ or } i \in C_l,~ j \in
 C_k, \\
-- p_k  &amp;\text{if } i=j \in C_k \\
--p_l &amp;\text{if } i=j \in C_l\\
 0 &amp; \text{otherwise} \end{cases}
 \]</span></p>
 <p>We can now associate these expressions to deduce for <span class="math inline">\(k &lt; l\)</span> that :</p>
 <p><span class="math display">\[\begin{align*}
-\frac{\partial L_{log}(R)}{\partial r_{kl}} &amp;=
--\text{tr}\big[\gamma(\Theta^+)_{C_k}\big]
-p_k  -   \text{tr}\big[\gamma(\Theta^+)_{C_l}\big] p_l + \sum_{i \in
-C_k} \sum_{\underset{i&lt;j}{j \in C_l}}\gamma(\Theta^+)_{ij} +\sum_{i
-\in C_l} \sum_{\underset{i&lt;j}{j \in C_k}} \gamma(\Theta^+)_{ij} \\
-&amp; = u_k^t\gamma(\Theta^+)u_l
--\text{tr}\big[\gamma(\Theta^+)_{C_k}\big]
-p_k  -   \text{tr}\big[\gamma(\Theta^+)_{C_l}\big] p_l,
+\frac{\partial L_{log}(R)}{\partial r_{kl}} &amp;= \sum_{i&lt;j}
+\gamma(\Theta^+)_{ij}\Big[ 1\!\!1_{i\in C_k}1\!\!1_{j\in
+C_l}+1\!\!1_{i\in C_l}1\!\!1_{j\in C_k}\Big] \\
+&amp; = \sum_{i \in C_k}\sum_{j \in C_l}\gamma(\Theta^+)_{ij} \\
+&amp; = u_k^t\gamma(\Theta^+)u_l ,
 \end{align*}\]</span></p>
 <p>with <span class="math inline">\(u_k\)</span> the k-th column of the
-matrix of clusters <span class="math inline">\(U\)</span>.</p>
+matrix of clusters <span class="math inline">\(U\)</span> and because
+<span class="math inline">\(\gamma(\Theta^+)_{ii} = 0\)</span>.</p>
 <p>Moreover if <span class="math inline">\(k=l\)</span>, we get :</p>
 <p><span class="math display">\[\begin{align*}
 \frac{\partial L_{log}(R)}{\partial r_{kk}} &amp;=
-\text{tr}\big[\gamma(\Theta^+)_{C_k}\big] (1-p_k)  +
 \sum_{\underset{i&lt;j}{i,j \in C_k}}\gamma(\Theta^+)_{ij} \\
-&amp;= \text{tr}\big[\gamma(\Theta^+)_{C_k}\big] (1-p_k) + \frac 12
-u_k^t\gamma(\Theta^+)u_k
+&amp;=  \frac 12 u_k^t\gamma(\Theta^+)u_k
 \end{align*}\]</span></p>
-<p>But all matrices obtained from the <span class="math inline">\(\gamma\)</span> application get only zeros in
-their diagonal so the final expression is :</p>
-<p><span class="math display">\[
-\frac{\partial L_{log}(R)}{\partial r_{kl}} = \begin{cases} \frac 12
-u_k^t\gamma(\Theta^+)u_k &amp; \text{if } k=l,
-\\u_k^t\gamma(\Theta^+)u_l &amp; \text{otherwise.}\end{cases}
-\]</span></p>
+<p>that ends the calculation.</p>
 </div>
 <div id="gradient-of-l_tracer" class="section level3">
 <h3>Gradient of <span class="math inline">\(L_{trace}(R)\)</span></h3>
@@ -1780,12 +1767,14 @@ u_k^t\gamma(\Theta^+)u_k &amp; \text{if } k=l,
 L_{trace}(R) = -\frac 1 2\text{tr}(\overline \Gamma URU^t)
 \]</span></p>
 <p>As we have for all symmetric matrix <span class="math inline">\(A\)</span> : <span class="math display">\[
-\frac{\partial tr(AB)}{\partial b_{ij}} = 2 a_{ij}
+\frac{\partial tr(AB)}{\partial b_{ij}} = \begin{cases} 2 a_{ij} &amp;
+\text{if } i \neq j, \\ a_{ii} &amp; \text{otherwise.} \end{cases}
 \]</span></p>
 <p>Then we can deduce that for <span class="math inline">\((k,l) \in
 F\)</span> : <span class="math display">\[
-\frac{\partial L_{trace}(R)}{\partial r_{kl}} = -(U^t\overline \Gamma
-U)_{kl}
+\frac{\partial L_{trace}(R)}{\partial r_{kl}} =\begin{cases}
+-(U^t\overline \Gamma U)_{kl} &amp; \text{if } k=l, \\  -\frac 1
+2(U^t\overline \Gamma U)_{kk} &amp; \text{otherwise.}\end{cases}
 \]</span></p>
 </div>
 <div id="gradient-of-l_penr" class="section level3">
