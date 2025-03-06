@@ -597,8 +597,8 @@ gradient_D2 <- function(R, clusters){
     grad <- A + t(A)
     
     # Computation of the diagonal
-    grad[k, k] <- 2 * (p[k] - 1) * (R[k,k] - R[k, l])
-    grad[l, l] <- 2 * (p[l] - 1) * (R[l,l] - R[k, l])
+    grad[k, k] <- 2 * (p[k] - 1) * (R[k, k] - R[k, l])
+    grad[l, l] <- 2 * (p[l] - 1) * (R[l, l] - R[k, l])
     
     return(
       grad
@@ -610,16 +610,14 @@ gradient_D2 <- function(R, clusters){
 
 
 
-
 #' Computation of the penalty's gradient
 #'
 #' @param weights a d x d symmetric matrix with a zero diagonal.
 #'
 #' @returns A function of clusters and corresponding R matrix. Compute the gradient 
-#' with fixed weight. The expression of the gradient is given by :
-#'  dpen_kl = 2p_k inter(k,l) + 2p_l inter(l, k) + 2 W_kl (r_kk + r_ll - 2r_kl)
-#'  dpen_kk = 2 (p_k-1) inter(k, k)
-#' see equations in section 4.3.3 for details.
+#' with fixed weight. The expression of the gradient is just the weighted sum of the 
+#' gradient of each tilde D^2 where the weights are the clustered weights.
+#' See equations in section 4.3.3 for details.
 #'
 #' @examples
 #' R <- matrix(c(0.5, -1,
@@ -631,34 +629,82 @@ gradient_D2 <- function(R, clusters){
 #'               1, 1, 1, 0), nc = 4)
 #' dpen <- penalty_grad(W)
 #' dpen(R, clusters)
-#' 
 penalty_grad <- function(weights){
   get_W <- weight_clustered(weights)
   function(R, clusters){
     # Initialisation
+    W <- get_W(clusters)                # Weight clustered
     K <- length(clusters)               # Number of clusters
-    p <- sapply(clusters, length)       # Vector of cluster's size
-    W <- get_W(clusters)                # Weights clustered
     
-    dpen <- matrix(rep(0, K * K), nc = K)
-    f <- inter_prod(R, clusters, weights)   # build the intermediate function
-
-    for(k in 1:(K-1)){
-      for(l in (k+1):K){
-        dpen[k, l] <- 2 * p[k] * f(k, l) + 2 * p[l] * f(l, k)
+    # Function of gradient of indices
+    grad_D2 <- gradient_D2(R, clusters)
+    
+    res <- matrix(rep(0, K * K), nc = K)
+    
+    for(k in 1:(K - 1)){
+      for(l in (k + 1):K){
+        res <- res + W[k, l] * grad_D2(k, l)        # Weighted sum
       }
-      dpen[k, k] <- 2 * (p[k] - 1) * f(k, k)
     }
-    dpen[K, K] <-  2 * (p[K] - 1) * f(K, K)
-    # To get symmetry of the gradient matrix
-    dpen <- t(dpen) + dpen - diag(diag(dpen))
     
-    # No problem for the diagonal because gamma give a zero diagonal matrix
     return(
-      dpen + 2 * W * gamma_function(R)
+      res
     )
+    
   }
 }
+
+
+
+
+# #' Computation of the penalty's gradient
+# #'
+# #' @param weights a d x d symmetric matrix with a zero diagonal.
+# #'
+# #' @returns A function of clusters and corresponding R matrix. Compute the gradient 
+# #' with fixed weight. The expression of the gradient is given by :
+# #'  dpen_kl = 2p_k inter(k,l) + 2p_l inter(l, k) + 2 W_kl (r_kk + r_ll - 2r_kl)
+# #'  dpen_kk = 2 (p_k-1) inter(k, k)
+# #' see equations in section 4.3.3 for details.
+# #'
+# #' @examples
+# #' R <- matrix(c(0.5, -1,
+# #'               -1, -1), nr = 2)
+# #' clusters <- list(c(1,3), c(2,4)) 
+# #' W <- matrix(c(0, 1, 1, 1,
+# #'               1, 0, 1, 1,
+# #'               1, 1, 0, 1,
+# #'               1, 1, 1, 0), nc = 4)
+# #' dpen <- penalty_grad(W)
+# #' dpen(R, clusters)
+# #' 
+# penalty_grad <- function(weights){
+#   get_W <- weight_clustered(weights)
+#   function(R, clusters){
+#     # Initialisation
+#     K <- length(clusters)               # Number of clusters
+#     p <- sapply(clusters, length)       # Vector of cluster's size
+#     W <- get_W(clusters)                # Weights clustered
+#     
+#     dpen <- matrix(rep(0, K * K), nc = K)
+#     f <- inter_prod(R, clusters, weights)   # build the intermediate function
+# 
+#     for(k in 1:(K-1)){
+#       for(l in (k+1):K){
+#         dpen[k, l] <- 2 * p[k] * f(k, l) + 2 * p[l] * f(l, k)
+#       }
+#       dpen[k, k] <- 2 * (p[k] - 1) * f(k, k)
+#     }
+#     dpen[K, K] <-  2 * (p[K] - 1) * f(K, K)
+#     # To get symmetry of the gradient matrix
+#     dpen <- t(dpen) + dpen - diag(diag(dpen))
+#     
+#     # No problem for the diagonal because gamma give a zero diagonal matrix
+#     return(
+#       dpen + 2 * W * gamma_function(R)
+#     )
+#   }
+# }
 
 
 #------------------------------- Others functions ------------------------------
