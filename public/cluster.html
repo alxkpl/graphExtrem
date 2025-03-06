@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-03-05" />
+        <meta name="date" content="2025-03-06" />
     
     <title>Variable clustering for Husler-Reiss graphical models</title>
 
@@ -1240,7 +1240,7 @@ graphical models</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-03-05</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-03-06</p>
           </div>
    </div>
      
@@ -1810,15 +1810,11 @@ k&#39;, l = l&#39;\\
 \]</span></p>
 <p>We can deduce the derivatives :</p>
 <p><span class="math display">\[
-\frac{\partial L_{pen}(R)}{\partial r_{kl}} = \sum_{k&#39;=1}^{l-1}
-2W_{k&#39;l}p_k(r_{kl} -r_{kk&#39;}) +
-\sum_{l&#39;=k+1}^{K} 2W_{kl&#39;}p_l(r_{kl} -r_{ll&#39;})
-+2W_{kl}(r_{kk} +r_{ll}-2r_{kl})
+\nabla L_{pen}(R) = \sum_{k&#39;&lt;l&#39;} W_{k&#39;l&#39;}\nabla
+\tilde D^2_{k&#39;l&#39;}(R)
 \]</span></p>
-<p>and : <span class="math display">\[
-\frac{\partial L_{pen}(R)}{\partial r_{kk}} = 2(p_k-1)\sum_{q=1}^K
-W_{qk}(r_{kk} -r_{kq})
-\]</span></p>
+<p>where <span class="math inline">\(\tilde D^2_{k&#39;l&#39;}(R) =
+D^2(r_{\cdot k&#39;}, r_{\cdot l&#39;})\)</span>.</p>
 </div>
 </div>
 <div id="choice-of-a-step-for-descent" class="section level2">

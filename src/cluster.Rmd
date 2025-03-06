@@ -530,14 +530,11 @@ $$
 We can deduce the derivatives : 
 
 $$
-\frac{\partial L_{pen}(R)}{\partial r_{kl}} = \sum_{k'=1}^{l-1} 2W_{k'l}p_k(r_{kl} -r_{kk'}) + 
-\sum_{l'=k+1}^{K} 2W_{kl'}p_l(r_{kl} -r_{ll'}) +2W_{kl}(r_{kk} +r_{ll}-2r_{kl})
+\nabla L_{pen}(R) = \sum_{k'<l'} W_{k'l'}\nabla \tilde D^2_{k'l'}(R)
 $$
 
-and : 
-$$
-\frac{\partial L_{pen}(R)}{\partial r_{kk}} = 2(p_k-1)\sum_{q=1}^K W_{qk}(r_{kk} -r_{kq}) 
-$$
+where $\tilde D^2_{k'l'}(R) = D^2(r_{\cdot k'}, r_{\cdot l'})$.
+
 
 ## Choice of a step for descent
 
