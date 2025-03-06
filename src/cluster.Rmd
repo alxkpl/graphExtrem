@@ -377,7 +377,7 @@ Now, it is time to write the penalty formula with the $R$ matrix. We have :
 
 \begin{align*}
 D^2(\theta_{.i}, \theta_{.j}) =& \sum_{t\neq i,j} (\theta_{it} - \theta_{jt})^2 \\ 
- = &\sum_{q \neq k,l} p_m (r_{kq}-r_{lq})^2 +(1-p_k) (r_{kk}-r_{lk})^2+(1-p_l) (r_{ll}-r_{lk})^2\\ 
+ = &\sum_{q \neq k,l} p_m (r_{kq}-r_{lq})^2 +(p_k-1) (r_{kk}-r_{lk})^2+(p_l-1) (r_{ll}-r_{lk})^2\\ 
  = & \tilde D^2(r_{\cdot k}, r_{\cdot l}).
 \end{align*}
 
@@ -405,7 +405,7 @@ So we just need to compute separately all the derivative for each coefficient (i
 
 ### Gradient of $L_{log}(R)$
 
-Let's denote $E = \{(i,j) \in [\!|1, d |\! ]^2, i\le j\}$ and $F = \{(k,l) \in [\!|1, K |\! ]^2, k\le l \}$ and we consider $\mathbb R^E$ and $\mathbb R^F$ the set of real-valued vector indexed by $E$ anf $F$.
+Let's denote $E = \{(i,j) \in [\!|1, d |\! ]^2, i < j\}$ and $F = \{(k,l) \in [\!|1, K |\! ]^2, k\le l \}$ and we consider $\mathbb R^E$ and $\mathbb R^F$ the set of real-valued vector indexed by $E$ anf $F$.
 
 One can show that there exists a function $f : \mathbb R^F \rightarrow \mathbb R^E$ such that :
 
@@ -442,8 +442,7 @@ Now we just have to compute the derivative of $f$. Let $m = (i,j) \in E$.
 We can stress first that : 
 
 $$
-f_m(R) = \begin{cases} r_{kk} - \sum_{l = 1}^K p_kr_{kl} & \text{if } i=j \in C_k \\
-r_{kl} &  \text{if } i\in C_k, ~ j \in C_l,~ i< j \end{cases}
+f_m(R) =r_{kl},  \quad \text{if } i\in C_k, ~ j \in C_l,~ \text{or } i\in C_l, ~ j \in C_k,~
 $$
 
 Then we can deduce the expression below : 
@@ -452,33 +451,27 @@ $$
 \frac{\partial f}{\partial r_{kl}} =
 \begin{cases} 
 1  &\text{if } i \in C_k, ~j \in C_l,\text{ or } i \in C_l,~ j \in C_k, \\ 
-- p_k  &\text{if } i=j \in C_k \\ 
--p_l &\text{if } i=j \in C_l\\ 
 0 & \text{otherwise} \end{cases}
 $$
 
 We can now associate these expressions to deduce for $k < l$ that : 
 
 \begin{align*}
-\frac{\partial L_{log}(R)}{\partial r_{kl}} &= -\text{tr}\big[\gamma(\Theta^+)_{C_k}\big] p_k  -   \text{tr}\big[\gamma(\Theta^+)_{C_l}\big] p_l + \sum_{i \in C_k} \sum_{\underset{i<j}{j \in C_l}}\gamma(\Theta^+)_{ij} +\sum_{i \in C_l} \sum_{\underset{i<j}{j \in C_k}} \gamma(\Theta^+)_{ij} \\
-& = u_k^t\gamma(\Theta^+)u_l -\text{tr}\big[\gamma(\Theta^+)_{C_k}\big] p_k  -   \text{tr}\big[\gamma(\Theta^+)_{C_l}\big] p_l,
+\frac{\partial L_{log}(R)}{\partial r_{kl}} &= \sum_{i<j} \gamma(\Theta^+)_{ij}\Big[ \indic_{i\in C_k}\indic_{j\in C_l}+\indic_{i\in C_l}\indic_{j\in C_k}\Big] \\
+& = \sum_{i \in C_k}\sum_{j \in C_l}\gamma(\Theta^+)_{ij} \\
+& = u_k^t\gamma(\Theta^+)u_l ,
 \end{align*}
 
-with $u_k$ the k-th column of the matrix of clusters $U$. 
+with $u_k$ the k-th column of the matrix of clusters $U$ and because $\gamma(\Theta^+)_{ii} = 0$. 
 
 Moreover if $k=l$, we get : 
 
 \begin{align*}
-\frac{\partial L_{log}(R)}{\partial r_{kk}} &= \text{tr}\big[\gamma(\Theta^+)_{C_k}\big] (1-p_k)  + \sum_{\underset{i<j}{i,j \in C_k}}\gamma(\Theta^+)_{ij} \\
-&= \text{tr}\big[\gamma(\Theta^+)_{C_k}\big] (1-p_k) + \frac 12 u_k^t\gamma(\Theta^+)u_k
+\frac{\partial L_{log}(R)}{\partial r_{kk}} &= \sum_{\underset{i<j}{i,j \in C_k}}\gamma(\Theta^+)_{ij} \\
+&=  \frac 12 u_k^t\gamma(\Theta^+)u_k
 \end{align*}
 
-
-But all matrices obtained from the $\gamma$ application get only zeros in their diagonal so the final expression is : 
-
-$$
-\frac{\partial L_{log}(R)}{\partial r_{kl}} = \begin{cases} \frac 12 u_k^t\gamma(\Theta^+)u_k & \text{if } k=l, \\u_k^t\gamma(\Theta^+)u_l & \text{otherwise.}\end{cases} 
-$$
+that ends the calculation.
 
 ### Gradient of $L_{trace}(R)$
 
@@ -490,12 +483,12 @@ $$
 
 As we have for all symmetric matrix $A$ : 
 $$
-\frac{\partial tr(AB)}{\partial b_{ij}} = 2 a_{ij}
+\frac{\partial tr(AB)}{\partial b_{ij}} = \begin{cases} 2 a_{ij} & \text{if } i \neq j, \\ a_{ii} & \text{otherwise.} \end{cases}
 $$
 
 Then we can deduce that for $(k,l) \in F$ : 
 $$
-\frac{\partial L_{trace}(R)}{\partial r_{kl}} = -(U^t\overline \Gamma U)_{kl} 
+\frac{\partial L_{trace}(R)}{\partial r_{kl}} =\begin{cases} -(U^t\overline \Gamma U)_{kl} & \text{if } k=l, \\  -\frac 1 2(U^t\overline \Gamma U)_{kk} & \text{otherwise.}\end{cases}
 $$
 
 ### Gradient of $L_{pen}(R)$
