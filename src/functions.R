@@ -724,6 +724,92 @@ step_gradient <- function(gamma, weights, lambda, size_grid = 100){
   }
 }
 
+#' Function which merges clusters
+#'
+#' @param R K x K symmetric matrix.
+#' @param clusters a list of vector : each vector gives the element of a cluster.
+#' @param eps positive value : minimal tolerance for merging clusters
+#' @param cost a function : Cost function of the optimisation
+#'
+#' @returns Returns, if merging, a list of the new clusters and the corresponding R matrix, 
+#' where the coefficient of the new clustered is computing by averaging the coefficient of 
+#' the two previous clusters.
+#'
+#' @examples
+#' R <- matrix(c(0.5, -1,
+#'               -1, -1), nr = 2)
+#' clusters <- list(c(1,3), c(2,4)) 
+#' W <- matrix(c(0, 1, 1, 1,
+#'               1, 0, 1, 1,
+#'               1, 1, 0, 1,
+#'               1, 1, 1, 0), nc = 4)
+#' gamma <- matrix(c(0,2,1,0,
+#'                   2,0,4,1,
+#'                   1,4,0,7,
+#'                   0,1,7,0), nc = 4)
+#' cost <- neg_likelihood_pen(gamma, weights, 100000)
+#' merge_clusters(R, clusters, cost = cost)
+merge_clusters <- function(R, clusters, eps=1e-3, cost){
+  D <- D_tilde2_r(R, clusters)
+  K <- length(clusters)
+  distance <- matrix(rep(Inf, K * K), nc = K)
+  
+  for(k in 1:(K - 1)){
+    for(l in (k + 1):K){
+      distance[k, l] <- D(k, l)
+    }
+  }
+  
+  index <- as.numeric(which(distance == min(distance), arr.ind = T))
+  
+  k <- index[1] 
+  
+  l <- index[2]
+  
+  if(distance[k, l] > eps){
+    return(
+      list(
+        R = R, 
+        clusters = clusters
+      )
+    )
+  }
+  
+  if(nrow(R)==2){
+    return(
+      list(
+        R = (p[1] * R[1, 1] + p[2] * R[1, 2]) / (p[1] + p[2]),
+        clusters = c(clusters[[1]], clusters[[2]])
+        )
+    )
+  }
+  new_clusters <- clusters[-l]
+  
+  new_clusters[[k]] <- c(clusters[[k]], clusters[[l]])
+  
+  R_new <- R[-l, -l]
+  
+  R_new[k, ] <- (p[k] * R[k, -l] + p[l] * R[l, -l]) / (p[k] + p[l])
+  R_new[, k] <- (p[k] * R[k, -l] + p[l] * R[l, -l]) / (p[k] + p[l])
+  
+  if(cost(R, clusters) > cost(R_new, new_clusters)){
+    return(
+      list(
+        R = R_new, 
+        clusters = new_clusters
+      )
+    )
+  }else{
+    return(
+      list(
+        R = R, 
+        clusters = clusters
+      )
+    )
+  }
+}
+
+  
   
 #------------------------------- Others functions ------------------------------
 
