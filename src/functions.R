@@ -659,6 +659,63 @@ sub_theta <- function(R, clusters){
   )
 }
 
+##========================= Gradient descent algorithm =========================
+
+#' Step for the gradient descent
+#'
+#' @param gamma a d x d matrix : the variogram matrix.
+#' @param weights a d x d symmetric matrix with a zero diagonal.
+#' @param lambda a positive number : the weight of the penalty.
+#' @param size_grid integer : size of the search grid for the optimal step.
+#'
+#' @returns A function of clusters and R matrix which returns the next step of
+#' the optimisation for the gradient descent algorithm.
+#'
+#' @examples
+#' R <- matrix(c(0.5, -1,
+#'               -1, -1), nr = 2)
+#' clusters <- list(c(1,3), c(2,4)) 
+#' W <- matrix(c(0, 1, 1, 1,
+#'               1, 0, 1, 1,
+#'               1, 1, 0, 1,
+#'               1, 1, 1, 0), nc = 4)
+#' gamma <- matrix(c(0,2,1,0,
+#'                   2,0,4,1,
+#'                   1,4,0,7,
+#'                   0,1,7,0), nc = 4)
+#' f <- step_gradient(gamma, W, 0.5)
+#' f(R, clusters)
+step_gradient <- function(gamma, weights, lambda, size_grid = 100){
+  dlog <- nloglike_grad_np(gamma)
+  dpen <- penalty_grad(weights)
+  nllh <- neg_likelihood_pen(gamma, weights, lambda)
+  function(R, clusters){
+    grad <- dlog(R, clusters) + lambda * dpen(R, clusters)
+    p <- sapply(clusters, length)           # Vector of cluster's size
+    
+    s_max <- min(
+      abs((R %*% p) / (grad %*% p))
+      )
+    
+    s <- seq(0, s_max, s_max / size_grid)
+    
+    s_opt <- 0
+    
+    score <- nllh(R, clusters)
+
+    for(i in 2:(length(s) - 1)){
+      if(score > nllh(R - s[i] * grad, clusters)){
+        if(semi_def(sub_theta(R - s[i] * grad, clusters))){
+          s_opt <- s[i] 
+          score <- nllh(R - s_opt * grad, clusters)
+        }
+      }
+    }
+    return(R - s_opt * grad)
+  }
+}
+
+  
   
 #------------------------------- Others functions ------------------------------
 
