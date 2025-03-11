@@ -567,8 +567,6 @@ gradient_D2 <- function(R, clusters){
 }
 
 
-
-
 #' Computation of the penalty's gradient
 #'
 #' @param weights a d x d symmetric matrix with a zero diagonal.
@@ -613,7 +611,16 @@ penalty_grad <- function(weights){
   }
 }
 
+##=========================== Positive condition on R ==========================
 
+sub_theta <- function(R, clusters){
+  p <- sapply(clusters, length)           # Vector of cluster's size
+  tilde_R <- - R %*% p + diag(R) * p
+  
+  return(
+    R %*% diag(p) + tilde_R
+  )
+}
 
 
 
