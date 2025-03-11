@@ -434,6 +434,7 @@ nloglike_grad_np <- function(gamma){
   function(R, clusters){
     # Get tu U matrix of clusters indicators
     U <- U_matrix(clusters) 
+    p <- colSums(U)
     
     # Computation of gamma(Theta_p) with Theta_p the Penrose inverse of Theta
     G_theta_p <- build_theta(R, clusters) |> 
@@ -442,7 +443,7 @@ nloglike_grad_np <- function(gamma){
     
     # Gradient (factorisation of the formula)
     dlog <- t(U) %*% (G_theta_p - gamma) %*% U 
-    diag <- - .5 * diag(diag(dlog))
+    diag <- - .5 * diag(diag(dlog * (p == 1)))
     
     return(dlog + diag)
     
@@ -703,8 +704,11 @@ step_gradient <- function(gamma, weights, lambda, size_grid = 100){
     s_max <- min(
       abs((R %*% p) / (grad %*% p))         # Maximum step size to get positive matrix
     )
-    
-    s <- seq(0, s_max, s_max / size_grid)
+    if(s_max == 0){
+      s <- seq(0, 1, 0.01)
+    }else{
+      s <- seq(0, s_max, s_max / size_grid)
+    }
     
     # Searching
     s_opt <- 0
@@ -778,6 +782,8 @@ merge_clusters <- function(R, clusters, eps=1e-2, cost){
     )
   }
   
+  p <- sapply(clusters, length)           # Vector of cluster's size
+  
   # Case when merging give only one cluster
   if(nrow(R)==2){
     return(
@@ -835,10 +841,10 @@ merge_clusters <- function(R, clusters, eps=1e-2, cost){
 #'               1, 1, 1, 0), nc = 4)
 #' gamma <- generate_random_Gamma(d = 4)
 #' R <- matrix(c(1,0,0,-1,
-#'               0,5,-3,-2,
-#'               0,-3,4,-1,
-#'               -1,-2,-1,4), nc = 4)                
-#' Cluster_HR <- get_cluster(gamma, W, 2)
+#'               0,1,1,-2,
+#'               0,1,1,-1,
+#'               -1,-2,-1,1), nc = 4)                
+#' Cluster_HR <- get_cluster(gamma, W, 0)
 #' Cluster_HR(R)
 get_cluster <- function(gamma, weights, lambda, ...){
   L <- neg_likelihood_pen(gamma, weights, lambda)
@@ -851,7 +857,7 @@ get_cluster <- function(gamma, weights, lambda, ...){
     for(i in 1:it_max){
       # Gradient step
       R <- step(R, clusters)
-      
+
       # Try for merging
       res.merge <- merge_clusters(R, clusters, cost = L, ...)
       
