@@ -371,7 +371,7 @@ gen_det <- function(A, tol = 1e-10){
 
 #' Negative log-likelihood computation.
 #'
-#' @param gamma A d x d matrix: the empirical variogram matrix
+#' @param gamma A d x d matrix: the empirical variogram matrix.
 #'
 #' @returns For a fixed variogram gamma, compute for a set of clusters and 
 #' corresponding R matrix, the value of the associated negative likelihood defined
@@ -611,6 +611,43 @@ penalty_grad <- function(weights){
   }
 }
 
+##================== Computation of the global neg-loglikelihood ===============
+
+#' Computation of the penalised negative log-likelihood
+#'
+#' @param gamma a d x d matrix : the variogram matrix.
+#' @param weights a d x d symmetric matrix with a zero diagonal.
+#' @param lambda a positive number : the weight of the penalty.
+#'
+#' @returns A function of clusters and the R matrix which compute the penalised 
+#' negative log-likelihood of the model.
+#'
+#' @examples
+#' R <- matrix(c(0.5, -1,
+#'               -1, -1), nr = 2)
+#' clusters <- list(c(1,3), c(2,4)) 
+#' W <- matrix(c(0, 1, 1, 1,
+#'               1, 0, 1, 1,
+#'               1, 1, 0, 1,
+#'               1, 1, 1, 0), nc = 4)
+#' gamma <- matrix(c(0,2,1,0,
+#'                   2,0,4,1,
+#'                   1,4,0,7,
+#'                   0,1,7,0), nc = 4)
+#' f <- neg_likelihood_pen(gamma, W, 0.5)
+#' f(R, clusters)
+neg_likelihood_pen <- function(gamma, weights, lambda){
+  nllh <- neg_likelihood(gamma)
+  pen <- penalty(weights)
+  function(R, clusters){
+    return(
+      nllh(R, clusters) + lambda * pen(R, clusters)
+    )
+  }
+}
+
+
+
 ##=========================== Positive condition on R ==========================
 
 sub_theta <- function(R, clusters){
@@ -623,7 +660,9 @@ sub_theta <- function(R, clusters){
 }
 
 
-
+  
+  
+  
 #------------------------------- Others functions ------------------------------
 
 ## Decomposition of the gradient computation using finite difference
