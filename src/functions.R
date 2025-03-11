@@ -750,8 +750,11 @@ step_gradient <- function(gamma, weights, lambda, size_grid = 100){
 #' cost <- neg_likelihood_pen(gamma, weights, 100000)
 #' merge_clusters(R, clusters, cost = cost)
 merge_clusters <- function(R, clusters, eps=1e-3, cost){
-  D <- D_tilde2_r(R, clusters)
-  K <- length(clusters)
+  # Initialization
+  D <- D_tilde2_r(R, clusters)                    # Function of clusters distance
+  K <- length(clusters)                           # Actual number of clusters
+  
+  # Computation of the distance matrix 
   distance <- matrix(rep(Inf, K * K), nc = K)
   
   for(k in 1:(K - 1)){
@@ -760,12 +763,12 @@ merge_clusters <- function(R, clusters, eps=1e-3, cost){
     }
   }
   
+  # Search of the two potential clusters to merge
   index <- as.numeric(which(distance == min(distance), arr.ind = T))
-  
   k <- index[1] 
-  
   l <- index[2]
   
+  # Checking uselessness of merging
   if(distance[k, l] > eps){
     return(
       list(
@@ -775,6 +778,7 @@ merge_clusters <- function(R, clusters, eps=1e-3, cost){
     )
   }
   
+  # Case when merging give only one cluster
   if(nrow(R)==2){
     return(
       list(
@@ -783,15 +787,19 @@ merge_clusters <- function(R, clusters, eps=1e-3, cost){
         )
     )
   }
+  
+  # Merging and computation of merged coefficient in the case where K>2
   new_clusters <- clusters[-l]
   
-  new_clusters[[k]] <- c(clusters[[k]], clusters[[l]])
+  new_clusters[[k]] <- c(clusters[[k]], clusters[[l]])      # New cluster
   
+  # Coefficient calculation
   R_new <- R[-l, -l]
   
   R_new[k, ] <- (p[k] * R[k, -l] + p[l] * R[l, -l]) / (p[k] + p[l])
   R_new[, k] <- (p[k] * R[k, -l] + p[l] * R[l, -l]) / (p[k] + p[l])
   
+  # Final checking : decreasing of the negatve log-likelihood
   if(cost(R, clusters) > cost(R_new, new_clusters)){
     return(
       list(
