@@ -749,7 +749,7 @@ step_gradient <- function(gamma, weights, lambda, size_grid = 100){
 #'                   0,1,7,0), nc = 4)
 #' cost <- neg_likelihood_pen(gamma, weights, 100000)
 #' merge_clusters(R, clusters, cost = cost)
-merge_clusters <- function(R, clusters, eps=1e-3, cost){
+merge_clusters <- function(R, clusters, eps=1e-2, cost){
   # Initialization
   D <- D_tilde2_r(R, clusters)                    # Function of clusters distance
   K <- length(clusters)                           # Actual number of clusters
@@ -799,7 +799,7 @@ merge_clusters <- function(R, clusters, eps=1e-3, cost){
   R_new[k, ] <- (p[k] * R[k, -l] + p[l] * R[l, -l]) / (p[k] + p[l])
   R_new[, k] <- (p[k] * R[k, -l] + p[l] * R[l, -l]) / (p[k] + p[l])
   
-  # Final checking : decreasing of the negatve log-likelihood
+  # Final checking : decreasing of the negative log-likelihood
   if(cost(R, clusters) > cost(R_new, new_clusters)){
     return(
       list(
@@ -817,8 +817,62 @@ merge_clusters <- function(R, clusters, eps=1e-3, cost){
   }
 }
 
-  
-  
+#' Gradient descent algorithm for Husler-Reiss graphical models clustering
+#'
+#' @param gamma a d x d matrix : the variogram matrix.
+#' @param weights a d x d symmetric matrix with a zero diagonal.
+#' @param lambda a positive number : the weight of the penalty.
+#' @param ... 
+#'
+#' @returns A function which compute the maximum likelihood estimator using 
+#' cluster-path gradient descent and returns the estimation of the clusters and 
+#' the corresponding R matrix.
+#'
+#' @examples
+#' W <- matrix(c(0, 1, 1, 1,
+#'               1, 0, 1, 1,
+#'               1, 1, 0, 1,
+#'               1, 1, 1, 0), nc = 4)
+#' gamma <- generate_random_Gamma(d = 4)
+#' R <- matrix(c(1,0,0,-1,
+#'               0,5,-3,-2,
+#'               0,-3,4,-1,
+#'               -1,-2,-1,4), nc = 4)                
+#' Cluster_HR <- get_cluster(gamma, W, 2)
+#' Cluster_HR(R)
+get_cluster <- function(gamma, weights, lambda, ...){
+  L <- neg_likelihood_pen(gamma, weights, lambda)
+  step <- step_gradient(gamma, weights, lambda, ...)
+  function(R.init, it_max = 1000){
+    # Initialization
+    d <- nrow(gamma)
+    R <- R.init
+    clusters <- as.list(1:d)
+    for(i in 1:it_max){
+      # Gradient step
+      R <- step(R, clusters)
+      
+      # Try for merging
+      res.merge <- merge_clusters(R, clusters, cost = L, ...)
+      
+      if(sum(res.merge$R != R)){
+        R <- res.merge$R
+        clusters <- res.merge$clusters
+        R <- step(R, clusters)
+      }
+    }
+    return(
+      list(
+        R = R,
+        clusters = clusters, 
+        nllh = L(R, clusters)
+      )
+    )
+  }
+}
+
+
+
 #------------------------------- Others functions ------------------------------
 
 ## Decomposition of the gradient computation using finite difference
