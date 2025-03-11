@@ -507,7 +507,7 @@ penalty <- function(weights){
   # Fixing the weights for computing weights clustered
   get_W <- weight_clustered(weights)
   function(R, clusters){
-    # Initialisation
+    # Initialization
     K <- length(clusters)                   # Number of clusters
     D2 <- D_tilde2_r(R, clusters)           # Function for distance between clusters
     W <- get_W(clusters)                    # Weights clustered
@@ -541,7 +541,7 @@ penalty <- function(weights){
 #' grad <- gradient_D2(R, clusters)
 #' grad(1, 2)
 gradient_D2 <- function(R, clusters){
-  # Initialisation 
+  # Initialization 
   K <- length(clusters)                   # Number of clusters
   p <- sapply(clusters, length)           # Vector of cluster's size
   function(k, l){
@@ -589,7 +589,7 @@ gradient_D2 <- function(R, clusters){
 penalty_grad <- function(weights){
   get_W <- weight_clustered(weights)
   function(R, clusters){
-    # Initialisation
+    # Initialization
     W <- get_W(clusters)                # Weight clustered
     K <- length(clusters)               # Number of clusters
     
@@ -686,26 +686,35 @@ sub_theta <- function(R, clusters){
 #' f <- step_gradient(gamma, W, 0.5)
 #' f(R, clusters)
 step_gradient <- function(gamma, weights, lambda, size_grid = 100){
-  dlog <- nloglike_grad_np(gamma)
-  dpen <- penalty_grad(weights)
-  nllh <- neg_likelihood_pen(gamma, weights, lambda)
+  # Initialization of functions
+  dlog <- nloglike_grad_np(gamma)                     # Neg-lklh gradient part
+  dpen <- penalty_grad(weights)                       # Penalty gradient part
+  nllh <- neg_likelihood_pen(gamma, weights, lambda)  # Penalised negative log-likelihood function
+  
   function(R, clusters){
-    grad <- dlog(R, clusters) + lambda * dpen(R, clusters)
+    # Initialization
     p <- sapply(clusters, length)           # Vector of cluster's size
     
+    # Gradient matrix computation
+    grad <- dlog(R, clusters) + lambda * dpen(R, clusters)      
+    
+    # Grid line search for optimal gradient step
+    # Grid line construction
     s_max <- min(
-      abs((R %*% p) / (grad %*% p))
-      )
+      abs((R %*% p) / (grad %*% p))         # Maximum step size to get positive matrix
+    )
     
     s <- seq(0, s_max, s_max / size_grid)
     
+    # Searching
     s_opt <- 0
-    
     score <- nllh(R, clusters)
 
     for(i in 2:(length(s) - 1)){
+      # Better step size 
       if(score > nllh(R - s[i] * grad, clusters)){
-        if(semi_def(sub_theta(R - s[i] * grad, clusters))){
+        # Positive matrix checking
+        if(semi_def(sub_theta(R - s[i] * grad, clusters))){ 
           s_opt <- s[i] 
           score <- nllh(R - s_opt * grad, clusters)
         }
@@ -715,7 +724,6 @@ step_gradient <- function(gamma, weights, lambda, size_grid = 100){
   }
 }
 
-  
   
 #------------------------------- Others functions ------------------------------
 
@@ -977,7 +985,7 @@ row_f_gradient <- function(A, clusters){
 # penalty_grad <- function(weights){
 #   get_W <- weight_clustered(weights)
 #   function(R, clusters){
-#     # Initialisation
+#     # Initialization
 #     K <- length(clusters)               # Number of clusters
 #     p <- sapply(clusters, length)       # Vector of cluster's size
 #     W <- get_W(clusters)                # Weights clustered
