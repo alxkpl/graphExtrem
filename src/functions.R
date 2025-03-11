@@ -652,16 +652,13 @@ neg_likelihood_pen <- function(gamma, weights, lambda){
 
 sub_theta <- function(R, clusters){
   p <- sapply(clusters, length)           # Vector of cluster's size
-  tilde_R <- - R %*% p + diag(R) * p
+  tilde_R <- - as.numeric(R %*% p)
   
   return(
-    R %*% diag(p) + tilde_R
+    R %*% diag(p) + diag(tilde_R)
   )
 }
 
-
-  
-  
   
 #------------------------------- Others functions ------------------------------
 
