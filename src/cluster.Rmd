@@ -21,6 +21,8 @@ always_allow_html: true
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(graphicalExtremes,
+               targets)
 ```
 
 We want to use the graphical model tools for extreme value theory to build a new way of clustering variable, as done for the graphical models for Gaussian vector [@touwClusterpathGaussianGraphical2024].
@@ -573,7 +575,7 @@ Then $\Theta$ is positive.
 **Proof.** TODO 
 
 
-## Gridline search for the optimal step size
+### Gridline search for the optimal step size
 
 With the previous proposition, we can have an upper bound for the step size $h$. Indeed, let's note $\delta_{kl}$ the gradient along $r_{kl}$. Then, if the previous step $R^{(t)}$  verifies the conditions of the proposition, the optimal step size $h^*$ should verify : 
 
@@ -603,9 +605,90 @@ and we will choose the value $h^*$ which minimizes the objective function provid
 
 ## Simulation study
 
+Now, we want to check if the algorithm is working on basic simulation of Husler-Reiss data. For the simulation, we will use the function `rmpareto()` from the `R`-package `graphicalExtremes` developed in [@engelkeGraphicalModelsExtremes2020].
+
+### First simulation
+
+We will first try our algorithm on easy example. We will assume that the Husler-Reiss model gets only two clusters of size $4$ and $3$. We will fix the following values :
+
+$$
+R = \begin{pmatrix} 0.5 &-2\\ -2 & 1 \end{pmatrix}
+$$
+
+and the clusters are $C_1 = \{1,2,3,4\}$ and $C_2 = \{5,6,7\}$.
+
+*We can also verify that this matrix follows the condition of the previous section.*
+
+We can then deduce the precision matrix $\Theta$ of our model : 
+
+$$
+\Theta = \begin{pmatrix} 
+4.5 & 0.5 & 0.5 &0.5& -2 & -2 & -2\\ 
+0.5 & 4.5 & 0.5 &0.5& -2 & -2 & -2 \\
+0.5 & 0.5 & 4.5 &0.5& -2 & -2 & -2 \\
+0.5 & 0.5 & 0.5 &4.5& -2 & -2 & -2 \\
+-2 & -2 & -2 & -2 & 6 & 1 & 1 \\
+-2 & -2 & -2 & -2 & 1 & 6 & 1 \\
+-2 & -2 & -2 & -2 & 1 & 1 & 6 \\
+\end{pmatrix}
+$$
+
+and thus the variogram of our Husler-Reiss graphical model (using `Theta2Gamma()`  function) : 
+```{r, first.sim.param, echo = FALSE}
+tar_load(first_sim_param_cluster)
+
+knitr::kable(first_sim_param_cluster$Gamma, digits = 2, 
+             caption = "Variogram matrix of the model.")
+```
 
 
+Now, we have the parameter to build simulations and try to cluster the variable according to the underlying structure. 
 
+**Setup** 
+
+
+- we will simulate $n = 10^3$ variables following Husler-Reiss multivariate Pareto distribution, with the upper variogram. 
+
+- we will estimate the variogram using the empirical extremal variogram estimator (using the function `emp_vario()`). The empirical precision matrix $\overline \Theta$ is deduced from this previous estimation.
+
+- we will use the exponential weights defined by : 
+$$
+w_{ij} = \exp(- \chi D^2(\overline \theta_{i, \cdot}, \overline\theta_{j, \cdot}))
+$$
+where the tune parameter $\chi$ is equal to one.
+
+- the merging threshold in `merge_clusters()` is set at $\varepsilon = 10^{-1}$.
+
+Moreover, the optimisation will begin with no assumption in the clusters, and so there is as much clusters as variables.
+
+Finally, we will choose the $\lambda$ parameter using a grid and taking the one which produce the smallest penalised negative log-likelihood. 
+
+```{r load-results-optim, echo = FALSE}
+tar_load(first_sim_optimisation_results)
+```
+
+For the results, we get : 
+
+- an optimal parameter $\lambda$ equal to `r first_sim_optimisation_results$lambda_optim`.
+
+- we obtained the right clusters $C_1$ and $C_2$. 
+
+- we estimated the $\hat R$ matrix as : 
+
+```{r R-result, echo = FALSE}
+R_res <- first_sim_optimisation_results$results$R
+```
+
+
+\begin{equation*}
+\hat R = 
+\begin{pmatrix} 
+`r R_res[1,1]` & `r R_res[1,2]` \\
+`r R_res[2,1]` & `r R_res[2,2]`
+\end{pmatrix}
+\end{equation*}
+
+- a negative log-likelihood which takes the value `r first_sim_optimisation_results$results$nllh` whereas it takes the value ... for non-penalised optimization. 
 
 
 

@@ -1231,8 +1231,6 @@ graphical models</a></h2>
       derivative</a></li>
       <li><a href="#choice-of-a-step-for-descent" id="toc-choice-of-a-step-for-descent">Choice of a step for
       descent</a></li>
-      <li><a href="#gridline-search-for-the-optimal-step-size" id="toc-gridline-search-for-the-optimal-step-size">Gridline search
-      for the optimal step size</a></li>
       <li><a href="#simulation-study" id="toc-simulation-study">Simulation study</a></li>
       </ul></li>
       <li><a href="#application-on-fligth-delay-data" id="toc-application-on-fligth-delay-data">Application on fligth
@@ -1855,9 +1853,8 @@ r_{kk} \ge 0\)</span>.</p></li>
 <p>Then <span class="math inline">\(\Theta\)</span> is positive.</p>
 <p><strong>Proof.</strong> TODO</p>
 </div>
-</div>
-<div id="gridline-search-for-the-optimal-step-size" class="section level2">
-<h2>Gridline search for the optimal step size</h2>
+<div id="gridline-search-for-the-optimal-step-size" class="section level3">
+<h3>Gridline search for the optimal step size</h3>
 <p>With the previous proposition, we can have an upper bound for the
 step size <span class="math inline">\(h\)</span>. Indeed, let’s note
 <span class="math inline">\(\delta_{kl}\)</span> the gradient along
@@ -1888,7 +1885,7 @@ p_lr^{(t)}_{lk} /\sum_{l=1}^K p_l \delta_{lk}\)</span>.</p></li>
 <li><p>if <span class="math inline">\(\sum_{l=1}^K p_l \delta_{lk} =
 0\)</span>, no constraint as well except non negative.</p></li>
 </ul>
-<p>Thus, we will set our grid line in th segment <span class="math inline">\((0, h_{max}]\)</span> where :</p>
+<p>Thus, we will set our grid line in the segment <span class="math inline">\((0, h_{max}]\)</span> where :</p>
 <p><span class="math display">\[
 h_{max} = \min_{k=1, \dots , K}\Big |\frac{\sum_{l=1}^K
 p_lr^{(t)}_{lk}}{\sum_{l=1}^K p_l \delta_{lk}}\Big |
@@ -1898,8 +1895,150 @@ which minimizes the objective function provided that the alternative
 matrix of clusters <span class="math inline">\(\tilde R^{(t+1)}\)</span>
 is positive.</p>
 </div>
+</div>
 <div id="simulation-study" class="section level2">
 <h2>Simulation study</h2>
+<p>Now, we want to check if the algorithm is working on basic simulation
+of Husler-Reiss data. For the simulation, we will use the function
+<code>rmpareto()</code> from the <code>R</code>-package
+<code>graphicalExtremes</code> developed in <span class="citation">(Engelke and Hitz 2020)</span>.</p>
+<div id="first-simulation" class="section level3">
+<h3>First simulation</h3>
+<p>We will first try our algorithm on easy example. We will assume that
+the Husler-Reiss model gets only two clusters of size <span class="math inline">\(4\)</span> and <span class="math inline">\(3\)</span>. We will fix the following values :</p>
+<p><span class="math display">\[
+R = \begin{pmatrix} 0.5 &amp;-2\\ -2 &amp; 1 \end{pmatrix}
+\]</span></p>
+<p>and the clusters are <span class="math inline">\(C_1 =
+\{1,2,3,4\}\)</span> and <span class="math inline">\(C_2 =
+\{5,6,7\}\)</span>.</p>
+<p><em>We can also verify that this matrix follows the condition of the
+previous section.</em></p>
+<p>We can then deduce the precision matrix <span class="math inline">\(\Theta\)</span> of our model :</p>
+<p><span class="math display">\[
+\Theta = \begin{pmatrix}
+4.5 &amp; 0.5 &amp; 0.5 &amp;0.5&amp; -2 &amp; -2 &amp; -2\\
+0.5 &amp; 4.5 &amp; 0.5 &amp;0.5&amp; -2 &amp; -2 &amp; -2 \\
+0.5 &amp; 0.5 &amp; 4.5 &amp;0.5&amp; -2 &amp; -2 &amp; -2 \\
+0.5 &amp; 0.5 &amp; 0.5 &amp;4.5&amp; -2 &amp; -2 &amp; -2 \\
+-2 &amp; -2 &amp; -2 &amp; -2 &amp; 6 &amp; 1 &amp; 1 \\
+-2 &amp; -2 &amp; -2 &amp; -2 &amp; 1 &amp; 6 &amp; 1 \\
+-2 &amp; -2 &amp; -2 &amp; -2 &amp; 1 &amp; 1 &amp; 6 \\
+\end{pmatrix}
+\]</span></p>
+<p>and thus the variogram of our Husler-Reiss graphical model (using
+<code>Theta2Gamma()</code> function) :</p>
+<table>
+<caption>Variogram matrix of the model.</caption>
+<tbody>
+<tr class="odd">
+<td align="right">0.00</td>
+<td align="right">0.50</td>
+<td align="right">0.50</td>
+<td align="right">0.50</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+</tr>
+<tr class="even">
+<td align="right">0.50</td>
+<td align="right">0.00</td>
+<td align="right">0.50</td>
+<td align="right">0.50</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+</tr>
+<tr class="odd">
+<td align="right">0.50</td>
+<td align="right">0.50</td>
+<td align="right">0.00</td>
+<td align="right">0.50</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+</tr>
+<tr class="even">
+<td align="right">0.50</td>
+<td align="right">0.50</td>
+<td align="right">0.50</td>
+<td align="right">0.00</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+</tr>
+<tr class="odd">
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.00</td>
+<td align="right">0.40</td>
+<td align="right">0.40</td>
+</tr>
+<tr class="even">
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.40</td>
+<td align="right">0.00</td>
+<td align="right">0.40</td>
+</tr>
+<tr class="odd">
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.36</td>
+<td align="right">0.40</td>
+<td align="right">0.40</td>
+<td align="right">0.00</td>
+</tr>
+</tbody>
+</table>
+<p>Now, we have the parameter to build simulations and try to cluster
+the variable according to the underlying structure.</p>
+<p><strong>Setup</strong></p>
+<ul>
+<li><p>we will simulate <span class="math inline">\(n = 10^3\)</span>
+variables following Husler-Reiss multivariate Pareto distribution, with
+the upper variogram.</p></li>
+<li><p>we will estimate the variogram using the empirical extremal
+variogram estimator (using the function <code>emp_vario()</code>). The
+empirical precision matrix <span class="math inline">\(\overline
+\Theta\)</span> is deduced from this previous estimation.</p></li>
+<li><p>we will use the exponential weights defined by : <span class="math display">\[
+w_{ij} = \exp(- \chi D^2(\overline \theta_{i, \cdot},
+\overline\theta_{j, \cdot}))
+\]</span> where the tune parameter <span class="math inline">\(\chi\)</span> is equal to one.</p></li>
+<li><p>the merging threshold in <code>merge_clusters()</code> is set at
+<span class="math inline">\(\varepsilon = 10^{-1}\)</span>.</p></li>
+</ul>
+<p>Moreover, the optimisation will begin with no assumption in the
+clusters, and so there is as much clusters as variables.</p>
+<p>Finally, we will choose the <span class="math inline">\(\lambda\)</span> parameter using a grid and taking
+the one which produce the smallest penalised negative
+log-likelihood.</p>
+<p>For the results, we get :</p>
+<ul>
+<li><p>an optimal parameter <span class="math inline">\(\lambda\)</span>
+equal to 0.4.</p></li>
+<li><p>we obtained the right clusters <span class="math inline">\(C_1\)</span> and <span class="math inline">\(C_2\)</span>.</p></li>
+<li><p>we estimated the <span class="math inline">\(\hat R\)</span>
+matrix as :</p></li>
+</ul>
+<p><span class="math display">\[\begin{equation*}
+\hat R =
+\begin{pmatrix}
+0.611553 &amp; -2.0697538 \\
+-2.0697538 &amp; 1.0603238
+\end{pmatrix}
+\end{equation*}\]</span></p>
+<ul>
+<li>a negative log-likelihood which takes the value -3.9059154 whereas
+it takes the value … for non-penalised optimization.</li>
+</ul>
+</div>
 </div>
 </div>
 <div id="application-on-fligth-delay-data" class="section level1">
