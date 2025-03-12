@@ -179,10 +179,10 @@ The goal was to encouraging clustering of the graph by forcing the precision mat
 $$
 \tilde \Theta = 
 \begin{pmatrix} 
-(a_{11} - r_{11})I_{p_1} & 0 & \dots & 0 \\
-0 & (a_{22} - r_{22})I_{p_2} & \dots & 0 \\
+(a_{1} - r_{11})I_{p_1} & 0 & \dots & 0 \\
+0 & (a_{2} - r_{22})I_{p_2} & \dots & 0 \\
 \vdots & \vdots & \ddots & \vdots \\
-0 & 0 & \dots &(a_{KK} - r_{KK})I_{p_K}
+0 & 0 & \dots &(a_{K} - r_{KK})I_{p_K}
 \end{pmatrix} + 
 \begin{pmatrix} 
 r_{11} \indic \indic^t & r_{12} \indic \indic^t & \dots & r_{1K} \indic \indic^t \\
@@ -255,7 +255,7 @@ which "can be interpreted as a group lasso penalty".
 
 The choice of $w_{ij}$ is also free, even if they present one which seems better (or nearer from the data) using : 
 $$
-w_{ij} = \exp(-a ||\theta_{\cdot i} - \theta_{\cdot j}||^2)
+w_{ij} = \exp(-\chi ||\theta_{\cdot i} - \theta_{\cdot j}||^2)
 $$
 
 where $||.||$ is the $l^2$ norm.
@@ -318,7 +318,7 @@ As $\Theta \in \mathcal P_d^1$, there are supplementary conditions on the matrix
 
 It follows that : 
 $$
-a_{kk} = r_{kk} - \sum_{j=1}^K p_j r_{kj}, \quad \quad \forall k \in\{1, \dots, K\}
+a_{k} = r_{kk} - \sum_{j=1}^K p_j r_{kj}, \quad \quad \forall k \in\{1, \dots, K\}
 $$
 
 More, we can rewrite the matrix $\Theta$ as follow [@touwClusterpathGaussianGraphical2024] :
@@ -326,10 +326,10 @@ More, we can rewrite the matrix $\Theta$ as follow [@touwClusterpathGaussianGrap
 $$
 \Theta = 
 \begin{pmatrix} 
-(a_{11} - r_{11})I_{p_1} & 0 & \dots & 0 \\
-0 & (a_{22} - r_{22})I_{p_2} & \dots & 0 \\
+(a_{1} - r_{11})I_{p_1} & 0 & \dots & 0 \\
+0 & (a_{2} - r_{22})I_{p_2} & \dots & 0 \\
 \vdots & \vdots & \ddots & \vdots \\
-0 & 0 & \dots &(a_{KK} - r_{KK})I_{p_K}
+0 & 0 & \dots &(a_{K} - r_{KK})I_{p_K}
 \end{pmatrix} + 
 U R U^t,
 $$
@@ -339,7 +339,7 @@ where $U$ is a $d\times K$ matrix such that $u_{ij} = 1$ if $i\in C_j$ and $0$ o
 Then we can deduce the computation of the trace of $\overline \Gamma \Theta$ : 
 
 $$
-tr(\overline \Gamma \Theta)= \text{tr}(\overline \Gamma URU^t) + \sum_{k=1}^K(a_{kk} - r_{kk})\text{tr}(\overline \Gamma_{C_k})
+tr(\overline \Gamma \Theta)= \text{tr}(\overline \Gamma URU^t) + \sum_{k=1}^K(a_{k} - r_{kk})\text{tr}(\overline \Gamma_{C_k})
 $$
 
 with $\overline \Gamma_{C_k}$ the $p_k \times p_k$ matrix computed from $\overline \Gamma$ with the indices in $C_k$. But as $\overline \Gamma$ get only zero in its diagonal, we finally obtain : 
@@ -355,7 +355,7 @@ Let's take square $l^2$ norm penalty for $\mathcal P$.
 For $i, j$ in the same cluster $C_k$ we have : 
 
 $$
-||\theta_{\cdot i} - \theta_{\cdot j}||^2 = 2(a_{kk} - r_{kk})^2
+||\theta_{\cdot i} - \theta_{\cdot j}||^2 = 2(a_{k} - r_{kk})^2
 $$
 
 Here, we wish that for two variables in the same cluster, this distance is equal to zero. 
@@ -473,6 +473,8 @@ Moreover if $k=l$, we get :
 
 that ends the calculation.
 
+**Warning.** When $p_k = 1$, we have $\frac{\partial L_{log}(R)}{\partial r_{kk}} =0$.
+
 ### Gradient of $L_{trace}(R)$
 
 We recall that : 
@@ -490,6 +492,8 @@ Then we can deduce that for $(k,l) \in F$ :
 $$
 \frac{\partial L_{trace}(R)}{\partial r_{kl}} =\begin{cases} -(U^t\overline \Gamma U)_{kl} & \text{if } k=l, \\  -\frac 1 2(U^t\overline \Gamma U)_{kk} & \text{otherwise.}\end{cases}
 $$
+
+**Warning.** Like the previous section, when $p_k = 1$, we have $\frac{\partial L_{trace}(R)}{\partial r_{kk}} =0$.
 
 ### Gradient of $L_{pen}(R)$
 
@@ -538,9 +542,70 @@ where $\tilde D^2_{k'l'}(R) = D^2(r_{\cdot k'}, r_{\cdot l'})$.
 
 ## Choice of a step for descent
 
+In the gradient descent algorithm, we compute : 
+
+$$
+R^{(t+1)} \leftarrow R^{(t)} - h \nabla_R L(R), \quad \text{with } h>0
+$$ 
+
+where $h$ is called the step size.
+
+However, in that case, we need to verify that after the step, $f(R^{(t+1)})$ is still a symmetric positive matrix. 
+
+### Research of relationship between $R$ and $f(R) = \Theta$
+
+In this section, we want to find condition on $R$ to make the $Theta$ matrix positive. 
+
+First, let's define the $K \times K$ alternative matrix of clusters :
+$$
+\tilde R = RP - T
+$$ 
+where $P = \text{diag}((p_k)_{k =1,\dots, K})$ and $T = \text{diag}((Rp)_{k=1, \dots, K})$.
+
+**Proposition.** Let $R$ and $\Theta = f(R)$. Assume that : 
+
+- $\forall k \in \{1,\dots, K\}, a_k - r_{kk} \ge 0$.
+
+- the alternative matrix of clusters $\tilde R$ is positive. 
+
+Then $\Theta$ is positive. 
+
+**Proof.** TODO 
+
+
+## Gridline search for the optimal step size
+
+With the previous proposition, we can have an upper bound for the step size $h$. Indeed, let's note $\delta_{kl}$ the gradient along $r_{kl}$. Then, if the previous step $R^{(t)}$  verifies the conditions of the proposition, the optimal step size $h^*$ should verify : 
+
+\begin{align*}
+&\forall k\in \{1,\dots, K\},~ a^{(t+1)}_k - r^{(t+1)}_{kk} \ge 0  \\ 
+\Longleftrightarrow ~&\forall k\in \{1,\dots, K\}, ~\sum_{l=1}^K p_lr^{(t+1)}_{lk} \le 0 \\
+\Longleftrightarrow ~&\forall k\in \{1,\dots, K\},~ \sum_{l=1}^K p_l(r^{(t)}_{lk} - h^*\delta_{lk}) \le 0 \\
+\Longleftrightarrow ~&\forall k\in \{1,\dots, K\},~ \sum_{l=1}^K p_lr^{(t)}_{lk}  \le h^* \sum_{l=1}^K p_l \delta_{lk}
+\end{align*}
+
+Therefore, we obtain the cases : 
+
+- if $\sum_{l=1}^K p_l \delta_{lk} > 0$ then $h^* \ge \sum_{l=1}^K p_lr^{(t)}_{lk} /\sum_{l=1}^K p_l \delta_{lk}$ which is a negative number as $R^{(t)}$ follows the relations. So, as $h^* > 0$, there is no constraint in this case.
+
+- if $\sum_{l=1}^K p_l \delta_{lk} < 0$ then $h^* \le \sum_{l=1}^K p_lr^{(t)}_{lk} /\sum_{l=1}^K p_l \delta_{lk}$.
+
+- if $\sum_{l=1}^K p_l \delta_{lk} = 0$, no constraint as well except non negative.
+
+Thus, we will set our grid line in the segment $(0, h_{max}]$ where :
+
+$$
+h_{max} = \min_{k=1, \dots , K}\Big |\frac{\sum_{l=1}^K p_lr^{(t)}_{lk}}{\sum_{l=1}^K p_l \delta_{lk}}\Big |
+$$
+
+and we will choose the value $h^*$ which minimizes the objective function provided that the alternative matrix of clusters $\tilde R^{(t+1)}$ is positive. 
 
 
 ## Simulation study
+
+
+
+
 
 
 

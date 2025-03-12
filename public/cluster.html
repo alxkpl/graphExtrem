@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-03-06" />
+        <meta name="date" content="2025-03-12" />
     
     <title>Variable clustering for Husler-Reiss graphical models</title>
 
@@ -1231,6 +1231,8 @@ graphical models</a></h2>
       derivative</a></li>
       <li><a href="#choice-of-a-step-for-descent" id="toc-choice-of-a-step-for-descent">Choice of a step for
       descent</a></li>
+      <li><a href="#gridline-search-for-the-optimal-step-size" id="toc-gridline-search-for-the-optimal-step-size">Gridline search
+      for the optimal step size</a></li>
       <li><a href="#simulation-study" id="toc-simulation-study">Simulation study</a></li>
       </ul></li>
       <li><a href="#application-on-fligth-delay-data" id="toc-application-on-fligth-delay-data">Application on fligth
@@ -1240,7 +1242,7 @@ graphical models</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-03-06</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-03-12</p>
           </div>
    </div>
      
@@ -1435,10 +1437,10 @@ structure as follows :</p>
 <p><span class="math display">\[
 \tilde \Theta =
 \begin{pmatrix}
-(a_{11} - r_{11})I_{p_1} &amp; 0 &amp; \dots &amp; 0 \\
-0 &amp; (a_{22} - r_{22})I_{p_2} &amp; \dots &amp; 0 \\
+(a_{1} - r_{11})I_{p_1} &amp; 0 &amp; \dots &amp; 0 \\
+0 &amp; (a_{2} - r_{22})I_{p_2} &amp; \dots &amp; 0 \\
 \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
-0 &amp; 0 &amp; \dots &amp;(a_{KK} - r_{KK})I_{p_K}
+0 &amp; 0 &amp; \dots &amp;(a_{K} - r_{KK})I_{p_K}
 \end{pmatrix} +
 \begin{pmatrix}
 r_{11} 1\!\!11\!\!1^t &amp; r_{12} 1\!\!11\!\!1^t &amp; \dots &amp;
@@ -1514,7 +1516,7 @@ D(\theta_{.i}, \theta_{.j}) = \sqrt{(\theta_{ii} - \theta_{jj})^2 +
 <p>The choice of <span class="math inline">\(w_{ij}\)</span> is also
 free, even if they present one which seems better (or nearer from the
 data) using : <span class="math display">\[
-w_{ij} = \exp(-a ||\theta_{\cdot i} - \theta_{\cdot j}||^2)
+w_{ij} = \exp(-\chi ||\theta_{\cdot i} - \theta_{\cdot j}||^2)
 \]</span></p>
 <p>where <span class="math inline">\(||.||\)</span> is the <span class="math inline">\(l^2\)</span> norm.</p>
 <p><strong>Clusterpath algorithm</strong></p>
@@ -1608,17 +1610,17 @@ L_\mathcal P(\Theta, \lambda) = L(\Theta) + \lambda \mathcal P(\Theta)
 there are supplementary conditions on the matrix : the rows must sum to
 one !</p>
 <p>It follows that : <span class="math display">\[
-a_{kk} = r_{kk} - \sum_{j=1}^K p_j r_{kj}, \quad \quad \forall k \in\{1,
+a_{k} = r_{kk} - \sum_{j=1}^K p_j r_{kj}, \quad \quad \forall k \in\{1,
 \dots, K\}
 \]</span></p>
 <p>More, we can rewrite the matrix <span class="math inline">\(\Theta\)</span> as follow <span class="citation">(Touw et al. 2024)</span> :</p>
 <p><span class="math display">\[
 \Theta =
 \begin{pmatrix}
-(a_{11} - r_{11})I_{p_1} &amp; 0 &amp; \dots &amp; 0 \\
-0 &amp; (a_{22} - r_{22})I_{p_2} &amp; \dots &amp; 0 \\
+(a_{1} - r_{11})I_{p_1} &amp; 0 &amp; \dots &amp; 0 \\
+0 &amp; (a_{2} - r_{22})I_{p_2} &amp; \dots &amp; 0 \\
 \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
-0 &amp; 0 &amp; \dots &amp;(a_{KK} - r_{KK})I_{p_K}
+0 &amp; 0 &amp; \dots &amp;(a_{K} - r_{KK})I_{p_K}
 \end{pmatrix} +
 U R U^t,
 \]</span></p>
@@ -1626,7 +1628,7 @@ U R U^t,
 <p>Then we can deduce the computation of the trace of <span class="math inline">\(\overline \Gamma \Theta\)</span> :</p>
 <p><span class="math display">\[
 tr(\overline \Gamma \Theta)= \text{tr}(\overline \Gamma URU^t) +
-\sum_{k=1}^K(a_{kk} - r_{kk})\text{tr}(\overline \Gamma_{C_k})
+\sum_{k=1}^K(a_{k} - r_{kk})\text{tr}(\overline \Gamma_{C_k})
 \]</span></p>
 <p>with <span class="math inline">\(\overline \Gamma_{C_k}\)</span> the
 <span class="math inline">\(p_k \times p_k\)</span> matrix computed from
@@ -1642,7 +1644,7 @@ penalty for <span class="math inline">\(\mathcal P\)</span>.</p>
 <p>For <span class="math inline">\(i, j\)</span> in the same cluster
 <span class="math inline">\(C_k\)</span> we have :</p>
 <p><span class="math display">\[
-||\theta_{\cdot i} - \theta_{\cdot j}||^2 = 2(a_{kk} - r_{kk})^2
+||\theta_{\cdot i} - \theta_{\cdot j}||^2 = 2(a_{k} - r_{kk})^2
 \]</span></p>
 <p>Here, we wish that for two variables in the same cluster, this
 distance is equal to zero.</p>
@@ -1759,6 +1761,9 @@ matrix of clusters <span class="math inline">\(U\)</span> and because
 &amp;=  \frac 12 u_k^t\gamma(\Theta^+)u_k
 \end{align*}\]</span></p>
 <p>that ends the calculation.</p>
+<p><strong>Warning.</strong> When <span class="math inline">\(p_k =
+1\)</span>, we have <span class="math inline">\(\frac{\partial
+L_{log}(R)}{\partial r_{kk}} =0\)</span>.</p>
 </div>
 <div id="gradient-of-l_tracer" class="section level3">
 <h3>Gradient of <span class="math inline">\(L_{trace}(R)\)</span></h3>
@@ -1776,6 +1781,8 @@ F\)</span> : <span class="math display">\[
 -(U^t\overline \Gamma U)_{kl} &amp; \text{if } k=l, \\  -\frac 1
 2(U^t\overline \Gamma U)_{kk} &amp; \text{otherwise.}\end{cases}
 \]</span></p>
+<p><strong>Warning.</strong> Like the previous section, when <span class="math inline">\(p_k = 1\)</span>, we have <span class="math inline">\(\frac{\partial L_{trace}(R)}{\partial r_{kk}}
+=0\)</span>.</p>
 </div>
 <div id="gradient-of-l_penr" class="section level3">
 <h3>Gradient of <span class="math inline">\(L_{pen}(R)\)</span></h3>
@@ -1819,6 +1826,77 @@ D^2(r_{\cdot k&#39;}, r_{\cdot l&#39;})\)</span>.</p>
 </div>
 <div id="choice-of-a-step-for-descent" class="section level2">
 <h2>Choice of a step for descent</h2>
+<p>In the gradient descent algorithm, we compute :</p>
+<p><span class="math display">\[
+R^{(t+1)} \leftarrow R^{(t)} - h \nabla_R L(R), \quad \text{with }
+h&gt;0
+\]</span></p>
+<p>where <span class="math inline">\(h\)</span> is called the step
+size.</p>
+<p>However, in that case, we need to verify that after the step, <span class="math inline">\(f(R^{(t+1)})\)</span> is still a symmetric
+positive matrix.</p>
+<div id="research-of-relationship-between-r-and-fr-theta" class="section level3">
+<h3>Research of relationship between <span class="math inline">\(R\)</span> and <span class="math inline">\(f(R) =
+\Theta\)</span></h3>
+<p>In this section, we want to find condition on <span class="math inline">\(R\)</span> to make the <span class="math inline">\(Theta\)</span> matrix positive.</p>
+<p>First, let’s define the <span class="math inline">\(K \times
+K\)</span> alternative matrix of clusters : <span class="math display">\[
+\tilde R = RP - T
+\]</span> where <span class="math inline">\(P = \text{diag}((p_k)_{k
+=1,\dots, K})\)</span> and <span class="math inline">\(T =
+\text{diag}((Rp)_{k=1, \dots, K})\)</span>.</p>
+<p><strong>Proposition.</strong> Let <span class="math inline">\(R\)</span> and <span class="math inline">\(\Theta
+= f(R)\)</span>. Assume that :</p>
+<ul>
+<li><p><span class="math inline">\(\forall k \in \{1,\dots, K\}, a_k -
+r_{kk} \ge 0\)</span>.</p></li>
+<li><p>the alternative matrix of clusters <span class="math inline">\(\tilde R\)</span> is positive.</p></li>
+</ul>
+<p>Then <span class="math inline">\(\Theta\)</span> is positive.</p>
+<p><strong>Proof.</strong> TODO</p>
+</div>
+</div>
+<div id="gridline-search-for-the-optimal-step-size" class="section level2">
+<h2>Gridline search for the optimal step size</h2>
+<p>With the previous proposition, we can have an upper bound for the
+step size <span class="math inline">\(h\)</span>. Indeed, let’s note
+<span class="math inline">\(\delta_{kl}\)</span> the gradient along
+<span class="math inline">\(r_{kl}\)</span>. Then, if the previous step
+<span class="math inline">\(R^{(t)}\)</span> verifies the conditions of
+the proposition, the optimal step size <span class="math inline">\(h^*\)</span> should verify :</p>
+<p><span class="math display">\[\begin{align*}
+&amp;\forall k\in \{1,\dots, K\},~ a^{(t+1)}_k - r^{(t+1)}_{kk} \ge
+0  \\
+\Longleftrightarrow ~&amp;\forall k\in \{1,\dots, K\}, ~\sum_{l=1}^K
+p_lr^{(t+1)}_{lk} \le 0 \\
+\Longleftrightarrow ~&amp;\forall k\in \{1,\dots, K\},~ \sum_{l=1}^K
+p_l(r^{(t)}_{lk} - h^*\delta_{lk}) \le 0 \\
+\Longleftrightarrow ~&amp;\forall k\in \{1,\dots, K\},~ \sum_{l=1}^K
+p_lr^{(t)}_{lk}  \le h^* \sum_{l=1}^K p_l \delta_{lk}
+\end{align*}\]</span></p>
+<p>Therefore, we obtain the cases :</p>
+<ul>
+<li><p>if <span class="math inline">\(\sum_{l=1}^K p_l \delta_{lk} &gt;
+0\)</span> then <span class="math inline">\(h^* \ge \sum_{l=1}^K
+p_lr^{(t)}_{lk} /\sum_{l=1}^K p_l \delta_{lk}\)</span> which is a
+negative number as <span class="math inline">\(R^{(t)}\)</span> follows
+the relations. So, as <span class="math inline">\(h^* &gt; 0\)</span>,
+there is no constraint in this case.</p></li>
+<li><p>if <span class="math inline">\(\sum_{l=1}^K p_l \delta_{lk} &lt;
+0\)</span> then <span class="math inline">\(h^* \le \sum_{l=1}^K
+p_lr^{(t)}_{lk} /\sum_{l=1}^K p_l \delta_{lk}\)</span>.</p></li>
+<li><p>if <span class="math inline">\(\sum_{l=1}^K p_l \delta_{lk} =
+0\)</span>, no constraint as well except non negative.</p></li>
+</ul>
+<p>Thus, we will set our grid line in th segment <span class="math inline">\((0, h_{max}]\)</span> where :</p>
+<p><span class="math display">\[
+h_{max} = \min_{k=1, \dots , K}\Big |\frac{\sum_{l=1}^K
+p_lr^{(t)}_{lk}}{\sum_{l=1}^K p_l \delta_{lk}}\Big |
+\]</span></p>
+<p>and we will choose the value <span class="math inline">\(h^*\)</span>
+which minimizes the objective function provided that the alternative
+matrix of clusters <span class="math inline">\(\tilde R^{(t+1)}\)</span>
+is positive.</p>
 </div>
 <div id="simulation-study" class="section level2">
 <h2>Simulation study</h2>
