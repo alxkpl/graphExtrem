@@ -855,7 +855,8 @@ get_cluster <- function(gamma, weights, lambda, ...){
     d <- nrow(gamma)
     R <- R.init
     clusters <- as.list(1:d)
-    for(i in 1:it_max){
+    cpt <- 1
+    while((cpt < it_max)&(length(R) != 1)){
       # Gradient step
       R <- step(R, clusters)
 
@@ -865,9 +866,18 @@ get_cluster <- function(gamma, weights, lambda, ...){
       if(length(res.merge$R) != length(R)){
         R <- res.merge$R
         clusters <- res.merge$clusters
-        R <- step(R, clusters)
       }
+      cpt <- cpt + 1 
     } 
+    
+    if(cpt < it_max){
+      return(
+        list(
+          R = R,
+          clusters = clusters
+        )
+      )
+    }
     return(
       list(
         R = R,
