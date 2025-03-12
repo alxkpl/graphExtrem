@@ -379,6 +379,28 @@ list(
       mst(completeGraph, algorithm = 'prim')
     }),
  
+  #---------------------- Variable Clustering for HR models --------------------
+  tar_target(
+    first_sim_param_cluster,
+    {
+      # Construction of clusters and R matrix
+      R <- matrix(c(0.5, -2,
+                    -2, 1), nc = 2)
+      clusters <- list(1:4, 5:7)
+      
+      # Construction of induced theta and corresponding variogram gamma
+      Theta <- build_theta(R, clusters)
+      Gamma <- Theta2Gamma(Theta)
+      
+      list(
+        R = R,
+        clusters = clusters,
+        Theta = Theta,
+        Gamma = Gamma
+           )
+    }
+  ),
+  
   #----------------------------- Export document -------------------------------
   # Trivariate coefficient documents
   ## HTML
