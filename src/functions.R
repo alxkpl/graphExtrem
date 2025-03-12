@@ -753,7 +753,7 @@ step_gradient <- function(gamma, weights, lambda, size_grid = 100){
 #'                   0,1,7,0), nc = 4)
 #' cost <- neg_likelihood_pen(gamma, weights, 100000)
 #' merge_clusters(R, clusters, cost = cost)
-merge_clusters <- function(R, clusters, eps=1e-2, cost){
+merge_clusters <- function(R, clusters, eps=1e-1, cost){
   # Initialization
   D <- D_tilde2_r(R, clusters)                    # Function of clusters distance
   K <- length(clusters)                           # Actual number of clusters
@@ -802,8 +802,9 @@ merge_clusters <- function(R, clusters, eps=1e-2, cost){
   # Coefficient calculation
   R_new <- R[-l, -l]
   
-  R_new[k, ] <- (p[k] * R[k, -l] + p[l] * R[l, -l]) / (p[k] + p[l])
-  R_new[, k] <- (p[k] * R[k, -l] + p[l] * R[l, -l]) / (p[k] + p[l])
+  R_new[k, -k] <- ((p[k] * R[k, ] + p[l] * R[l, ]) / (p[k] + p[l]))[-c(k, l)]
+  R_new[-k, k] <- ((p[k] * R[k, ] + p[l] * R[l, ]) / (p[k] + p[l]))[-c(k, l)]
+  R_new[k, k] <- R[k, l]
   
   # Final checking : decreasing of the negative log-likelihood
   if(cost(R, clusters) > cost(R_new, new_clusters)){
@@ -861,12 +862,12 @@ get_cluster <- function(gamma, weights, lambda, ...){
       # Try for merging
       res.merge <- merge_clusters(R, clusters, cost = L, ...)
       
-      if(sum(res.merge$R != R)){
+      if(length(res.merge$R) != length(R)){
         R <- res.merge$R
         clusters <- res.merge$clusters
         R <- step(R, clusters)
       }
-    }
+    } 
     return(
       list(
         R = R,
