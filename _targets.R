@@ -396,8 +396,63 @@ list(
         R = R,
         clusters = clusters,
         Theta = Theta,
-        Gamma = Gamma
+        Gamma = Gamma,
+        chi = 1,
+        n = 2e3,
+        d = 7
            )
+    }
+  ),
+  
+  tar_target(
+    first_sim_clustering,
+    rmpareto(n = first_sim_param_cluster$n, 
+             model = "HR",
+             par = first_sim_param_cluster$Gamma)
+  ),
+  
+  tar_target(
+    first_sim_optimisation_results,
+    {
+      # Initialization 
+      Gamma_est <- emp_vario(first_sim_clustering)
+      R.init <- Gamma2Theta(Gamma_est)
+      d <- first_sim_param_cluster$d
+      chi <- first_sim_param_cluster$chi
+      
+      # Exponential weights construction 
+      D <- D_tilde2_r(R.init, as.list(1:d))
+      W <- matrix(rep(0, d * d), nc = d)
+      
+      for(k in 1:(d - 1)){
+        for(l in (k + 1):d){
+          W[k, l] <- exp(-chi * D(k, l))
+        }
+      }
+      W <- W + t(W)
+      
+      # First estimation 
+      Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = 0.1)
+      res_base <- Cluster_HR(R.init, it_max = 200)
+      
+      # Search of an optimal penalty
+      l_opt <- 0.1
+      lambda <- seq(0.2, 2, 0.1)
+      
+      for(i in 1:length(lambda)){
+        Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = lambda[i])
+        res <- Cluster_HR(R.init, it_max = 200)
+        if(res$nllh < res_base$nllh){
+          res_base <- res
+          l_opt <- lambda[i]
+        }
+      }
+      
+      list(
+        results = res_base,
+        lambda_optim = l_opt
+      )
+      
     }
   ),
   
