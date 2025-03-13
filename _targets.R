@@ -412,6 +412,32 @@ list(
   ),
   
   tar_target(
+    first_sim_optimisation_no_penalty,
+    {
+      # Initialization 
+      Gamma_est <- emp_vario(first_sim_clustering)
+      R.init <- Gamma2Theta(Gamma_est)
+      d <- first_sim_param_cluster$d
+      chi <- first_sim_param_cluster$chi
+      
+      # Exponential weights construction 
+      D <- D_tilde2_r(R.init, as.list(1:d))
+      W <- matrix(rep(0, d * d), nc = d)
+      
+      for(k in 1:(d - 1)){
+        for(l in (k + 1):d){
+          W[k, l] <- exp(-chi * D(k, l))
+        }
+      }
+      W <- W + t(W)
+      
+      # For no penalty, lambda = 0
+      Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = 0)
+      Cluster_HR(R.init, it_max = 200)
+    }
+  ),
+  
+  tar_target(
     first_sim_optimisation_results,
     {
       # Initialization 
