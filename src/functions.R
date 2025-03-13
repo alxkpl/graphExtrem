@@ -874,7 +874,8 @@ get_cluster <- function(gamma, weights, lambda, ...){
       return(
         list(
           R = R,
-          clusters = clusters
+          clusters = clusters,
+          nllh = 10
         )
       )
     }
