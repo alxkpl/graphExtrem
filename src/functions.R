@@ -845,7 +845,7 @@ merge_clusters <- function(R, clusters, eps=1e-1, cost){
 #'               0,1,1,-2,
 #'               0,1,1,-1,
 #'               -1,-2,-1,1), nc = 4)                
-#' Cluster_HR <- get_cluster(gamma, W, 0)
+#' Cluster_HR <- get_cluster(gamma, W, 100)
 #' Cluster_HR(R)
 get_cluster <- function(gamma, weights, lambda, ...){
   L <- neg_likelihood_pen(gamma, weights, lambda)
@@ -875,7 +875,7 @@ get_cluster <- function(gamma, weights, lambda, ...){
         list(
           R = R,
           clusters = clusters,
-          nllh = 10
+          nllh = -(d - 1) * (d - 2) * R
         )
       )
     }
@@ -911,6 +911,20 @@ best_clusters <- function(data, d, chi, l_grid, include_zero = FALSE){
     lambda <- c(0, l_grid[l_grid != 0])
   }else{
     lambda <- l_grid[l_grid != 0]
+  }
+  
+  # for one grid lambda
+  if(length(lambda) == 1){
+    Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = lambda)
+    res_base <- Cluster_HR(R.init, it_max = 200)
+    return(
+      list(
+        R = res_base$R,
+        clusters = res_base$clusters,
+        nllh = res_base$nllh,
+        lambda = lambda
+      )
+    )
   }
   
   l_opt <- lambda[1]
