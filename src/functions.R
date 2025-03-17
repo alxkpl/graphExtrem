@@ -1009,7 +1009,7 @@ extract_nllh <- function(list_pen, list_nopen){
   )
 }
 
-#' Computation of Adujsted Rand Index for two clusters
+#' Computation of the Adjusted Rand Index for two clusters
 #'
 #' @param cluster1 a list of vector : the first cluster.
 #' @param cluster2 a list of vector : the second cluster.
@@ -1034,6 +1034,35 @@ ARI <- function(cluster1, cluster2){
     num / denom
   )
 }
+
+#' Computation of the Rand Index for two clusters
+#'
+#' @param cluster1 a list of vector : the first cluster.
+#' @param cluster2 a list of vector : the second cluster.
+#'
+#' @returns The RI for the two clusters.
+#'
+#' @examples
+RI <- function(cluster1, cluster2){
+  U1 <- U_matrix(cluster1)
+  U2 <- U_matrix(cluster2)
+  n <- sum(U1)
+  a <- 0
+  b <- 0 
+  for(i in 1:(n - 1)){
+    for(j in ((i + 1):n)){
+      if(sum(U1[i, ] * U1[j ,]) * sum(U2[i, ] * U2[j ,])){
+        a <- a + 1 
+      }else if((1 - sum(U1[i, ] * U1[j ,])) * (1 - sum(U2[i, ] * U2[j ,]))){
+        b <- b + 1
+      }
+    }
+  }
+  return(
+    2 * (a + b) / n / (n - 1)
+  )
+}
+
 
 #------------------------------- Others functions ------------------------------
 
