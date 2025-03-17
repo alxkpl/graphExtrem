@@ -968,6 +968,24 @@ best_clusters <- function(data, chi, l_grid, include_zero = FALSE){
   
 }
 
+##============================= Simulation study ===============================
+#' Give the lambda for a list of optimization results from replication.
+#'
+#' @param list List of results from best_clusters.
+#'
+#' @returns A tibble giving the optimal lambda (non null) for each replication.
+#'
+#' @examples
+extract_lambda <- function(list){
+  n <- length(list)
+  lambda <- rep(NA, n)
+  for(i in 1:n){
+    lambda[i] <- list[[i]]$lambda_optim
+  }
+  return(
+    tibble(simulation = 1:n, lambda_opt = lambda)
+  )
+}
 
 
 #------------------------------- Others functions ------------------------------
