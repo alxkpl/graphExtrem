@@ -891,9 +891,22 @@ get_cluster <- function(gamma, weights, lambda, ...){
 
 
 
-best_clusters <- function(data, d, chi, l_grid, include_zero = FALSE){
+#' Search of optimal lambda for the penalty in optimization
+#'
+#' @param data n x d matrix : the data.
+#' @param chi a positive number : tuned parameter for the exponential weights
+#' @param l_grid a numerix vector of psoitive number : the grid line for lambda.
+#' @param include_zero Boolean : if FALSE (default) avoid computation for  
+#' non-penalization setting (i.e. lambda = 0).
+#'
+#' @returns Returns the optimal optimization from get_clusters() with the best
+#'  lambda in the grid line. 
+#'
+#' @examples
+best_clusters <- function(data, chi, l_grid, include_zero = FALSE){
   # Initialization 
   Gamma_est <- emp_vario(data)
+  d <- ncol(data)
   R.init <- Gamma2Theta(Gamma_est)
   
   # Exponential weights construction 
@@ -954,6 +967,8 @@ best_clusters <- function(data, d, chi, l_grid, include_zero = FALSE){
   )
   
 }
+
+
 
 #------------------------------- Others functions ------------------------------
 
