@@ -987,6 +987,29 @@ extract_lambda <- function(list){
   )
 }
 
+#' Extract negative loglikelihood for best penalised results and with no penalty.
+#'
+#' @param list_pen List of results from best_clusters with include_zero = FALSE.
+#' @param list_nopen List o results from best_clusters with one size grid equal to 0.
+#'
+#' @returns A tibble of the negative loglikelihood in both situation, for each 
+#' replication.
+#'
+#' @examples
+extract_nllh <- function(list_pen, list_nopen){
+  n <- length(list_pen)
+  nllh_pen <- rep(NA, n)
+  nllh_nopen <- rep(NA, n)
+  for(i in 1:n){
+    nllh_pen[i] <- list_pen[[i]]$nllh
+    nllh_nopen[i] <- list_nopen[[i]]$nllh
+  }
+  return(
+    tibble(simulation = 1:n, nllh_pen = nllh_pen, nllh_nopen = nllh_nopen)
+  )
+}
+
+
 
 #------------------------------- Others functions ------------------------------
 
