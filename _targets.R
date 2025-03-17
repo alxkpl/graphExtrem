@@ -416,7 +416,7 @@ list(
     best_clusters(data = first_sim_clustering, 
                   d = first_sim_param_cluster$d,
                   chi = first_sim_param_cluster$chi,
-                  l_grid = c(0, 100),
+                  l_grid = 0,
                   include_zero = T)
   ),
   
