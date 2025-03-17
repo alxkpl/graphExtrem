@@ -380,6 +380,7 @@ list(
     }),
  
   #---------------------- Variable Clustering for HR models --------------------
+  # First simulation optimization
   tar_target(
     first_sim_param_cluster,
     {
@@ -427,6 +428,17 @@ list(
                   chi = first_sim_param_cluster$chi,
                   l_grid = seq(0.1, 2, 0.1),
                   include_zero = FALSE)
+  ),
+  
+  # Replication of the first simulation
+  tar_rep(
+    first_sim_clustering_replicate,
+    rmpareto(n = first_sim_param_cluster$n, 
+             model = "HR",
+             par = first_sim_param_cluster$Gamma),
+    batches = 500,
+    reps = 1,
+    iteration = "vector"               # the output of the replicates is a list
   ),
   
   #----------------------------- Export document -------------------------------
