@@ -891,6 +891,56 @@ get_cluster <- function(gamma, weights, lambda, ...){
 
 
 
+best_clusters <- function(data, d, chi, l_grid, include_zero = FALSE){
+  # Initialization 
+  Gamma_est <- emp_vario(data)
+  R.init <- Gamma2Theta(Gamma_est)
+  
+  # Exponential weights construction 
+  D <- D_tilde2_r(R.init, as.list(1:d))
+  W <- matrix(rep(0, d * d), nc = d)
+  
+  for(k in 1:(d - 1)){
+    for(l in (k + 1):d){
+      W[k, l] <- exp(-chi * D(k, l))
+    }
+  }
+  W <- W + t(W)
+  
+  if(include_zero){
+    lambda <- c(0, l_grid[l_grid != 0])
+  }else{
+    lambda <- l_grid[l_grid != 0]
+  }
+  
+  l_opt <- lambda[1]
+  
+  # First estimation 
+  Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = l_opt)
+  res_base <- Cluster_HR(R.init, it_max = 200)
+
+  
+  # Search of an optimal penalty
+  for(i in 2:length(lambda)){
+    Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = lambda[i])
+    res <- Cluster_HR(R.init, it_max = 200)
+    if(res$nllh < res_base$nllh){
+      res_base <- res
+      l_opt <- lambda[i]
+    }
+  }
+  
+  return(
+    list(
+      R = res_base$R,
+      clusters = res_base$clusters,
+      nllh = res_base$nllh,
+      lambda_optim = l_opt
+    )
+  )
+  
+}
+
 #------------------------------- Others functions ------------------------------
 
 ## Decomposition of the gradient computation using finite difference
