@@ -1087,6 +1087,26 @@ get_rand_index <- function(cluster_init, list){
   )
 }
 
+#' Summary table results for replications.
+#'
+#' @param list_pen List of results from best_clusters with include_zero = FALSE.
+#' @param list_nopen List o results from best_clusters with one size grid equal to 0.
+#' @param cluster_init a list of vector : the true cluster.
+#'
+#' @returns A tibble which corresponds to the inner join of all the tibble from 
+#' extract_lambda, extract_nllh and get_rand_index functions.
+#'
+#' @examples
+get_info_replicate <- function(list_pen, list_nopen, cluster_init){
+  d_lambda <- extract_lambda(list_pen)
+  d_nllh <- extract_nllh(list_pen, list_nopen)
+  d_RI <- get_rand_index(cluster_init, list_pen)
+  
+  return(
+    d_lambda |> inner_join(d_nllh) |> inner_join(d_RI)
+  )
+}
+
 #------------------------------- Others functions ------------------------------
 
 ## Decomposition of the gradient computation using finite difference
