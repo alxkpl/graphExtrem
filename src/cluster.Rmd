@@ -746,7 +746,7 @@ For the results, we get :
 - we estimated the $\hat R$ matrix as : 
 
 ```{r R-result, echo = FALSE}
-R_res <- first_sim_optimisation_results$results$R
+R_res <- first_sim_optimisation_results$R
 ```
 
 
@@ -758,7 +758,7 @@ R_res <- first_sim_optimisation_results$results$R
 \end{pmatrix}
 \end{equation*}
 
-- a negative log-likelihood which takes the value `r round(first_sim_optimisation_results$results$nllh, 2)` whereas it takes the value `r round(first_sim_optimisation_no_penalty$nllh, 2)` for non-penalised optimization. 
+- a negative log-likelihood which takes the value `r round(first_sim_optimisation_results$nllh, 2)` whereas it takes the value `r round(first_sim_optimisation_no_penalty$nllh, 2)` for non-penalised optimization. 
 
 
 
