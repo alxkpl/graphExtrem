@@ -1009,7 +1009,31 @@ extract_nllh <- function(list_pen, list_nopen){
   )
 }
 
-
+#' Computation of Adujsted Rand Index for two clusters
+#'
+#' @param cluster1 a list of vector : the first cluster.
+#' @param cluster2 a list of vector : the second cluster.
+#'
+#' @returns The ARI for the two clusters.
+#'
+#' @examples
+ARI <- function(cluster1, cluster2){
+  U1 <- U_matrix(cluster1)
+  U2 <- U_matrix(cluster2)
+  # Contingency table 
+  N <- t(U1) %*% U2
+  n <- sum(N)
+  
+  # total rows and columns
+  a <- rowSums(N)
+  b <- colSums(N)
+  
+  num <- sum(N * (N - 1) / 2) - (sum(a * (a - 1) / 2) * sum(b * (b - 1) / 2)) / (n * (n - 1) / 2)
+  denom <- 0.5 * (sum(a * (a - 1) / 2) + sum(b * (b - 1) / 2)) - (sum(a * (a - 1) / 2) * sum(b * (b - 1) / 2)) / (n * (n - 1) / 2)
+  return(
+    num / denom
+  )
+}
 
 #------------------------------- Others functions ------------------------------
 
