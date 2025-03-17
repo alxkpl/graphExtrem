@@ -971,7 +971,7 @@ best_clusters <- function(data, chi, l_grid, include_zero = FALSE){
 ##============================= Simulation study ===============================
 #' Give the lambda for a list of optimization results from replication.
 #'
-#' @param list List of results from best_clusters.
+#' @param list List of results from best_clusters with include_zero = FALSE.
 #'
 #' @returns A tibble giving the optimal lambda (non null) for each replication.
 #'
@@ -1063,6 +1063,29 @@ RI <- function(cluster1, cluster2){
   )
 }
 
+
+#' Build the RI coefficients tibble for each replication
+#'
+#' @param cluster_init a list of vector : the true cluster.
+#' @param list List of results from best_clusters with include_zero = FALSE.
+#'
+#' @returns A tibble with Ri and ARI values (according to the true cluster) for 
+#' each replication.
+#'
+#' @examples
+get_rand_index <- function(cluster_init, list){
+  n <- length(list)
+  ari <- rep(NA, n)
+  ri <- rep(NA, n)
+  for(i in 1:n){
+    ari[i] <- ARI(cluster_init, list[[i]]$clusters)
+    ri[i] <- RI(cluster_init, list[[i]]$clusters)
+  }
+  
+  return(
+    tibble(simulation = 1:n, RI = ri, ARI = ari)
+  )
+}
 
 #------------------------------- Others functions ------------------------------
 
