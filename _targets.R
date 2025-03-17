@@ -413,73 +413,20 @@ list(
   
   tar_target(
     first_sim_optimisation_no_penalty,
-    {
-      # Initialization 
-      Gamma_est <- emp_vario(first_sim_clustering)
-      R.init <- Gamma2Theta(Gamma_est)
-      d <- first_sim_param_cluster$d
-      chi <- first_sim_param_cluster$chi
-      
-      # Exponential weights construction 
-      D <- D_tilde2_r(R.init, as.list(1:d))
-      W <- matrix(rep(0, d * d), nc = d)
-      
-      for(k in 1:(d - 1)){
-        for(l in (k + 1):d){
-          W[k, l] <- exp(-chi * D(k, l))
-        }
-      }
-      W <- W + t(W)
-      
-      # For no penalty, lambda = 0
-      Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = 0)
-      Cluster_HR(R.init, it_max = 200)
-    }
+    best_clusters(data = first_sim_clustering, 
+                  d = first_sim_param_cluster$d,
+                  chi = first_sim_param_cluster$chi,
+                  l_grid = c(0, 100),
+                  include_zero = T)
   ),
   
   tar_target(
     first_sim_optimisation_results,
-    {
-      # Initialization 
-      Gamma_est <- emp_vario(first_sim_clustering)
-      R.init <- Gamma2Theta(Gamma_est)
-      d <- first_sim_param_cluster$d
-      chi <- first_sim_param_cluster$chi
-      
-      # Exponential weights construction 
-      D <- D_tilde2_r(R.init, as.list(1:d))
-      W <- matrix(rep(0, d * d), nc = d)
-      
-      for(k in 1:(d - 1)){
-        for(l in (k + 1):d){
-          W[k, l] <- exp(-chi * D(k, l))
-        }
-      }
-      W <- W + t(W)
-      
-      # First estimation 
-      Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = 0.1)
-      res_base <- Cluster_HR(R.init, it_max = 200)
-      
-      # Search of an optimal penalty
-      l_opt <- 0.1
-      lambda <- seq(0.2, 2, 0.1)
-      
-      for(i in 1:length(lambda)){
-        Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = lambda[i])
-        res <- Cluster_HR(R.init, it_max = 200)
-        if(res$nllh < res_base$nllh){
-          res_base <- res
-          l_opt <- lambda[i]
-        }
-      }
-      
-      list(
-        results = res_base,
-        lambda_optim = l_opt
-      )
-      
-    }
+    best_clusters(data = first_sim_clustering, 
+                  d = first_sim_param_cluster$d,
+                  chi = first_sim_param_cluster$chi,
+                  l_grid = seq(0.1, 2, 0.1),
+                  include_zero = FALSE)
   ),
   
   #----------------------------- Export document -------------------------------
