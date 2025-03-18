@@ -420,16 +420,14 @@ list(
     first_sim_optimisation_no_penalty,
     best_clusters(data = first_sim_clustering, 
                   chi = first_sim_param_cluster$chi,
-                  l_grid = 0,
-                  include_zero = T)
+                  l_grid = 0)
   ),
   
   tar_target(
     first_sim_optimisation_results,
     best_clusters(data = first_sim_clustering, 
                   chi = first_sim_param_cluster$chi,
-                  l_grid = seq(0.1, 2, 0.1),
-                  include_zero = FALSE)
+                  l_grid = seq(0.1, 2, 0.1))
   ),
   
   # Replication of the first simulation
@@ -454,7 +452,41 @@ list(
 
       rep |>
         tibble() |>
-        mutate(sim = (1:1e6 + (n - 1)) %/% n) -> data_rep
+        mutate(sim = (1:nrow(rep) + (n - 1)) %/% n) -> data_rep
+    }
+  ),
+
+  tar_target(
+    first_sim_rep_pen_results,
+    {
+      m <- first_sim_rep_data |> summarise(max = max(sim))
+      lambda <- seq(0.1, 2, by = 0.1)
+      future_map(1:m$max, function(i){
+        data <- first_sim_rep_data |>
+          filter(sim == i) |>
+          select(-sim) |>
+          as.matrix()
+        return(
+          best_clusters(data, chi = first_sim_param_cluster$chi, l_grid = lambda)
+        )
+      })
+    }
+  ),
+
+  tar_target(
+    first_sim_rep_nopen_results,
+    {
+      m <- first_sim_rep_data |> summarise(max = max(sim))
+      future_map(1:m$max, function(i){
+        data <- first_sim_rep_data |>
+          filter(sim == i) |>
+          select(-sim) |>
+          as.matrix()
+        return(
+          best_clusters(data, chi = first_sim_param_cluster$chi,
+                        l_grid = 0)
+        )
+      })
     }
   ),
   
