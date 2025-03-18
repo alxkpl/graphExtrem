@@ -724,7 +724,7 @@ step_gradient <- function(gamma, weights, lambda, size_grid = 100){
         }
       }
     }
-    return(R - s_opt * grad)
+    return(list(step = s_opt, gradient = grad))
   }
 }
 
@@ -849,17 +849,19 @@ merge_clusters <- function(R, clusters, eps=1e-1, cost){
 #' Cluster_HR(R)
 get_cluster <- function(gamma, weights, lambda, ...){
   L <- neg_likelihood_pen(gamma, weights, lambda)
-  step <- step_gradient(gamma, weights, lambda, ...)
-  function(R.init, it_max = 1000){
+  step <- step_gradient(gamma, weights, lambda,...)
+  function(R.init, it_max = 1000, eps_g = 1e-3){
     # Initialization
     d <- nrow(gamma)
     R <- R.init
     clusters <- as.list(1:d)
+    gradstep <- list(gradient = eps_g + 1)
     cpt <- 1
-    while((cpt < it_max)&(length(R) != 1)){
+    while((cpt < it_max)&(length(R) != 1)&(sum(gradstep$gradient**2)>eps_g)){
       # Gradient step
-      R <- step(R, clusters)
-
+      gradstep <- step(R, clusters)
+      
+      R <- R - gradstep$step * gradstep$gradient
       # Try for merging
       res.merge <- merge_clusters(R, clusters, cost = L, ...)
       
@@ -870,7 +872,7 @@ get_cluster <- function(gamma, weights, lambda, ...){
       cpt <- cpt + 1 
     } 
     
-    if(cpt < it_max){
+    if(length(R) == 1){
       return(
         list(
           R = R,
