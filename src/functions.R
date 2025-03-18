@@ -704,7 +704,7 @@ step_gradient <- function(gamma, weights, lambda, size_grid = 100){
     s_max <- min(
       abs((R %*% p) / (grad %*% p))         # Maximum step size to get positive matrix
     )
-    if(s_max == 0){
+    if((s_max == 0)||(s_max > 1)){
       s <- seq(0, 1, 0.01)
     }else{
       s <- seq(0, s_max, s_max / size_grid)
@@ -905,7 +905,7 @@ get_cluster <- function(gamma, weights, lambda, ...){
 #'  lambda in the grid line. 
 #'
 #' @examples
-best_clusters <- function(data, chi, l_grid, include_zero = FALSE){
+best_clusters <- function(data, chi, l_grid){
   # Initialization 
   Gamma_est <- emp_vario(data)
   d <- ncol(data)
@@ -921,15 +921,22 @@ best_clusters <- function(data, chi, l_grid, include_zero = FALSE){
     }
   }
   W <- W + t(W)
-  
-  if(include_zero){
-    lambda <- c(0, l_grid[l_grid != 0])
-  }else{
-    lambda <- l_grid[l_grid != 0]
-  }
+
+  lambda <- l_grid[l_grid != 0]
   
   # for one grid lambda
-  if(length(lambda) == 1){
+  if(length(lambda) <= 1){
+    if(l_grid == 0){
+      L <- neg_likelihood(Gamma_est)
+      return(
+        list(
+          R = R.init,
+          clusters = as.list(1:d),
+          nllh = L(R.init, as.list(1:d)),
+          lambda = 0
+        )
+      )
+    }
     Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = lambda)
     res_base <- Cluster_HR(R.init, it_max = 200)
     return(
@@ -1105,7 +1112,10 @@ get_info_replicate <- function(list_pen, list_nopen, cluster_init){
   d_RI <- get_rand_index(cluster_init, list_pen)
   
   return(
-    d_lambda |> inner_join(d_nllh) |> inner_join(d_RI)
+    d_lambda |> 
+      inner_join(d_nllh, by = join_by(simulation)) |>
+      inner_join(d_RI, by = join_by(simulation)) |> 
+      mutate(nb_cluster = sapply(list_pen,  \(.) length(.$clusters)))
   )
 }
 
