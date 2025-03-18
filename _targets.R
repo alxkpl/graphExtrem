@@ -1,11 +1,14 @@
 library(targets)
 library(tarchetypes)
 library(here)
+library(furrr)
 
 #-------------------------------------------------------------------------------
 #                                     SETUP 
 #-------------------------------------------------------------------------------
 tar_source(files = "./src") # compile all the script in the src directory
+
+plan(multisession, workers = parallel::detectCores() - 1)
 
 # Package's loading
 tar_option_set(packages = c("graphicalExtremes",
@@ -20,7 +23,8 @@ tar_option_set(packages = c("graphicalExtremes",
                             "gridExtra", 
                             "igraph",
                             "evd",
-                            "pracma"))
+                            "pracma",
+                            "furrr"))
 
 #-------------------------------------------------------------------------------
 #                                   PIPELINE
@@ -415,7 +419,6 @@ list(
   tar_target(
     first_sim_optimisation_no_penalty,
     best_clusters(data = first_sim_clustering, 
-                  d = first_sim_param_cluster$d,
                   chi = first_sim_param_cluster$chi,
                   l_grid = 0,
                   include_zero = T)
@@ -424,7 +427,6 @@ list(
   tar_target(
     first_sim_optimisation_results,
     best_clusters(data = first_sim_clustering, 
-                  d = first_sim_param_cluster$d,
                   chi = first_sim_param_cluster$chi,
                   l_grid = seq(0.1, 2, 0.1),
                   include_zero = FALSE)
@@ -436,9 +438,24 @@ list(
     rmpareto(n = first_sim_param_cluster$n, 
              model = "HR",
              par = first_sim_param_cluster$Gamma),
-    batches = 500,
-    reps = 1,
+    batches = 1,
+    reps = 500,
     iteration = "vector"               # the output of the replicates is a list
+  ),
+  
+  tar_target(
+    first_sim_rep_data, 
+    {
+      rep <- first_sim_clustering_replicate
+
+      n <- first_sim_param_cluster$n
+
+      row.names(rep) <- NULL
+
+      rep |>
+        tibble() |>
+        mutate(sim = (1:1e6 + (n - 1)) %/% n) -> data_rep
+    }
   ),
   
   #----------------------------- Export document -------------------------------
