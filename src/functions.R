@@ -1234,6 +1234,44 @@ all_info <- function(cluster.init, list_res, lambda){
   )
 }
 
+plot_info <- function(results){
+  
+  results |> group_by(l) |> summarise(ARI = mean(ARI))|>
+    ggplot() +aes(x = l, y = ARI) + 
+    geom_line(col = "grey50") + 
+    xlab(expression(lambda)) +
+    geom_point(col = "darkorange2", shape = 20) +
+    geom_hline(yintercept = 1, linetype = "dashed", col = "darkgreen") +
+    ggtitle("ARI over lambda") + 
+    theme_ipsum(base_family = "serif") -> p1
+  
+  results |> group_by(l) |> summarise(RI = mean(RI))|>
+    ggplot() +aes(x = l, y = RI) + 
+    geom_line(col = "grey50") + 
+    geom_point(col = "darkorange2", shape = 20) +
+    geom_hline(yintercept = 1, linetype = "dashed", col = "darkgreen") +
+    xlab(expression(lambda)) +
+    ggtitle("RI over lambda") + 
+    theme_ipsum(base_family = "serif") -> p2
+  
+  results |> 
+    ggplot() + aes(x = l, y = factor(nb_cluster)) + 
+    geom_boxplot(aes(group = factor(nb_cluster)), col = "darkorange2",
+                 fill = "grey80") +
+    xlab(expression(lambda)) +
+    ylab("K")+
+    ggtitle("Number of cluster over lambda") + 
+    theme_ipsum(base_family = "serif") -> p3
+  
+  # Graph structure
+  top_row <- plot_grid(p1, p2, ncol = 2)
+  bottom_row <- plot_grid(NULL, p3, NULL, ncol = 3, rel_widths = c(0.2, 0.6, 0.2))
+  final_plot <- plot_grid(top_row, bottom_row, ncol = 1, rel_heights = c(1, 1))
+  
+  return(
+    final_plot
+  )
+}
 #------------------------------- Others functions ------------------------------
 
 ## Decomposition of the gradient computation using finite difference
