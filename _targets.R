@@ -24,7 +24,8 @@ tar_option_set(packages = c("graphicalExtremes",
                             "igraph",
                             "evd",
                             "pracma",
-                            "furrr"))
+                            "furrr",
+                            "cowplot"))
 
 #-------------------------------------------------------------------------------
 #                                   PIPELINE
@@ -384,7 +385,7 @@ list(
     }),
  
   #---------------------- Variable Clustering for HR models --------------------
-  # First simulation optimization
+  ##================ First simulation optimization ================
   tar_target(
     first_sim_param_cluster,
     {
@@ -441,6 +442,7 @@ list(
     iteration = "vector"               # the output of the replicates is a list
   ),
   
+  # Data formatting to separate the replications
   tar_target(
     first_sim_rep_data, 
     {
@@ -455,19 +457,22 @@ list(
         mutate(sim = (1:nrow(rep) + (n - 1)) %/% n) -> data_rep
     }
   ),
-
+  
+  # Computation of optimization results for each replication
   tar_target(
     first_sim_rep_pen_results,
     {
       m <- first_sim_rep_data |> summarise(max = max(sim))
-      lambda <- seq(0.1, 2, by = 0.1)
+      lambda <- seq(0.1, 2, 0.1)
       future_map(1:m$max, function(i){
         data <- first_sim_rep_data |>
           filter(sim == i) |>
           select(-sim) |>
           as.matrix()
         return(
-          best_clusters(data, chi = first_sim_param_cluster$chi, l_grid = lambda)
+          future_map(lambda, \(.) best_clusters(data,
+                                                chi = first_sim_param_cluster$chi,
+                                                l_grid = .))
         )
       })
     }
@@ -483,11 +488,122 @@ list(
           select(-sim) |>
           as.matrix()
         return(
-          best_clusters(data, chi = first_sim_param_cluster$chi,
+          best_clusters(data, 
+                        chi = first_sim_param_cluster$chi,
                         l_grid = 0)
         )
       })
     }
+  ),
+  
+  # Formatting and plot the results 
+  tar_target(
+    first_sim_rep_results, 
+    {
+      lambda <- seq(0.1, 2, 0.1)
+      all_info(cluster.init = first_sim_param_cluster$clusters,
+               list_res = first_sim_rep_pen_results, lambda = lambda)
+      
+      }
+  ),
+  
+  ##======================= Unbalanced class =====================
+  tar_target(
+    unbal_sim_param_cluster,
+    {
+      # Construction of clusters and R matrix
+      R <- matrix(c(1, -3,
+                    -3, 1), nc = 2)
+      clusters <- list(1:2, 3:7)
+      
+      # Construction of induced theta and corresponding variogram gamma
+      Theta <- build_theta(R, clusters)
+      Gamma <- Theta2Gamma(Theta)
+      
+      list(
+        R = R,
+        clusters = clusters,
+        Theta = Theta,
+        Gamma = Gamma,
+        chi = 1,
+        n = 1e3,
+        d = 7
+      )
+    }
+  ),
+  
+  # Replication of the unbalanced simulation
+  tar_rep(
+    unbal_sim_clustering_replicate,
+    rmpareto(n = unbal_sim_param_cluster$n, 
+             model = "HR",
+             par = unbal_sim_param_cluster$Gamma),
+    batches = 1,
+    reps = 200,
+    iteration = "vector"               # the output of the replicates is a list
+  ),
+  
+  # Data formatting to separate the replications
+  tar_target(
+    unbal_sim_rep_data, 
+    {
+      rep <- unbal_sim_clustering_replicate
+      
+      n <- unbal_sim_param_cluster$n
+      
+      row.names(rep) <- NULL
+      
+      rep |>
+        tibble() |>
+        mutate(sim = (1:nrow(rep) + (n - 1)) %/% n) -> data_rep
+    }
+  ),
+  
+  # Computation of optimization results for each replication
+  tar_target(
+    unbal_sim_rep_pen_results,
+    {
+      m <- unbal_sim_rep_data |> summarise(max = max(sim))
+      lambda <- seq(0.1, 2, 0.1)
+      future_map(1:m$max, function(i){
+        data <- unbal_sim_rep_data |>
+          filter(sim == i) |>
+          select(-sim) |>
+          as.matrix()
+        return(
+          future_map(lambda, \(.) best_clusters(data, 
+                                                unbal_sim_param_cluster$chi,
+                                                l_grid = .))
+        )
+      })
+    }
+  ),
+  
+  tar_target(
+    unbal_sim_rep_nopen_results,
+    {
+      m <- unbal_sim_rep_data |> summarise(max = max(sim))
+      future_map(1:m$max, function(i){
+        data <- unbal_sim_rep_data |>
+          filter(sim == i) |>
+          select(-sim) |>
+          as.matrix()
+        return(
+          best_clusters(data, chi = unbal_sim_param_cluster$chi,
+                        l_grid = 0)
+        )
+      })
+    }
+  ),
+  
+  # Formatting and plot the results 
+  tar_target(
+    unbal_sim_rep_results, 
+    {
+      lambda <- seq(0.1, 2, 0.1)
+      all_info(cluster.init = unbal_sim_param_cluster$clusters,
+               list_res = unbal_sim_rep_pen_results, lambda = lambda)
+      }
   ),
   
   #----------------------------- Export document -------------------------------
