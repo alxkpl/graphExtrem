@@ -701,30 +701,40 @@ step_gradient <- function(gamma, weights, lambda, size_grid = 100){
     
     # Grid line search for optimal gradient step
     # Grid line construction
-    s_max <- min(
-      abs((R %*% p) / (grad %*% p))         # Maximum step size to get positive matrix
-    )
-    if((s_max == 0)||(s_max > 1)){
-      s <- seq(0, 1, 0.01)
-    }else{
-      s <- seq(0, s_max, s_max / size_grid)
-    }
-    
-    # Searching
-    s_opt <- 0
-    score <- nllh(R, clusters)
-
-    for(i in 2:(length(s) - 1)){
-      # Better step size 
-      if(score > nllh(R - s[i] * grad, clusters)){
-        # Positive matrix checking
-        if(semi_def(sub_theta(R - s[i] * grad, clusters))){ 
-          s_opt <- s[i] 
-          score <- nllh(R - s_opt * grad, clusters)
-        }
+    if(max(p) == 1){
+      s_opt <- optim(par = 1,fn = \(.) nllh(R - . * grad, clusters),
+                    method = "Brent", lower = 0, upper = 1)$par
+      while(!semi_def(sub_theta(R - s_opt * grad, clusters))){
+        s_opt <- 0.95 * s_opt
       }
+      return(list(step = s_opt, gradient = grad))
+    }
+    s_max <- min(
+      abs(((R %*% p) / (grad %*% p))[p > 1])         # Maximum step size to get positive matrix
+    )
+    
+    s_opt <- optim(par = 1,fn = \(.) nllh(R - . * grad, clusters),
+                   method = "Brent", lower = 0, upper = min(s_max, 1))$par
+    while(!semi_def(sub_theta(R - s_opt * grad, clusters))){
+      s_opt <- 0.95 * s_opt
     }
     return(list(step = s_opt, gradient = grad))
+    
+    
+    # Searching
+    # s_opt <- 0
+    # score <- nllh(R, clusters)
+    # 
+    # for(i in 2:(length(s) - 1)){
+    #   # Better step size 
+    #   if(score > nllh(R - s[i] * grad, clusters)){
+    #     # Positive matrix checking
+    #     if(semi_def(sub_theta(R - s[i] * grad, clusters))){ 
+    #       s_opt <- s[i] 
+    #       score <- nllh(R - s_opt * grad, clusters)
+    #     }
+    #   }
+    # }
   }
 }
 
@@ -849,7 +859,7 @@ merge_clusters <- function(R, clusters, eps=1e-1, cost){
 #' Cluster_HR(R)
 get_cluster <- function(gamma, weights, lambda, ...){
   L <- neg_likelihood_pen(gamma, weights, lambda)
-  step <- step_gradient(gamma, weights, lambda,...)
+  step <- step_gradient(gamma, weights, lambda, ...)
   function(R.init, it_max = 1000, eps_g = 1e-3){
     # Initialization
     d <- nrow(gamma)
@@ -905,7 +915,7 @@ get_cluster <- function(gamma, weights, lambda, ...){
 #'  lambda in the grid line. 
 #'
 #' @examples
-best_clusters <- function(data, chi, l_grid){
+best_clusters <- function(data, chi, l_grid, it_max = 1000){
   # Initialization 
   Gamma_est <- emp_vario(data)
   d <- ncol(data)
@@ -938,7 +948,7 @@ best_clusters <- function(data, chi, l_grid){
       )
     }
     Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = lambda)
-    res_base <- Cluster_HR(R.init, it_max = 200)
+    res_base <- Cluster_HR(R.init, it_max = it_max)
     return(
       list(
         R = res_base$R,
@@ -953,18 +963,19 @@ best_clusters <- function(data, chi, l_grid){
   
   # First estimation 
   Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = l_opt)
-  res_base <- Cluster_HR(R.init, it_max = 200)
+  res_base <- Cluster_HR(R.init, it_max = it_max)
 
   
   # Search of an optimal penalty
   for(i in 2:length(lambda)){
     Cluster_HR <- get_cluster(gamma = Gamma_est, weights = W, lambda = lambda[i])
-    res <- Cluster_HR(R.init, it_max = 200)
+    res <- Cluster_HR(R.init, it_max = it_max)
     if(res$nllh < res_base$nllh){
       res_base <- res
       l_opt <- lambda[i]
     }
   }
+  
   
   return(
     list(
@@ -1116,6 +1127,110 @@ get_info_replicate <- function(list_pen, list_nopen, cluster_init){
       inner_join(d_nllh, by = join_by(simulation)) |>
       inner_join(d_RI, by = join_by(simulation)) |> 
       mutate(nb_cluster = sapply(list_pen,  \(.) length(.$clusters)))
+  )
+}
+
+
+
+
+#' Plot some graph to summarise the results of replications
+#'
+#' @param data Tibble from get_info_replicate.
+#' @param true_number_cluster The number of cluster from simulation.
+#' @param see_title Boolean, if TRUE (default) display general title.
+#'
+#' @returns Plots several graphs to analyze simulation results : 
+#'        - a scatter plot of the Rand indexes, with their means.
+#'        - the relation between lambda_opt and final number of clusters.
+#'        - the repartition of the difference between penalised and non penalised
+#'          negative log-likelihood.
+#'        - the barplot of the optimal number of cluster.
+#'
+#' @examples
+plot_results <- function(data, true_number_cluster, see_title = TRUE){
+  
+  # Rand Index graph
+  data |> 
+    pivot_longer(cols = ends_with("RI"), 
+                 values_to = "Values", 
+                 names_to = "Type") |>
+    ggplot() +
+    aes(y = Type, x = Values) + 
+    geom_vline(xintercept = 1, linetype = "dashed", col = "darkgreen") + 
+    geom_point(col ="grey60") + 
+    xlab("Index value") + 
+    ggtitle("Rand Index") +
+    theme_ipsum(base_family = "serif") -> p
+  
+  data |> 
+    pivot_longer(cols = ends_with("RI"), 
+                 values_to = "Values", 
+                 names_to = "Type") |>
+    group_by(Type) |> summarise(m = mean(Values)) -> data2
+  
+  p + 
+    geom_point(data = data2, aes(x = m, y = Type, col = "Mean Index"), 
+               size = 3, shape = 15, show.legend = T) + 
+    scale_color_manual(name = " ", values = c("Mean Index" = "darkorange")) ->p1
+  
+  # Relation between lambda_opt and number of clusters
+  data |> ggplot() + 
+    aes(x = lambda_opt, y = nb_cluster, group = factor(nb_cluster)) + 
+    geom_boxplot(fill = "grey80", col = "darkorange", alpha = 0.9) + 
+    ggtitle(expression(paste("Relation between ", lambda["opt"], " and ", K["opt"]))) +
+    labs(x = expression(lambda["opt"]), y = expression(K["opt"]))+
+    theme_ipsum(base_family = "serif") -> p2
+  
+  # Negative log-likelihood differences
+  data |> ggplot() +
+    aes(x = nllh_nopen - nllh_pen) +
+    geom_density(aes(y = after_stat(density)), col = "grey40", fill = "darkorange", 
+                 alpha = 0.9) + 
+    coord_cartesian(x = c(-0.03, 0)) +
+    labs(x = "Difference", y = "Density",
+         title = "Negative log-likelihood difference") +
+    theme_ipsum(base_family = "serif") -> p3
+  
+  # Barplot of the optimal number of cluster
+  data |> 
+    ggplot(aes(x = nb_cluster,
+               fill = ifelse(nb_cluster == true_number_cluster, "Right number", "Other"))) + 
+    geom_bar(alpha = 0.9) + 
+    scale_fill_manual(name = " ", values = c("Right number" = "darkorange")) + 
+    labs(x = expression(K["opt"]), y = "Number of simulations",
+         title = "Final number of clusters") +
+    theme_ipsum(base_family = "serif") -> p4
+  
+  merged_plot <- plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2)
+  
+  if(see_title){
+    title <- ggdraw() + 
+      draw_label(paste("Optimization results for",
+                       nrow(data), "replications"), fontface = 'bold', size = 16)
+    
+    return(
+      plot_grid(title, merged_plot, ncol = 1, rel_heights = c(0.1, 1))
+    )
+  }
+  return(
+    merged_plot
+  )
+}
+
+
+all_info <- function(cluster.init, list_res, lambda){
+  m <- length(list_res)
+  data <- get_rand_index(cluster.init, list_res[[1]]) |> 
+    mutate(l = lambda, simulation = 1, 
+           nb_cluster = sapply(list_res[[1]], \(.) length(.$clusters)))
+  for(i in 2:m){
+    data_inter <- get_rand_index(cluster.init, list_res[[i]]) |> 
+      mutate(l = lambda, simulation = i,
+             nb_cluster = sapply(list_res[[i]], \(.) length(.$clusters))) 
+    data |> add_row(data_inter) -> data
+  }
+  return(
+    data
   )
 }
 
