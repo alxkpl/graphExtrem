@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-03-17" />
+        <meta name="date" content="2025-04-11" />
     
     <title>Variable clustering for Husler-Reiss graphical models</title>
 
@@ -1235,12 +1235,20 @@ graphical models</a></h2>
       </ul></li>
       <li><a href="#application-on-fligth-delay-data" id="toc-application-on-fligth-delay-data">Application on fligth
       delay data</a></li>
+      <li><a href="#appendix" id="toc-appendix">Appendix</a>
+      <ul>
+      <li><a href="#frobenius-norm" id="toc-frobenius-norm">Frobenius
+      norm</a></li>
+      <li><a href="#continuity-and-semi-algebraicity-of-eigen-value-function" id="toc-continuity-and-semi-algebraicity-of-eigen-value-function">Continuity
+      and semi-algebraicity of eigen value function</a></li>
+      <li><a href="#some-lipschitz-results" id="toc-some-lipschitz-results">Some Lipschitz results</a></li>
+      </ul></li>
       </ul>
     </div>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-03-17</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-04-11</p>
           </div>
    </div>
      
@@ -1836,7 +1844,7 @@ positive matrix.</p>
 <div id="research-of-relationship-between-r-and-fr-theta" class="section level3">
 <h3>Research of relationship between <span class="math inline">\(R\)</span> and <span class="math inline">\(f(R) =
 \Theta\)</span></h3>
-<p>In this section, we want to find condition on <span class="math inline">\(R\)</span> to make the <span class="math inline">\(Theta\)</span> matrix positive.</p>
+<p>In this section, we want to find condition on <span class="math inline">\(R\)</span> to make the <span class="math inline">\(\Theta\)</span> matrix positive.</p>
 <p>First, let’s define the <span class="math inline">\(K \times
 K\)</span> alternative matrix of clusters : <span class="math display">\[
 \tilde R = RP - T
@@ -1974,6 +1982,93 @@ which minimizes the objective function provided that the alternative
 matrix of clusters <span class="math inline">\(\tilde R^{(t+1)}\)</span>
 is positive.</p>
 </div>
+<div id="fusing-approximation" class="section level3">
+<h3>Fusing approximation</h3>
+<p>Let suppose that we can write <span class="math inline">\(\Theta =
+f(R)\)</span> and let’s note <span class="math inline">\(\varepsilon_f\)</span> the fusing threshold
+between two clusters. Assume that the two clusters <span class="math inline">\(C_k\)</span> and <span class="math inline">\(C_l\)</span> are mergeable that is to say :</p>
+<p><span class="math display">\[
+\tilde D^2(r_{r \cdot}, r_{l \cdot}) \le \varepsilon_f
+\]</span></p>
+<p>In that case, we note the fused cluster <span class="math inline">\(C
+= C_k \cup C_l\)</span> and the new matrix <span class="math inline">\(R^*\)</span> which is indexed by <span class="math inline">\((\{1, \dots, K \}\setminus \{k,l\}) \cup
+C\)</span> is defined as :</p>
+<p><span class="math display">\[
+r^*_{pm} = \begin{cases}
+\frac{p_k r_{km} + p_l r_{lm}}{p_k + p_l} &amp; \text{if } m \neq p =
+C\\
+\frac{p_k r_{kp} + p_l r_{lp}}{p_k + p_l} &amp; \text{if } p \neq m =
+C\\
+r_{kl} &amp;\text{if } m = p = C \\
+r_{pm} &amp;\text{otherwise} \\
+\end{cases}
+\]</span></p>
+<p><strong>Proposition</strong> In the setting as above, we have :</p>
+<ul>
+<li><p>for small enough <span class="math inline">\(\varepsilon_f\)</span>, <span class="math inline">\(f(R^*)\)</span> is valid.</p></li>
+<li><p>for fixed <span class="math inline">\(\lambda\)</span> and
+weights <span class="math inline">\(w\)</span>, we have :</p></li>
+</ul>
+<p><span class="math display">\[
+|L_{\mathcal P}(R, \lambda) - L_{\mathcal P}(R^*, \lambda)|
+\underset{\varepsilon_f \rightarrow 0}{\longrightarrow} 0
+\]</span></p>
+<p><strong>Proof.</strong> For the first point, let’s consider the
+metric space <span class="math inline">\(\mathcal S_d^1\)</span>, the
+space of symmetric matrix with kernel equal to <span class="math inline">\(\textbf{span}(\{1\!\!1\})\)</span>, equipped with
+the topology of <span class="math inline">\((\mathcal M_d(\mathbb R),
+||\cdot ||_F)\)</span>, where <span class="math inline">\(||\cdot
+||_F\)</span> is the Frobenius norm.</p>
+<p>Now, we focus on the function :</p>
+<p><span class="math display">\[\begin{align*}
+g : \mathcal S_d^1 &amp; \longrightarrow \mathbb R^{d-1} \\
+\Theta &amp;\longmapsto \lambda(\Theta) = (\lambda_i(\Theta))_{i=1,
+\dots,d-1}
+\end{align*}\]</span></p>
+<p>We know that <span class="math inline">\(g\)</span> is continuous
+then <span class="math inline">\(g^{-1}((\mathbb R_+^*)^{d-1})\)</span>
+is an open set of <span class="math inline">\(\mathcal S_d^1\)</span>.
+Therefore, it exists <span class="math inline">\(\varepsilon^*
+&gt;0\)</span> such that :</p>
+<p><span class="math display">\[
+B(\Theta, \varepsilon^*)\cap \mathcal S_d^1 \subset g^{-1}((\mathbb
+R_+^*)^{d-1})
+\]</span></p>
+<p>Thus, we know that if <span class="math inline">\(\varepsilon_f\)</span> is small, then <span class="math inline">\(\Theta^* = f(R^*) \in \mathcal S_d^1\)</span> and
+<span class="math inline">\(\Theta\)</span> are close for the Frobenius
+norm, so we finally have <span class="math inline">\(\Theta^* \in
+\mathcal P_d^1\)</span>.</p>
+<p>For the second point, we need to show first that :</p>
+<p><span class="math display">\[
+\tilde D^2(r_{r \cdot}, r_{l \cdot}) \le \varepsilon_f \Longrightarrow
+||f(R) - f(R^*)||_F \le ???
+\]</span></p>
+<p>TODO</p>
+<p>Now, we know that in <span class="math inline">\([a, \infty)\)</span>
+the logarithm is <span class="math inline">\(\frac
+1a\)</span>-Lispschizian, so we can deduce by the lemma on generalised
+determinant that:</p>
+<p><span class="math display">\[
+|\log(|f(R)|_+) - \log(|f(R)|_+)| \le \frac{L_m}a ||f(R) - f(R^*)||_F
+\]</span></p>
+<p>Also, we can find that :</p>
+<p><span class="math display">\[\begin{align*}
+| \frac12\text{tr} (\bar \Gamma \Theta) - \frac12\text{tr} (\bar \Gamma
+\tilde\Theta)| &amp;= | \sum_{i,j} \bar \gamma_{ij}(\theta_{ij} - \tilde
+\theta_{ij}) | \\&amp;\le  \sum_{i,j} |\bar \gamma_{ij}||\theta_{ij} -
+\tilde \theta_{ij}|\\ &amp;\le (2 \sum_{i&lt;j} |\bar \gamma_{ij}|
+)||\Theta - \tilde \Theta||_F
+\end{align*}\]</span></p>
+<p>That means :</p>
+<p><span class="math display">\[
+| \frac12\text{tr} (\bar \Gamma f(R)) - \frac12\text{tr} (\bar \Gamma
+f(R^*))| \le k_{\bar \Gamma}||f(R) - f(R^*)||_F
+\]</span></p>
+<p>And finally, as we have :</p>
+<div style="text-align:right;">
+<span class="math inline">\(\square\)</span>
+</div>
+</div>
 </div>
 <div id="simulation-study" class="section level2">
 <h2>Simulation study</h2>
@@ -2060,7 +2155,7 @@ log-likelihood.</p>
 <p>For the results, we get :</p>
 <ul>
 <li><p>an optimal parameter <span class="math inline">\(\lambda\)</span>
-equal to 0.4.</p></li>
+equal to 0.1.</p></li>
 <li><p>we obtained the right clusters <span class="math inline">\(C_1\)</span> and <span class="math inline">\(C_2\)</span>.</p></li>
 <li><p>we estimated the <span class="math inline">\(\hat R\)</span>
 matrix as :</p></li>
@@ -2068,19 +2163,260 @@ matrix as :</p></li>
 <p><span class="math display">\[\begin{equation*}
 \hat R =
 \begin{pmatrix}
-0.611553 &amp; -2.0697538 \\
--2.0697538 &amp; 1.0603238
+0.6004377 &amp; 0.6280619 \\
+0.6280619 &amp; 4.1433788
 \end{pmatrix}
 \end{equation*}\]</span></p>
 <ul>
 <li>a negative log-likelihood which takes the value -3.91 whereas it
 takes the value -3.92 for non-penalised optimization.</li>
 </ul>
+<p><strong>With replications.</strong></p>
+<p>There is the results for 500 replications of the previous experiment
+:</p>
 </div>
 </div>
 </div>
 <div id="application-on-fligth-delay-data" class="section level1">
 <h1>Application on fligth delay data</h1>
+</div>
+<div id="appendix" class="section level1">
+<h1>Appendix</h1>
+<div id="frobenius-norm" class="section level2">
+<h2>Frobenius norm</h2>
+<p><strong>Definition/Proposition.</strong> Let <span class="math inline">\(\mathcal M_d(\mathbb R)\)</span> the space of
+<span class="math inline">\(d \times d\)</span> matrices. We can define
+the following bi-linear application :</p>
+<p><span class="math display">\[
+[A | B] = \text{tr}(AB^t)
+\]</span> which is a scalar product. The corresponding norm is called
+Frobenius norm and can be expressed as : <span class="math display">\[
+||A||_F = \sqrt{tr(AA^t)} = \sqrt{\sum_{i=1}^d\sum_{j=1}^da_{ij}^2}
+\]</span></p>
+<p>This norm gets some interesting properties as :</p>
+<ul>
+<li><p><span class="math inline">\([A | I_d] =
+\text{tr}(A)\)</span></p></li>
+<li><p>for a projection <span class="math inline">\(\Pi\)</span> in a
+vector subspace of dimension <span class="math inline">\(p\)</span>,
+then : <span class="math display">\[
+||\Pi||_F^2 = p
+\]</span></p></li>
+<li><p>we have a “Pythagore theorem” : if <span class="math inline">\(\Pi\)</span> is a projection, then for all <span class="math inline">\(A \in \mathcal M_d(\mathbb R)\)</span> we have :
+<span class="math display">\[
+||A||_F^2 = ||A\Pi ||_F^2 + ||A(I_d - \Pi)||_F^2
+\]</span></p></li>
+</ul>
+<p>In this paper, we focus ourself on the space of symmetric positive
+matrices <span class="math inline">\(\mathcal P_d\)</span> equipped with
+this scalar product.</p>
+</div>
+<div id="continuity-and-semi-algebraicity-of-eigen-value-function" class="section level2">
+<h2>Continuity and semi-algebraicity of eigen value function</h2>
+<p>For a symmetric matrix <span class="math inline">\(M\)</span> of size
+<span class="math inline">\(d\)</span>, we denote by <span class="math inline">\(\lambda_1(M) \ge \lambda_2(M) \ge \dots \ge
+\lambda_d(M)\)</span> its eigen values.</p>
+<p><strong>Lemma.</strong> For each <span class="math inline">\(i \in
+V\)</span>, we have :</p>
+<p><span class="math display">\[\begin{align*}
+\lambda_i : \mathcal S_d &amp; \longrightarrow \mathbb R \\
+M &amp; \longmapsto \lambda_i(M)
+\end{align*}\]</span></p>
+<p>is semi-algebraic.</p>
+<p><strong>Proof.</strong> Indeed, if we consider the function of all
+the eigen value <span class="math inline">\(\lambda : \mathcal S_d
+\rightarrow \mathbb R^d\)</span>, we have the following graph NO TO
+CORRECT :</p>
+<p><span class="math display">\[
+\Gamma_\lambda = \{(\Theta, \lambda) \in \mathcal S_d \times \mathbb
+R^d~| ~ \lambda(\Theta) = \lambda \} = \{(\Theta, \lambda) \in \mathcal
+S_d \times \mathbb R^d ~ | ~ \forall i \in V \setminus\{d\}, \lambda_i
+\ge \lambda _{i+1} , \prod_{i = 1} ^dP_\Theta (\lambda_i) = 0 \}
+\]</span></p>
+<p>But we can also see <span class="math inline">\(P_\Theta\)</span> as
+a polynomial <span class="math inline">\(P \in \mathbb R[X_1, \dots,
+X_{\frac{d(d+1)}{2}},X]\)</span> where <span class="math inline">\(P(\theta_1, \dots, \theta_{\frac{d(d+1)}{2}},X) =
+P_\Theta(X)\)</span>. Then we have that :</p>
+<p><span class="math display">\[
+\Gamma_\lambda = \{x \in \mathbb R^{\frac{d(d+1)}{2}+d}~| ~  P(x) = 0,~
+Q_k(x) \ge 0\}
+\]</span></p>
+<p>where <span class="math inline">\(P(\theta_1, \dots,
+\theta_{\frac{d(d+1)}{2}},Y_1, \dots, Y_d) = \prod_{i = 1} ^dP_\Theta
+(Y_i)\)</span> and <span class="math inline">\(Q_k(\theta_1, \dots,
+\theta_{\frac{d(d+1)}{2}},Y) = Y_{k+1} - Y_{k}\)</span>.</p>
+<p>We can deduce that <span class="math inline">\(\lambda\)</span> is
+semi-algebraic. As the projection preserve the property, all the eigen
+functions are semi-algebraic.</p>
+<div style="text-align:right;">
+<span class="math inline">\(\square\)</span>
+</div>
+<p>We will continue by showing the continuity of the easier one.</p>
+<p><strong>Proposition.</strong> Let be :</p>
+<p><span class="math display">\[\begin{align*}
+\lambda_{\text{max}} : \mathcal P_d &amp; \longrightarrow \mathbb R \\
+M &amp; \longmapsto \lambda_{\text{max}}(M)
+\end{align*}\]</span></p>
+<p>the function of the maximal eigen value. Then we have :</p>
+<p><span class="math display">\[
+|\lambda_{\text{max}}(M) - \lambda_{\text{max}}(M&#39;) | \le ||M -
+M&#39;||_F
+\]</span></p>
+<p>that means <span class="math inline">\(\lambda_{\text{max}}\)</span>
+is 1-Lipschitzian.</p>
+<p><strong>Proof.</strong> It is know that the maximal eigen value is
+also the spectral distance of a symmetric positive matrix : <span class="math display">\[
+\lambda_{\text{max}}(M) = ||M||_2 = \sup_{x \in \mathbb R^d}
+\frac{||Mx||}{||x||}
+\]</span></p>
+<p>Thus we have :</p>
+<p><span class="math display">\[
+|\lambda_{\text{max}}(M) - \lambda_{\text{max}}(M&#39;)| \le
+\lambda_{\text{max}}(M - M&#39;) = ||M - M&#39;||_2
+\]</span></p>
+<p>But it is know too that :</p>
+<p><span class="math display">\[
+||M - M&#39;||_2 \le ||M - M&#39;||_F
+\]</span></p>
+<p>which is ending the proof.</p>
+<div style="text-align:right;">
+<span class="math inline">\(\square\)</span>
+</div>
+<p>For the other eigen values, we will use another characterization of
+them using the Min-max theorem.</p>
+<p><strong>Theorem.</strong> Let <span class="math inline">\(A \in
+\mathcal P_d\)</span> and let’s denote by <span class="math inline">\(\lambda_1, \ge \dots \ge \lambda_d\)</span> its
+eigen values. Then we have :</p>
+<p><span class="math display">\[
+\lambda_k = \min_{\dim V = k-1} \max \{ ||Ax|| : x \perp V, ||x||=1\}
+\]</span></p>
+<p>We can stress that :</p>
+<ul>
+<li><p>in the case where <span class="math inline">\(k=1\)</span>, it is
+the just the formula of the spectral norm.</p></li>
+<li><p>we can rewrite the expression as :</p></li>
+</ul>
+<p><span class="math display">\[
+\lambda_k = \min_{\dim V = k-1} ||A\Pi_{V^\perp}||_2
+\]</span></p>
+<p>Thanks to this theorem we are able to show the next proposition :</p>
+<p><strong>Proposition.</strong> Let be for <span class="math inline">\(k \in V\)</span> :</p>
+<p><span class="math display">\[\begin{align*}
+\lambda_{k} : \mathcal P_d &amp; \longrightarrow \mathbb R \\
+M &amp; \longmapsto \lambda_{k}(M)
+\end{align*}\]</span></p>
+<p>the function of the <span class="math inline">\(k\)</span>-th eigen
+value. Then we have :</p>
+<p><span class="math display">\[
+|\lambda_{k}(M) - \lambda_{k}(M&#39;) | \le ||M - M&#39;||_F
+\]</span></p>
+<p>that means <span class="math inline">\(\lambda_{k}\)</span> is
+1-Lipschitzian for all <span class="math inline">\(k \in V\)</span>.</p>
+<p><strong>Proof.</strong> Let <span class="math inline">\(M \in
+\mathcal P_d\)</span>. From the Min-max theorem, we have <span class="math inline">\(for k \in V\)</span> :</p>
+<p><span class="math display">\[
+\lambda_k(M) = \min_{\dim V = k-1} ||M\Pi_{V^\perp}||_2  
+\]</span></p>
+<p>Put <span class="math inline">\(V_M\)</span> the vector subspace of
+dimension <span class="math inline">\(k-1\)</span> such that :</p>
+<p><span class="math display">\[
+\lambda_k(M) = ||M\Pi_{V_M^\perp}||_2
+\]</span></p>
+<p>Thus we have :</p>
+<p><span class="math display">\[
+\lambda_k(M&#39;) - \lambda_k(M) \le  ||M&#39;\Pi_{V_M^\perp}||_2 -
+||M\Pi_{V_M^\perp}||_2 \le ||(M&#39; - M)\Pi_{V_M^\perp}||_2
+\]</span></p>
+<p>But we also have :</p>
+<p><span class="math display">\[
+||(M&#39; - M)\Pi_{V_M^\perp}||_2 \le ||(M&#39; - M)\Pi_{V_M^\perp}||_F
+\le ||M&#39; - M||_F
+\]</span></p>
+<p>So we finally get :</p>
+<p><span class="math display">\[
+\lambda_k(M&#39;) - \lambda_k(M) \le ||M&#39; - M||_F
+\]</span></p>
+<p>We can have the same inequality by switching the role of <span class="math inline">\(M\)</span> and <span class="math inline">\(M&#39;\)</span> and therefore :</p>
+<p><span class="math display">\[
+|\lambda_{k}(M) - \lambda_{k}(M&#39;) | \le ||M - M&#39;||_F
+\]</span></p>
+<div style="text-align:right;">
+<span class="math inline">\(\square\)</span>
+</div>
+</div>
+<div id="some-lipschitz-results" class="section level2">
+<h2>Some Lipschitz results</h2>
+<p>Let’s make a tour in the proof of “Lipschitzian results” for some
+function.</p>
+<p><strong>Proposition.</strong> Let <span class="math inline">\(E\)</span> a metric space. Let be <span class="math inline">\(f,g : E \rightarrow \mathbb R\)</span> two
+functions of <span class="math inline">\(\mathcal L^\infty(E, \mathbb
+R)\)</span>, the space of bounded functions. If <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span> are respectively <span class="math inline">\(K\)</span> and <span class="math inline">\(L\)</span> Lispchitz, then <span class="math inline">\(fg\)</span> is <span class="math inline">\(L
+||f||_\infty + K ||g||_\infty\)</span>.</p>
+<p><strong>Proof.</strong> Let <span class="math inline">\(x, y \in
+E\)</span> then we have :</p>
+<p><span class="math display">\[
+|f(x) - f(y) | \le Kd_E(x,y)  \quad \quad \text{and} \quad \quad |g(x) -
+g(y) | \le Ld_E(x,y)
+\]</span></p>
+<p>So, we can deduce that :</p>
+<p><span class="math display">\[\begin{align*}
+|f(x)g(x) - f(y)g(y) | &amp;= |g(y)(f(x) - f(y)) + f(x)(g(x) - g(y))| \\
+&amp;\le  |g(y)||f(x) - f(y)| + |f(x)||g(x) - g(y)| \\
+&amp; \le ||g||_\infty K d_E(x,y)  + ||f||_\infty L d_E(x,y)
+\end{align*}\]</span></p>
+<div style="text-align:right;">
+<span class="math inline">\(\square\)</span>
+</div>
+<p><strong>Lemma.</strong> Let <span class="math inline">\(a \in \mathbb
+R\)</span>. Let’s define the sequence <span class="math inline">\((u_n)_{n \in \mathbb N}\)</span> by : <span class="math display">\[
+\begin{cases}
+  u_1 = 1 \\
+  u_{n+1} = a u_n + a^n
+\end{cases}
+\]</span> Then <span class="math inline">\(\forall n \in \mathbb N, u_n
+= na^{n-1}\)</span>.</p>
+<p><strong>Proof.</strong> By induction.</p>
+<div style="text-align:right;">
+<span class="math inline">\(\square\)</span>
+</div>
+<p>With these results, we can say :</p>
+<p><strong>Lemma.</strong> Let <span class="math inline">\(\varepsilon
+\in (0,1]\)</span>, then the generalised determinant application <span class="math inline">\(\Theta \mapsto |\Theta|_+\)</span> is Lipschitzian
+on <span class="math inline">\(\bar B(\Theta, \varepsilon)\)</span>.</p>
+<p><strong>Proof.</strong> Let <span class="math inline">\(\tilde \Theta
+\in \bar B(\Theta, \varepsilon)\)</span>.</p>
+<p><span class="math display">\[
+|\lambda_k(\tilde \Theta) - \lambda_k(\Theta) | \le \varepsilon \le 1
+\]</span> And thus :</p>
+<p><span class="math display">\[
+\lambda_k(\tilde \Theta) \le \lambda_k(\Theta) + 1 \le
+\lambda_{\max}(\Theta) + 1
+\]</span></p>
+<p>So, <span class="math inline">\(||\lambda_k||_\infty \le
+\lambda_{\max}(\Theta) + 1 = k_\Theta\)</span>, that is to say <span class="math inline">\(\lambda_k\)</span> is bounded. Moreover, <span class="math inline">\(\lambda_k\)</span> are 1-Lipschitzian.</p>
+<p>Thus, we have by the lemma <span class="math inline">\(\lambda_1
+\times \lambda_2\)</span> is <span class="math inline">\(2k_\Theta\)</span>-Lipschitzian. We can apply the
+lemma by induction, and if <span class="math inline">\(\Pi_{k=1}^m
+\lambda_k\)</span> is <span class="math inline">\(L_m\)</span>-Lipschitzian and is bounded by <span class="math inline">\(k_\Theta^m\)</span> then we get that <span class="math inline">\(\Pi_{k=1}^{m+1}\lambda_k\)</span> is <span class="math inline">\(L_{m+1}\)</span>-Lipschitzian where <span class="math inline">\(L_{m+1} = L_mk_\Theta + k_\Theta^m\)</span>.</p>
+<p>We get the following expression for the Lipschitz constant :</p>
+<p><span class="math display">\[
+\begin{cases}
+  L_1 &amp;= 1 \\
+  L_{m+1} &amp;= L_mk_\Theta + k_\Theta^m
+\end{cases}
+\]</span></p>
+<p>By the lemma, we have the general expression :</p>
+<p><span class="math display">\[
+L_m = m k_\Theta^{m-1}
+\]</span></p>
+<p>Finally, we have by induction that :</p>
+<ul>
+<li><p>the generalised determinant is Lipschitzian.</p></li>
+<li><p>the Lipschitz constant is <span class="math inline">\(L_d\)</span>.</p></li>
+</ul>
+<div style="text-align:right;">
+<span class="math inline">\(\square\)</span>
+</div>
 <div id="references" class="section level3 unnumbered">
 <h3 class="unnumbered">References</h3>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
@@ -2115,6 +2451,7 @@ Generalized <span>Pareto</span> Distributions.”</span>
 Touw, D. J. W., A. Alfons, P. J. F. Groenen, and I. Wilms. 2024.
 <span>“Clusterpath <span>Gaussian Graphical Modeling</span>.”</span>
 arXiv. <a href="https://doi.org/10.48550/arXiv.2407.00644">https://doi.org/10.48550/arXiv.2407.00644</a>.
+</div>
 </div>
 </div>
 </div>

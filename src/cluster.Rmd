@@ -556,7 +556,7 @@ However, in that case, we need to verify that after the step, $f(R^{(t+1)})$ is 
 
 ### Research of relationship between $R$ and $f(R) = \Theta$
 
-In this section, we want to find condition on $R$ to make the $Theta$ matrix positive. 
+In this section, we want to find condition on $R$ to make the $\Theta$ matrix positive. 
 
 First, let's define the $K \times K$ alternative matrix of clusters :
 $$
@@ -654,6 +654,87 @@ $$
 
 and we will choose the value $h^*$ which minimizes the objective function provided that the alternative matrix of clusters $\tilde R^{(t+1)}$ is positive. 
 
+
+### Fusing approximation
+
+Let suppose that we can write $\Theta = f(R)$ and let's note $\varepsilon_f$ the fusing threshold between two clusters. Assume that the two clusters $C_k$ and $C_l$ are mergeable that is to say : 
+
+$$
+\tilde D^2(r_{r \cdot}, r_{l \cdot}) \le \varepsilon_f
+$$
+
+In that case, we note the fused cluster $C = C_k \cup C_l$ and the new matrix $R^*$ which is indexed by $(\{1, \dots, K \}\setminus \{k,l\}) \cup C$ is defined as : 
+
+$$
+r^*_{pm} = \begin{cases} 
+\frac{p_k r_{km} + p_l r_{lm}}{p_k + p_l} & \text{if } m \neq p = C\\
+\frac{p_k r_{kp} + p_l r_{lp}}{p_k + p_l} & \text{if } p \neq m = C\\
+r_{kl} &\text{if } m = p = C \\
+r_{pm} &\text{otherwise} \\
+\end{cases}
+$$
+
+**Proposition** In the setting as above, we have : 
+
+- for small enough $\varepsilon_f$, $f(R^*)$ is valid.
+
+- for fixed $\lambda$ and weights $w$, we have : 
+
+$$
+|L_{\mathcal P}(R, \lambda) - L_{\mathcal P}(R^*, \lambda)| \underset{\varepsilon_f \rightarrow 0}{\longrightarrow} 0 
+$$
+
+
+**Proof.** For the first point, let's consider the metric space $\mathcal S_d^1$, the space of symmetric matrix with kernel equal to $\textbf{span}(\{\indic\})$, equipped with the topology of $(\mathcal M_d(\mathbb R), ||\cdot ||_F)$, where $||\cdot ||_F$ is the Frobenius norm. 
+
+Now, we focus on the function : 
+
+\begin{align*}
+g : \mathcal S_d^1 & \longrightarrow \mathbb R^{d-1} \\
+\Theta &\longmapsto \lambda(\Theta) = (\lambda_i(\Theta))_{i=1, \dots,d-1}
+\end{align*}
+
+
+We know that $g$ is continuous then $g^{-1}((\mathbb R_+^*)^{d-1})$ is an open set of $\mathcal S_d^1$. Therefore, it exists $\varepsilon^* >0$ such that : 
+
+$$
+B(\Theta, \varepsilon^*)\cap \mathcal S_d^1 \subset g^{-1}((\mathbb R_+^*)^{d-1})
+$$
+
+Thus, we know that if $\varepsilon_f$ is small, then $\Theta^* = f(R^*) \in \mathcal S_d^1$ and $\Theta$ are close for the Frobenius norm, so we finally have $\Theta^* \in \mathcal P_d^1$.
+
+For the second point, we need to show first that : 
+
+$$
+\tilde D^2(r_{r \cdot}, r_{l \cdot}) \le \varepsilon_f \Longrightarrow ||f(R) - f(R^*)||_F \le ??? 
+$$
+
+TODO 
+
+
+Now, we know that in $[a, \infty)$ the logarithm is $\frac 1a$-Lispschizian, so we can deduce by the lemma on generalised determinant that:
+
+$$
+|\log(|f(R)|_+) - \log(|f(R)|_+)| \le \frac{L_m}a ||f(R) - f(R^*)||_F
+$$
+
+Also, we can find that : 
+
+\begin{align*}
+| \frac12\text{tr} (\bar \Gamma \Theta) - \frac12\text{tr} (\bar \Gamma \tilde\Theta)| &= | \sum_{i,j} \bar \gamma_{ij}(\theta_{ij} - \tilde \theta_{ij}) | \\&\le  \sum_{i,j} |\bar \gamma_{ij}||\theta_{ij} - \tilde \theta_{ij}|\\ &\le (2 \sum_{i<j} |\bar \gamma_{ij}| )||\Theta - \tilde \Theta||_F
+\end{align*}
+
+That means : 
+
+$$
+| \frac12\text{tr} (\bar \Gamma f(R)) - \frac12\text{tr} (\bar \Gamma f(R^*))| \le k_{\bar \Gamma}||f(R) - f(R^*)||_F
+$$
+
+And finally, as we have : 
+
+
+
+<div style="text-align:right;">$\square$</div>
 
 ## Simulation study
 
@@ -761,16 +842,273 @@ R_res <- first_sim_optimisation_results$R
 - a negative log-likelihood which takes the value `r round(first_sim_optimisation_results$nllh, 2)` whereas it takes the value `r round(first_sim_optimisation_no_penalty$nllh, 2)` for non-penalised optimization. 
 
 
+**With replications.**
+
+There is the results for 500 replications of the previous experiment :
+
+
+
 
 # Application on fligth delay data 
 
 
 
 
+# Appendix 
+
+## Frobenius norm
+
+**Definition/Proposition.** Let $\mathcal M_d(\mathbb R)$ the space of $d \times d$ matrices. We can define the following bi-linear application : 
+
+$$
+[A | B] = \text{tr}(AB^t)
+$$
+which is a scalar product. The corresponding norm is called Frobenius norm and can be expressed as : 
+$$
+||A||_F = \sqrt{tr(AA^t)} = \sqrt{\sum_{i=1}^d\sum_{j=1}^da_{ij}^2}
+$$
+
+This norm gets some interesting properties as : 
+
+- $[A | I_d] = \text{tr}(A)$
+
+- for a projection $\Pi$ in a vector subspace of dimension $p$, then : 
+$$
+||\Pi||_F^2 = p
+$$
+
+- we have a "Pythagore theorem" : if $\Pi$ is a projection, then for all $A \in \mathcal M_d(\mathbb R)$ we have : 
+$$
+||A||_F^2 = ||A\Pi ||_F^2 + ||A(I_d - \Pi)||_F^2
+$$
+
+In this paper, we focus ourself on the space of symmetric positive matrices $\mathcal P_d$ equipped with this scalar product. 
+
+## Continuity and semi-algebraicity of eigen value function
+
+For a symmetric matrix $M$ of size $d$, we denote by $\lambda_1(M) \ge \lambda_2(M) \ge \dots \ge \lambda_d(M)$ its eigen values.
+
+**Lemma.** For each $i \in V$, we have : 
+
+\begin{align*}
+\lambda_i : \mathcal S_d & \longrightarrow \mathbb R \\
+M & \longmapsto \lambda_i(M)
+\end{align*}
+
+is semi-algebraic.
+
+**Proof.** Indeed, if we consider the function of all the eigen value $\lambda : \mathcal S_d \rightarrow \mathbb R^d$, we have the following graph NO TO CORRECT : 
+
+$$
+\Gamma_\lambda = \{(\Theta, \lambda) \in \mathcal S_d \times \mathbb R^d~| ~ \lambda(\Theta) = \lambda \} = \{(\Theta, \lambda) \in \mathcal S_d \times \mathbb R^d ~ | ~ \forall i \in V \setminus\{d\}, \lambda_i \ge \lambda _{i+1} , \prod_{i = 1} ^dP_\Theta (\lambda_i) = 0 \} 
+$$
+
+But we can also see $P_\Theta$ as a polynomial $P \in \mathbb R[X_1, \dots, X_{\frac{d(d+1)}{2}},X]$ where $P(\theta_1, \dots, \theta_{\frac{d(d+1)}{2}},X) = P_\Theta(X)$. Then we have that : 
+
+$$
+\Gamma_\lambda = \{x \in \mathbb R^{\frac{d(d+1)}{2}+d}~| ~  P(x) = 0,~ Q_k(x) \ge 0\}
+$$
+
+where $P(\theta_1, \dots, \theta_{\frac{d(d+1)}{2}},Y_1, \dots, Y_d) = \prod_{i = 1} ^dP_\Theta (Y_i)$ and $Q_k(\theta_1, \dots, \theta_{\frac{d(d+1)}{2}},Y) = Y_{k+1} - Y_{k}$.
+
+We can deduce that $\lambda$ is semi-algebraic. As the projection preserve the property, all the eigen functions are semi-algebraic.
+
+<div style="text-align:right;">$\square$</div>
+
+We will continue by showing the continuity of the easier one.
+
+**Proposition.** Let be : 
+
+\begin{align*}
+\lambda_{\text{max}} : \mathcal P_d & \longrightarrow \mathbb R \\
+M & \longmapsto \lambda_{\text{max}}(M)
+\end{align*}
+
+the function of the maximal eigen value. Then we have : 
+
+$$
+|\lambda_{\text{max}}(M) - \lambda_{\text{max}}(M') | \le ||M - M'||_F
+$$
+
+that means $\lambda_{\text{max}}$ is 1-Lipschitzian. 
+
+**Proof.** It is know that the maximal eigen value is also the spectral distance of a symmetric positive matrix : 
+$$
+\lambda_{\text{max}}(M) = ||M||_2 = \sup_{x \in \mathbb R^d} \frac{||Mx||}{||x||}
+$$
+
+Thus we have : 
+
+$$
+|\lambda_{\text{max}}(M) - \lambda_{\text{max}}(M')| \le \lambda_{\text{max}}(M - M') = ||M - M'||_2
+$$
+
+But it is know too that :
+
+$$
+||M - M'||_2 \le ||M - M'||_F
+$$
+
+which is ending the proof.
+
+<div style="text-align:right;">$\square$</div>
+
+For the other eigen values, we will use another characterization of them using the Min-max theorem.
+
+**Theorem.** Let $A \in \mathcal P_d$ and let's denote by $\lambda_1, \ge \dots \ge \lambda_d$ its eigen values. Then we have : 
+
+$$
+\lambda_k = \min_{\dim V = k-1} \max \{ ||Ax|| : x \perp V, ||x||=1\} 
+$$
+
+
+We can stress that : 
+
+- in the case where $k=1$, it is the just the formula of the spectral norm.
+
+- we can rewrite the expression as : 
+
+$$
+\lambda_k = \min_{\dim V = k-1} ||A\Pi_{V^\perp}||_2 
+$$
 
 
 
+Thanks to this theorem we are able to show the next proposition : 
 
+**Proposition.** Let be for $k \in V$ : 
+
+\begin{align*}
+\lambda_{k} : \mathcal P_d & \longrightarrow \mathbb R \\
+M & \longmapsto \lambda_{k}(M)
+\end{align*}
+
+the function of the $k$-th eigen value. Then we have : 
+
+$$
+|\lambda_{k}(M) - \lambda_{k}(M') | \le ||M - M'||_F
+$$
+
+that means $\lambda_{k}$ is 1-Lipschitzian for all $k \in V$. 
+
+**Proof.** Let $M \in \mathcal P_d$. From the Min-max theorem, we have $for k \in V$ : 
+
+$$
+\lambda_k(M) = \min_{\dim V = k-1} ||M\Pi_{V^\perp}||_2  
+$$
+
+Put $V_M$ the vector subspace of dimension $k-1$ such that : 
+
+$$
+\lambda_k(M) = ||M\Pi_{V_M^\perp}||_2
+$$
+
+Thus we have : 
+
+$$
+\lambda_k(M') - \lambda_k(M) \le  ||M'\Pi_{V_M^\perp}||_2 - ||M\Pi_{V_M^\perp}||_2 \le ||(M' - M)\Pi_{V_M^\perp}||_2
+$$
+
+But we also have : 
+
+$$
+||(M' - M)\Pi_{V_M^\perp}||_2 \le ||(M' - M)\Pi_{V_M^\perp}||_F \le ||M' - M||_F
+$$
+
+So we finally get : 
+
+$$
+\lambda_k(M') - \lambda_k(M) \le ||M' - M||_F
+$$
+
+We can have the same inequality by switching the role of $M$ and $M'$ and therefore : 
+
+$$
+|\lambda_{k}(M) - \lambda_{k}(M') | \le ||M - M'||_F
+$$
+
+<div style="text-align:right;">$\square$</div>
+
+
+## Some Lipschitz results
+
+Let's make a tour in the proof of "Lipschitzian results" for some function. 
+
+**Proposition.** Let $E$ a metric space. Let be $f,g : E \rightarrow \mathbb R$ two functions of $\mathcal L^\infty(E, \mathbb R)$, the space of bounded functions. If $f$ and $g$ are respectively $K$ and $L$ Lispchitz, then $fg$ is $L ||f||_\infty + K ||g||_\infty$.
+
+**Proof.** Let $x, y \in E$ then we have : 
+
+$$
+|f(x) - f(y) | \le Kd_E(x,y)  \quad \quad \text{and} \quad \quad |g(x) - g(y) | \le Ld_E(x,y) 
+$$
+
+So, we can deduce that : 
+
+
+\begin{align*}
+|f(x)g(x) - f(y)g(y) | &= |g(y)(f(x) - f(y)) + f(x)(g(x) - g(y))| \\
+ &\le  |g(y)||f(x) - f(y)| + |f(x)||g(x) - g(y)| \\
+ & \le ||g||_\infty K d_E(x,y)  + ||f||_\infty L d_E(x,y) 
+\end{align*}
+
+
+<div style="text-align:right;">$\square$</div>
+
+**Lemma.** Let $a \in \mathbb R$. Let's define the sequence $(u_n)_{n \in \mathbb N}$ by : 
+$$
+\begin{cases}
+  u_1 = 1 \\
+  u_{n+1} = a u_n + a^n
+\end{cases}
+$$
+Then $\forall n \in \mathbb N, u_n = na^{n-1}$.
+
+**Proof.** By induction.
+
+<div style="text-align:right;">$\square$</div>
+
+
+With these results, we can say :
+
+**Lemma.** The generalised determinant application $\Theta \mapsto |\Theta|_+$ is Lipschitzian on $\bar B(\Theta, \varepsilon)$. 
+
+**Proof.** Let $\tilde \Theta \in \bar B(\Theta, \varepsilon)$. 
+
+$$
+|\lambda_k(\tilde \Theta) - \lambda_k(\Theta) | \le \varepsilon \le 1
+$$
+And thus : 
+
+$$
+\lambda_k(\tilde \Theta) \le \lambda_k(\Theta) + 1 \le \lambda_{\max}(\Theta) + 1
+$$
+
+So, $||\lambda_k||_\infty \le \lambda_{\max}(\Theta) + 1 = k_\Theta$, that is to say $\lambda_k$ is bounded. Moreover, $\lambda_k$ are 1-Lipschitzian. 
+
+Thus, we have by the lemma $\lambda_1 \times \lambda_2$ is $2k_\Theta$-Lipschitzian. We can apply the lemma by induction, and if $\Pi_{k=1}^m \lambda_k$ is $L_m$-Lipschitzian and is bounded by $k_\Theta^m$ then we get that $\Pi_{k=1}^{m+1}\lambda_k$ is $L_{m+1}$-Lipschitzian where $L_{m+1} = L_mk_\Theta + k_\Theta^m$.
+
+We get the following expression for the Lipschitz constant : 
+
+$$
+\begin{cases}
+  L_1 &= 1 \\
+  L_{m+1} &= L_mk_\Theta + k_\Theta^m
+\end{cases}
+$$
+
+By the lemma, we have the general expression : 
+
+$$
+L_m = m k_\Theta^{m-1}
+$$
+
+Finally, we have by induction that : 
+
+- the generalised determinant is Lipschitzian.
+
+- the Lipschitz constant is $L_d$.
+
+<div style="text-align:right;">$\square$</div>
 
 ### References
 
