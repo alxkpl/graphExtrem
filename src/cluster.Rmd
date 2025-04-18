@@ -701,16 +701,134 @@ $$
 B(\Theta, \varepsilon^*)\cap \mathcal S_d^1 \subset g^{-1}((\mathbb R_+^*)^{d-1})
 $$
 
-Thus, we know that if $\varepsilon_f$ is small, then $\Theta^* = f(R^*) \in \mathcal S_d^1$ and $\Theta$ are close for the Frobenius norm, so we finally have $\Theta^* \in \mathcal P_d^1$.
+Thus, we know that if $\varepsilon_f$ is small, then $\Theta^* = f(R^*) \in \mathcal S_d^1$ and $\Theta$ are closed for the Frobenius norm, so we finally have $\Theta^* \in \mathcal P_d^1$.
 
 For the second point, we need to show first that : 
 
 $$
-\tilde D^2(r_{r \cdot}, r_{l \cdot}) \le \varepsilon_f \Longrightarrow ||f(R) - f(R^*)||_F \le ??? 
+\tilde D^2(r_{r \cdot}, r_{l \cdot}) \le \varepsilon_f^2 \Longrightarrow ||f(R) - f(R^*)||_F \le \sqrt{(2 + ||p||^2) p_C}\varepsilon_f
 $$
 
-TODO 
 
+
+
+First, we have : 
+
+$$
+(\Theta - \Theta^*)_{ij} = \begin{cases} a_{k'} - a^*_{k'} & \text{if } i=j \in C_{k'} \\
+r_{k'k'} - r^*_{k'k'} & \text{if } i, j \in C_{k'}, i \neq j \\
+r_{k'l'} - r^*_{k'l'} & \text{if } i \in C_{k'}, j \in C_{l'} \end{cases}
+$$
+
+We choose to keep the same indices for $R$ and $R^*$ and $r^*_{kl'} = r^*_{Cl'}$ and the same for all the other cases (it does not change the results).
+
+**Case $k'\notin \{k,l\}$**
+
+We have : 
+
+\begin{align*}
+a^*_{k'} &=
+r^*_{k'k'} - \sum_{l'\neq k,l} p_{l'}
+r^*_{k'l'} - 
+p^*_Cr_{Ck'} \\
+&= r_{k'k'} - \sum_{l'\neq k,l} p_{l'} r_{k'l'} - (p_k + p_l) \frac{p_k r_{k'k} + p_l r_{k'l}}{p_k + p_l} \\
+&= r_{k'k'} - \sum_{l' = 1}^K p_{l'} r_{k'l'} \\
+&= a_{k'}
+\end{align*}
+
+and therfore $(\Theta - \Theta^*)_{ii} = 0$ for $i\in C_{k'}$. 
+
+**Case $k'\in \{k,l\}$**
+
+Let's focus ourselves in the case when $k'=k$ (the other is exactly the same). We have : 
+
+$$
+a^*_{k} =r^*_{CC} - \sum_{l'\neq k,l} p_{l'}r^*_{Cl'} - p^*_Cr_{CC} =  r_{kl} - \sum_{l'\neq k,l} p_{l'}r^*_{Cl'} - (p_k + p_l)r_{kl}\\
+$$
+
+Thus : 
+
+$$
+(a_{k} - a^*_{k})^2 = \big[\sum_{l'\neq k,l} p_{l'}(r_{kl'} - r^*_{Cl'}) + r_{kk} - r_{kl} - p_k r_{kk} - p_l r_{kl} - (p_k + p_l)r_{kl}\big]^2\\
+= \big[ \sum_{l'\neq k,l} p_{l'}(r_{kl'} - r^*_{Cl'}) + (p_k -1 )(r_{kk} - r_{kl}) \big]^2
+$$
+
+By using Lipschtizian property of linear application in finite dimension we finaly get : 
+
+$$
+(a_{k} - a^*_{k})^2 \le ||p||^2 \varepsilon_f^2
+$$
+We get the same inequality if $i\in C_l$.
+
+
+Now $i \neq j$.
+
+**Case $i,j \in C_{k'}$**
+
+First, we can notice that this case can happen for a $k'$ only if $p_{k'} >1$. We have : 
+
+$$
+(\Theta - \Theta^*)_{ij} = \begin{cases} 
+r_{kk} - r_{kl} & \text{if } k' = k,\\ 
+r_{ll} - r_{kl} &   \text{if } k' = l,\\
+0 & \text{otherwise.}
+\end{cases}
+$$
+
+
+**Case $i\in C_{k'},j \in C_{l'}$**
+
+$$
+(\Theta - \Theta^*)_{ij} = \begin{cases} 
+r_{kl'} - r^*_{kl'} & \text{if } k' = k, l' \notin \{k,l\}\\ 
+r_{ll'} - r^*_{ll'} &   \text{if } k' = l,l' \notin \{k,l\}\\
+0 & \text{otherwise.}
+\end{cases}
+$$
+
+(Sure, the role of $k'$ and $l'$ is symmetric due to the symmetry of the matrices).
+
+Now we need to see the structure of the difference between the mamtrices. We can summarize this with the following figure : 
+
+<center>
+![Coefficient repartition in the difference of the matrices.](../figure/theta_diff.png)
+</center>
+$~$
+
+The black stars in the upper figure is zero. Thus we have : 
+
+- by combining red stars and green stars that : 
+
+$$
+\sum_{j\neq i}(\Theta_{ij} - \Theta^*_{ij})^2 = \sum_{l'\neq k,l} p_{l'}(r_{kl'} - r^*_{Cl'})^2 + (p_k -1 )(r_{kk} - r_{kl})^2 \le \varepsilon_f^2
+$$
+if $i \in C_k$.
+
+- by combining red stars and green stars again that : 
+
+$$
+\sum_{j\neq i}(\Theta_{ij} - \Theta^*_{ij})^2 = \sum_{l'\neq k,l} p_{l'}(r_{ll'} - r^*_{Cl'})^2 + (p_l -1)(r_{ll} - r_{kl})^2 \le \varepsilon_f^2
+$$
+if $i \in C_l$.
+
+Thus, we get :
+
+- in black, the zeros.
+
+- in orange, $p_C (=p_k + p_l)$ majorations by $||p||^2 \varepsilon_f^2$.
+
+- for the red zone (without orange), we have $2p_k$ majorations by $\varepsilon_f^2$.
+
+- for the blue zone (without orange), we have $2p_l$ majorations by $\varepsilon_f^2$.
+
+Therefore, we finally obtain : 
+
+\begin{align*}
+|| \Theta -\Theta^*||_F^2 &\le 2p_C \varepsilon_f^2 + p_C||p||^2 \varepsilon_f^2 \\
+& \le \big[2 + ||p||^2\big] p_C\varepsilon_f^2 \\
+\end{align*}
+
+*Note that we will obtain the same expression if $p_{\max} = 1$ because there will be zero green majoration.*
 
 Now, we know that in $[a, \infty)$ the logarithm is $\frac 1a$-Lispschizian, so we can deduce by the lemma on generalised determinant that:
 
@@ -721,7 +839,10 @@ $$
 Also, we can find that : 
 
 \begin{align*}
-| \frac12\text{tr} (\bar \Gamma \Theta) - \frac12\text{tr} (\bar \Gamma \tilde\Theta)| &= | \sum_{i,j} \bar \gamma_{ij}(\theta_{ij} - \tilde \theta_{ij}) | \\&\le  \sum_{i,j} |\bar \gamma_{ij}||\theta_{ij} - \tilde \theta_{ij}|\\ &\le (2 \sum_{i<j} |\bar \gamma_{ij}| )||\Theta - \tilde \Theta||_F
+| \frac12\text{tr} (\bar \Gamma \Theta) - \frac12\text{tr} (\bar \Gamma \Theta^*)| &=
+| \frac12\sum_{i,j} \bar \gamma_{ij}(\theta_{ij} -  \theta^*_{ij}) | \\
+&\le  \frac12\sum_{i,j} |\bar \gamma_{ij}||\theta_{ij} - \theta^*_{ij}|\\ &\le \sum_{i<j} |\bar
+\gamma_{ij}| ||\Theta - \Theta^*||_F
 \end{align*}
 
 That means : 
@@ -730,11 +851,41 @@ $$
 | \frac12\text{tr} (\bar \Gamma f(R)) - \frac12\text{tr} (\bar \Gamma f(R^*))| \le k_{\bar \Gamma}||f(R) - f(R^*)||_F
 $$
 
+where $k_{\bar \Gamma} = \sum_{i<j} |\bar \gamma_{ij}|$.
+
 And finally, as we have : 
 
+$$
+|D^2(\theta_{.i}, \theta_{.j}) - D^2(\theta^*_{.i}, \theta^*_{.j})| \le D^2( \theta_{.i}, \theta^*_{.i}) + D^2( \theta_{.j}, \theta^*_{.j})
+$$
 
+And that : 
+
+$$
+D^2( \theta_{.i}, \theta^*_{.i}) \le ||\Theta - \Theta^*||_F^2
+$$
+
+We can deduce that : 
+
+$$
+| \mathcal P(\Theta) - \mathcal P (\tilde \Theta^*) | \le k_W||\Theta - \Theta^*||_F^2
+$$
+where $k_W = 2 \sum_{i<j}w_{ij}$
+
+Thus, we can fuse all the inequality to get : 
+
+
+\begin{align*}
+|L_\mathcal P (R, \lambda) - L_\mathcal P (R^*, \lambda) | &\le (\frac{L_m}a + k_{\bar \Gamma} + \lambda k_W||f(R) - f(R^*)||_F)||f(R) - f(R^*)||_F \\
+& \le \sqrt{(2 + ||p||^2) p_C}(\frac{L_m}a + k_{\bar \Gamma} + \lambda \sqrt{(2 + ||p||^2) p_C}\varepsilon_f k_W)\varepsilon_f
+\end{align*}
+
+
+And so $|L_\mathcal P (R, \lambda) - L_\mathcal P (R^*, \lambda) | \rightarrow 0$ when $\varepsilon_f \rightarrow 0$.
 
 <div style="text-align:right;">$\square$</div>
+
+*I think we can optimize the constant.*
 
 ## Simulation study
 
@@ -847,12 +998,7 @@ R_res <- first_sim_optimisation_results$R
 There is the results for 500 replications of the previous experiment :
 
 
-
-
 # Application on fligth delay data 
-
-
-
 
 # Appendix 
 
@@ -969,10 +1115,8 @@ We can stress that :
 - we can rewrite the expression as : 
 
 $$
-\lambda_k = \min_{\dim V = k-1} ||A\Pi_{V^\perp}||_2 
+\lambda_{d-1} = \min_{\dim V = k-1} ||A\Pi_{V^\perp}||_2 
 $$
-
-
 
 Thanks to this theorem we are able to show the next proposition : 
 
@@ -1070,12 +1214,12 @@ Then $\forall n \in \mathbb N, u_n = na^{n-1}$.
 
 With these results, we can say :
 
-**Lemma.** The generalised determinant application $\Theta \mapsto |\Theta|_+$ is Lipschitzian on $\bar B(\Theta, \varepsilon)$. 
+**Lemma.** The generalised determinant application $\Theta \mapsto |\Theta|_+$ is Lipschitzian on $\bar B(\Theta, 1)$. 
 
-**Proof.** Let $\tilde \Theta \in \bar B(\Theta, \varepsilon)$. 
+**Proof.** Let $\tilde \Theta \in \bar B(\Theta, 1)$. 
 
 $$
-|\lambda_k(\tilde \Theta) - \lambda_k(\Theta) | \le \varepsilon \le 1
+|\lambda_k(\tilde \Theta) - \lambda_k(\Theta) | \le 1
 $$
 And thus : 
 
