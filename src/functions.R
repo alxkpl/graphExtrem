@@ -3,21 +3,22 @@
 #' 3x3 variogram generator for a trivariate Husler-Reiss model
 #'
 #' @param k A positive number to set the range of the coefficients.
-#' @return The coefficients of a valid Husler-Reiss 3x3 variogram where the corresponding
-#' graphical model doesn't have edge between nodes 1 and 2.
-#' The vector correspond to : 
+#' @return The coefficients of a valid Husler-Reiss 3x3
+#' variogram where the corresponding graphical model doesn't
+#' have edge between nodes 1 and 2.
+#' The vector correspond to :
 #'      - a : Gamma_12
 #'      - b : Gamma_13
 #'      - c : Gamma_23
 #' @examples
 #' random_Gamma12(5)
-random_Gamma12 <- function(k){
+random_Gamma12 <- function(k) {
   b <- k * runif(1)
   c <- k * runif(1)
-  a <- b + c 
+  a <- b + c
   Gamma <- matrix(c(0, a, b, a, 0, c, b, c, 0), nr = 3)
-  
-  while(!(checkGamma(Gamma, returnBoolean = TRUE, alert = FALSE))){
+
+  while(!(checkGamma(Gamma, returnBoolean = TRUE, alert = FALSE))) {
     b <- k * runif(1)
     c <- k * runif(1)
     a <- b + c
@@ -33,28 +34,29 @@ random_Gamma12 <- function(k){
 #' @return The corresponding symetric matrix.
 #'
 #' @examples
-to_matrix <- function(Gamma_params){
+to_matrix <- function(Gamma_params) {
   # Parameters of the variogram
   a <- Gamma_params[1]
   b <- Gamma_params[2]
   c <- Gamma_params[3]
-  
- return(
-   matrix(c(0, a, b, a, 0, c, b, c, 0), nr = 3)
-   )
+
+  return(
+    matrix(c(0, a, b, a, 0, c, b, c, 0), nr = 3)
+  )
 }
 
 #' 2-variate extremal coefficient of a bivariate Husler-Reiss distribution.
 #'
 #' @param gamma A real number: the value of the Husler-Reiss parameter.
 #'
-#' @return The value of the 2-variate extremal coefficient for a Husler-Reiss distribution
-#' with parameter gamma. This value is \Lambda(1, 1) = 2 phi(sqrt(gamma)/2), where 
+#' @return The value of the 2-variate extremal coefficient for a Husler-Reiss
+#' distribution with parameter gamma. This value is
+#' \Lambda(1, 1) = 2 phi(sqrt(gamma)/2), where
 #' phi is the distribution function a standard gaussian.
 #'
 #' @examples
 #' theta(1)
-theta <- function(gamma){
+theta <- function(gamma) {
   return(
     2 * pnorm(sqrt(gamma) / 2)
     )
@@ -63,34 +65,33 @@ theta <- function(gamma){
 
 #' 3-variate extremal coefficient of a trivariate Husler-Reiss distribution.
 #'
-#' @param Gamma_parms A vector of size 3 symbolizing a conditionnal negtaive matrix :
-#' the Husler-Reiss parameters.
+#' @param Gamma_parms A vector of size 3 symbolizing a conditionnal negative
+#' matrix : the Husler-Reiss parameters.
 #'
-#' @returnThe value of the 3-variate extremal coefficient for a Husler-Reiss distribution
-#' with variogram represented by the vector Gamma_params.
+#' @return The value of the 3-variate extremal coefficient for a Husler-Reiss
+#' distribution with variogram represented by the vector Gamma_params.
 #'
 #' @examples
 #' Gamma_params <- c(5, 1, 4)
 #' lambda_2(Gamma_params)
-lambda_2 <- function(Gamma_params){
+lambda_2 <- function(Gamma_params) {
   # Parameters of the variogram
   a <- Gamma_params[1]
   b <- Gamma_params[2]
   c <- Gamma_params[3]
-  
+
   # Computation of the correlation for the Gaussian distribution function
   rho_1 <- (a + b - c) / (2 * sqrt(a * b))
   rho_2 <- (a + c - b) / (2 * sqrt(a * c))
   rho_3 <- (b + c - a) / (2 * sqrt(b * c))
-  
-  
-  if(sum(round(abs(c(rho_1, rho_2, rho_3)), 8) >= 1)){
+
+  if(sum(round(abs(c(rho_1, rho_2, rho_3)), 8) >= 1)) {
     return(NA)
-  }else{
-  return(
-    pnorm2d(x = sqrt(a) / 2, y = sqrt(b) / 2, rho = rho_1)[1] +
-      pnorm2d(x = sqrt(a) / 2, y = sqrt(c) / 2, rho = rho_2)[1] +
-      pnorm2d(x = sqrt(b) / 2, y = sqrt(c) / 2, rho = rho_3)[1] 
+  }else {
+    return(
+      pnorm2d(x = sqrt(a) / 2, y = sqrt(b) / 2, rho = rho_1)[1] +
+        pnorm2d(x = sqrt(a) / 2, y = sqrt(c) / 2, rho = rho_2)[1] +
+        pnorm2d(x = sqrt(b) / 2, y = sqrt(c) / 2, rho = rho_3)[1]
     )
   }
 }
@@ -98,33 +99,34 @@ lambda_2 <- function(Gamma_params){
 
 #' Trivariate extremal coefficient in a Husler-Reiss model.
 #'
-#' @param Gamma_params The coefficient of the HR variogram of a size-3 (sub-)vector . 
+#' @param Gamma_params The coefficient of the HR variogram of a size-3
+#' (sub-)vector.
 #'
-#' @return The value of the trivariate coefficient in the corresponding HR 
+#' @return The value of the trivariate coefficient in the corresponding HR
 #' random vector.
 #'
 #' @examples
 #' chi_trivariate_HR(random_Gamma12())
-chi_trivariate_HR <- function(Gamma_params){
+chi_trivariate_HR <- function(Gamma_params) {
   return(
     3 - theta(Gamma_params[1]) - theta(Gamma_params[2]) - theta(Gamma_params[3]) + lambda_2(Gamma_params)
-    )
+  )
 }
 
 
 #' Title
 #'
-#' @param Gamma_params 
-#' @param i 
+#' @param Gamma_params
+#' @param i
 #'
 #' @return
 #' @export
 #'
 #' @examples
-cond_trivariate_HR <- function(Gamma_params, i){
-    return(
-      chi_trivariate_HR(Gamma_params) / (2 - theta(Gamma_params[i]))
-      )
+cond_trivariate_HR <- function(Gamma_params, i) {
+  return(
+    chi_trivariate_HR(Gamma_params) / (2 - theta(Gamma_params[i]))
+  )
 }
 
 
@@ -137,13 +139,13 @@ cond_trivariate_HR <- function(Gamma_params, i){
 #'                          a_ij = (a_ii + a_jj) / 2
 #' @examples
 #' ker_gamma(1:4)
-ker_gamma <- function(diagonal){
-  
+ker_gamma <- function(diagonal) {
+
   n <- length(diagonal)                 # dimension of the matrix
-  
+
   one <- rep(1, n)                      # vector with only ones
-  
-  return(0.5 * (one%*%t(diagonal) + diagonal%*%t(one)))
+
+  return(0.5 * (one %*% t(diagonal) + diagonal %*% t(one)))
 }
 
 
@@ -155,11 +157,11 @@ ker_gamma <- function(diagonal){
 #' verification is done by checking the sign of the eigen-values of the matrix.
 #'
 #' @examples
-#' 
-semi_def <- function(matrix){
+#'
+semi_def <- function(matrix) {
   return(
     !sum(eigen(matrix)$values < -1e-10)        # for numerical errors
-    )
+  )
 }
 
 #----------------------- Gradient descent for clustering -----------------------
@@ -167,21 +169,23 @@ semi_def <- function(matrix){
 
 #' Computation of the matrix of clusters
 #'
-#' @param clusters a list of vector : each vector gives the element of a cluster.
+#' @param clusters a list of vector : each vector gives the element of a
+#' cluster.
 #'
-#' @returns The d x K matrix U such that u_jk = 1 if the variable j belongs to 
+#' @returns The d x K matrix U such that u_jk = 1 if the variable j belongs to
 #' cluster C_k and 0 otherwise.
 #'
 #' @examples
 #' clusters <- list(c(1,2,3),c(4,5))
 #' U_matrix(clusters)
-U_matrix <- function(clusters){
+#'
+U_matrix <- function(clusters) {
   K <- length(clusters)
   d <- length(unlist(clusters))
   U <- matrix(rep(0, d * K), nc = K)
   for(k in 1:K){
     for(j in 1:d){
-      if(j %in% clusters[[k]]){
+      if(j %in% clusters[[k]]) {
         U[j, k] <- 1
       }
     }
@@ -192,26 +196,27 @@ U_matrix <- function(clusters){
 #' From R matrix compute theta matrix
 #'
 #' @param R a K x K matrix : the matrix of the clusters coefficients
-#' @param clusters a list of vector : each vector gives the element of a cluster.
+#' @param clusters a list of vector : each vector gives the element of a
+#' cluster.
 #'
 #' @returns Return the theta matrix from the value of the R matrix of clusters
 #' coefficient using :
-#' 
-#'                            theta = U R U^t + A 
-#'                            
-#' where U is the cluster matrix and a diagonal matrix such that the rows of theta sum 
-#' to zero : 
+#'
+#'                            theta = U R U^t + A
+#'
+#' where U is the cluster matrix and a diagonal matrix such that the rows of
+#' theta sum to zero : 
 #'                            a_ii = - sum_l p_l r_kl
 #' for i in cluster C_k.
 #'
 #' @examples
-#' 
+#'
 #' R <- matrix(c(1, 2,
 #'               2, 5), nr = 2)
 #' clusters <- list(c(1,2,3),c(4,5))
 #' build_theta(R, clusters)
-#' 
-build_theta <- function(R, clusters){
+#'
+build_theta <- function(R, clusters) {
   U <- U_matrix(clusters)
   URUt <- U %*% R %*% t(U)
   a <-  - rowSums(URUt)
@@ -224,7 +229,8 @@ build_theta <- function(R, clusters){
 #' Compute the trace cluster matrix vector.
 #'
 #' @param gamma a dxd matrix : an estimation of the variogram gamma.
-#' @param clusters a list of vector : each vector gives the element of a cluster.
+#' @param clusters a list of vector : each vector gives the element of
+#' a cluster.
 #'
 #' @returns Returns a vector of size K of entries tr(Gamma_C_l).
 #' @export
@@ -233,7 +239,7 @@ build_theta <- function(R, clusters){
 #' clusters <- list(c(1,2,3), c(4,5))
 #' gamma <- matrix(1:25, nc = 5)
 #' trace_vector(gamma, clusters)
-trace_vector <- function(gamma, clusters){
+trace_vector <- function(gamma, clusters) {
   K <- length(clusters)
   T.vector <- rep(0, K)
   i <- 0
@@ -248,13 +254,14 @@ trace_vector <- function(gamma, clusters){
 #'
 #' @param sigma A d x d numeric matrix.
 #'
-#' @returns For a symmetric positive matrix sigma (covariance matrix), return the 
-#' corresponding variogram matrix. Can be used for other but with no interpretation.
+#' @returns For a symmetric positive matrix sigma (covariance matrix),
+#' return the corresponding variogram matrix. Can be used for other
+#' but with no interpretation.
 #'
 #' @examples
 #' s_sigma <- matrix(rnorm(16, 2), nc = 4)
 #' gamma_function(s_sigma %*% t(s_sigma))
-gamma_function <- function(sigma){
+gamma_function <- function(sigma) {
   indic <- rep(1, nrow(sigma))
   return(
     tcrossprod(diag(sigma), indic) + tcrossprod(indic, diag(sigma)) - 2 * sigma
@@ -267,9 +274,9 @@ gamma_function <- function(sigma){
 #' @param A a d x d symmetric positive matrix.
 #' @param tol a positive value : tolerance for the zero diagonal
 #'
-#' @returns The LU Crout decomposition of a matrix A. For A a symmetric positive 
-#' matrix, there exists a LU decomposition such that : 
-#'                                   A = L' L 
+#' @returns The LU Crout decomposition of a matrix A. For A a symmetric
+#' positive matrix, there exists a LU decomposition such that :
+#'                                   A = L' L
 #'
 #' @examples
 #'A <- matrix(c(1,2,3,
@@ -277,13 +284,13 @@ gamma_function <- function(sigma){
 #'              3,6,9), nc = 3)
 #' L <- crout_factorisation(A)
 #' L %*% t(L)
-crout_factorisation <- function(A, tol = 1e-12){
+crout_factorisation <- function(A, tol = 1e-12) {
   A <- unname(as.matrix(A))
   n <- nrow(A)
-  if(n != ncol(A)){
+  if(n != ncol(A)) {
     stop("no square matrix.")
   }
-  if(!semi_def(A)){
+  if(!semi_def(A)) {
     stop("no positive semi definite matrix.")
   }
   d <- rep(0, n)
@@ -293,9 +300,9 @@ crout_factorisation <- function(A, tol = 1e-12){
     for(j in 1:(i - 1)){
       L[i, j] <- (1 / d[j]) * (A[i, j] - sum(L[i, ] * L[j, ] * d))
     }
-    d[i] <- A[i, i] - sum(d*(L[i, ])**2)
+    d[i] <- A[i, i] - sum(d * (L[i, ])**2)
   }
-  
+
   return(L %*% diag(sqrt(d * (d > tol))))
 }
 
@@ -303,10 +310,10 @@ crout_factorisation <- function(A, tol = 1e-12){
 #'
 #' @param A a d x d symmetric positive semi-definite matrix.
 #'
-#' @returns Computes the Moore-Penrose inverse of a matrix. The calculation is 
-#' done thanks to an article and if  : 
-#'                                A = L L^t 
-#' (with L having no zero-columns) then we have : 
+#' @returns Computes the Moore-Penrose inverse of a matrix. The calculation is
+#' done thanks to an article and if  :
+#'                                A = L L^t
+#' (with L having no zero-columns) then we have :
 #'                        A^+ = L (L^t L)^-1 (L^t L)^-1 L^t
 #'
 #' @examples
@@ -314,12 +321,12 @@ crout_factorisation <- function(A, tol = 1e-12){
 #'              2,5,6,
 #'              3,6,9), nc = 3)
 #' psolve(A)
-psolve <- function(A, tol = 1e-12){
+psolve <- function(A, tol = 1e-12) {
 
   S <- crout_factorisation(A, tol = tol)
-  
+
   L <- S[, which(diag(S) != 0)]         # to get no null columns
-  
+
   return(
     L %*% solve(t(L) %*% L) %*% solve(t(L) %*% L) %*% t(L)
   )
@@ -329,7 +336,8 @@ psolve <- function(A, tol = 1e-12){
 #'
 #' @param weights a d x d symmetric matrix with a zero diagonal.
 #'
-#' @returns A function of clusters : the weight matrix for each pair of clusters :
+#' @returns A function of clusters : the weight matrix for each pair
+#' of clusters :
 #'                          W_kl = sum_(i in C_k) sum_(j in C_l) w_ij
 #'
 #' @examples
@@ -337,9 +345,9 @@ psolve <- function(A, tol = 1e-12){
 #' W <- matrix(1:25, nc = 5)
 #' W_c <- weight_clustered(W)
 #' W_c(clusters)
-weight_clustered <- function(weights){
-  function(clusters){
-    U <- U_matrix(clusters) 
+weight_clustered <- function(weights) {
+  function(clusters) {
+    U <- U_matrix(clusters)
     return(
       t(U) %*% weights %*% U
     )
@@ -373,7 +381,7 @@ gen_det <- function(A, tol = 1e-10){
 #'
 #' @param gamma A d x d matrix: the empirical variogram matrix.
 #'
-#' @returns For a fixed variogram gamma, compute for a set of clusters and 
+#' @returns For a fixed variogram gamma, compute for a set of clusters and
 #' corresponding R matrix, the value of the associated negative likelihood defined
 #' by : 
 #'                  nllh = - log(|theta|_+) - 1/2 trace(gamma * theta)
@@ -816,22 +824,12 @@ merge_clusters <- function(R, clusters, eps=1e-1, cost){
   R_new[-k, k] <- ((p[k] * R[k, ] + p[l] * R[l, ]) / (p[k] + p[l]))[-c(k, l)]
   R_new[k, k] <- R[k, l]
   
-  # Final checking : decreasing of the negative log-likelihood
-  if(cost(R, clusters) > cost(R_new, new_clusters)){
-    return(
-      list(
-        R = R_new, 
-        clusters = new_clusters
-      )
+  return(
+    list(
+      R = R_new, 
+      clusters = new_clusters
     )
-  }else{
-    return(
-      list(
-        R = R, 
-        clusters = clusters
-      )
-    )
-  }
+  )
 }
 
 #' Gradient descent algorithm for Husler-Reiss graphical models clustering
@@ -1148,7 +1146,6 @@ get_info_replicate <- function(list_pen, list_nopen, cluster_init){
 #'
 #' @examples
 plot_results <- function(data, true_number_cluster, see_title = TRUE){
-  
   # Rand Index graph
   data |> 
     pivot_longer(cols = ends_with("RI"), 

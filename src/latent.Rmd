@@ -18,7 +18,7 @@ always_allow_html: true
 \newcommand{\indep}{\perp \!\! \perp}
 \newcommand{\indic}{1\!\!1}
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 pacman::p_load("igraph",
                "evd")
@@ -312,7 +312,7 @@ ggplot() +
 We would like to simulate a simple matrix $M$ such that the graphical model defined in the beginning respects the upper graph structure. We recall that the conditional independence relationship is based on the no-zero coefficient of the $M$ matrix.
 
 <center>
-![Matrix $M$ format (stars are non zero values).](../figure/dessin.png)
+![Matrix $M$ format (stars are non zero values).](../figure/matrix.png)
 </center>
 
 We can easily verify that a matrix with this type of format respect a graph structure of a path. 

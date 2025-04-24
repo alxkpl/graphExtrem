@@ -887,6 +887,25 @@ And so $|L_\mathcal P (R, \lambda) - L_\mathcal P (R^*, \lambda) | \rightarrow 0
 
 *I think we can optimize the constant.*
 
+### Condition on the one cluster fusing
+
+One problem can appear during the optimization procedure : the non fusion of the clusters in one element when $\lambda \rightarrow \infty$.
+
+Indeed, let's take $W$ the weigth matrix. From this matrix, we can build a graph $\mathcal G$ on $V$ were the edges are defined : 
+
+$$
+(i,j) \in E \Longleftrightarrow w_{ij} \neq 0
+$$
+
+Now if we assume that this graph is not connected (and there exists $M>1$ connected components, denoted by $E_m$), then we can rewrite the objective function as : 
+
+$$
+L_{\mathcal P}(R, \lambda) = L_{\log}(R) + L_{trace}(R) + \lambda \sum_{m=1}^M\Big(\sum_{i,j\in E_m} w_{ij} d^2(\theta_{i\cdot},\theta_{j\cdot})\Big)
+$$
+
+In that equation, we see that we will not have garantee that the clusters $E_m$ fuse between them because for large $\lambda$ we will normally get the $E_m$ clusters and then the penalty will not appear when we get the $M$ clusters.
+
+
 ## Simulation study
 
 Now, we want to check if the algorithm is working on basic simulation of Husler-Reiss data. For the simulation, we will use the function `rmpareto()` from the `R`-package `graphicalExtremes` developed in [@engelkeGraphicalModelsExtremes2020].
@@ -923,7 +942,8 @@ $$
 \end{pmatrix}
 $$
 
-and thus the variogram of our Husler-Reiss graphical model (using `Theta2Gamma()`  function) : 
+and thus the variogram of our Husler-Reiss graphical model (using `Theta2Gamma()`  function) :
+
 ```{r, first.sim.param, echo = FALSE}
 tar_load(first_sim_param_cluster)
 
@@ -943,10 +963,9 @@ Gamma <- first_sim_param_cluster$Gamma
  \end{pmatrix}
 \end{equation*}
 
-Now, we have the parameter to build simulations and try to cluster the variable according to the underlying structure. 
+Now, we have the parameters to build simulations and try to cluster the variable according to the underlying structure. 
 
 **Setup** 
-
 
 - we will simulate $n = 2000$ variables following Husler-Reiss multivariate Pareto distribution, with the upper variogram. 
 
@@ -971,14 +990,12 @@ tar_load(first_sim_optimisation_no_penalty)
 
 For the results, we get : 
 
-- an optimal parameter $\lambda$ equal to `r first_sim_optimisation_results$lambda_optim`.
-
-- we obtained the right clusters $C_1$ and $C_2$. 
+- we obtained the right clusters $C_1$ and $C_2$ when we finish we two clusters. 
 
 - we estimated the $\hat R$ matrix as : 
 
 ```{r R-result, echo = FALSE}
-R_res <- first_sim_optimisation_results$R
+R_res <- first_sim_optimisation_results[[50]]$R
 ```
 
 
@@ -990,8 +1007,17 @@ R_res <- first_sim_optimisation_results$R
 \end{pmatrix}
 \end{equation*}
 
-- a negative log-likelihood which takes the value `r round(first_sim_optimisation_results$nllh, 2)` whereas it takes the value `r round(first_sim_optimisation_no_penalty$nllh, 2)` for non-penalised optimization. 
+- a negative log-likelihood which takes the value `r round(first_sim_optimisation_results[[50]]$nllh, 2)` whereas it takes the value `r round(first_sim_optimisation_no_penalty$nllh, 2)` for non-penalised optimization. 
 
+As we saw previously, there is the graph of the weight matrix $W$ for this simulation : 
+
+```{r W-matrix, echo=FALSE}
+#| fig.cap: Graph according to the adjacency matrix of weights $W$.
+tar_load(weigth_graph_first_sim)
+weigth_graph_first_sim
+```
+
+We immediately notice that the graph seems to be numerically unconnected, and this can be felt on the optimization with large value of $\lambda$ : indeed, for $\lambda = 10^7$ we still find the two right clusters which did not merge. 
 
 **With replications.**
 
@@ -1147,7 +1173,7 @@ $$
 \lambda_k(M) = ||M\Pi_{V_M^\perp}||_2
 $$
 
-Thus we have : 
+Thus we have :  
 
 $$
 \lambda_k(M') - \lambda_k(M) \le  ||M'\Pi_{V_M^\perp}||_2 - ||M\Pi_{V_M^\perp}||_2 \le ||(M' - M)\Pi_{V_M^\perp}||_2
