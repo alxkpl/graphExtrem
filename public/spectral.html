@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-02-24" />
+        <meta name="date" content="2025-04-25" />
     
     <title>Spectral representation for extremal graphical model</title>
 
@@ -1305,7 +1305,7 @@ graphical model</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-02-24</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-04-25</p>
           </div>
    </div>
      
@@ -1693,15 +1693,23 @@ is in <code>alternative_graph_research</code> target).</em></p>
 <p><em>We used a Newton algorithm to find the zero, from the
 <code>pracma</code> library.</em></p>
 <p>In this configuration, we find none matrix :</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>alternative_graph_research <span class="sc">|&gt;</span> </span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>alternative_graph_research <span class="sc">|&gt;</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">|&gt;</span></span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">semi_def</span>(Sigma_Gamma <span class="sc">+</span> <span class="fu">ker_gamma</span>(<span class="fu">c</span>(a, b, c, d_zero)))) <span class="sc">|&gt;</span> <span class="co"># check if the matrix is semi-def pos</span></span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="fu">count</span>(<span class="at">name =</span> <span class="st">&quot;Number of semi definite positive&quot;</span>)</span></code></pre></div>
-<pre><code>## # A tibble: 1 × 1
-##   `Number of semi definite positive`
-##                                &lt;int&gt;
-## 1                                  0</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Number of semi definite positive</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
 <p>To conclude with this first simulation, we did not find a matrix
 whose the graphical model induced is not include in the variogram
 one.</p>

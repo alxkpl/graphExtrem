@@ -12,22 +12,25 @@ output:
     toc: true
     number_sections: true
 bibliography: biblio.bib
+header-includes:
+  - \usepackage{amsmath}
+  - \newcommand{\indep}{\perp \!\! \perp}
+  - \newcommand{\indic}{1\!\!1}
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 source("src/functions.R")
 pacman::p_load(ggplot2,
                ggnetwork,
                graphicalExtremes,
-               igraph, 
-               targets, 
+               igraph,
+               targets,
                dplyr)
 ```
 
 
-\newcommand{\indep}{\perp \!\! \perp}
-\newcommand{\indic}{1\!\!1}
+
 
 In this document, we would like to find a link between the graphical model for extreme (for MGPD variable) and their spectral representation (with the max-stable). 
 
@@ -262,8 +265,8 @@ g <- graphical_model_parameters$graph
 
 layout <- layout_with_fr(g)
 nodes <- data.frame(
-  id = 1:4, 
-  x = layout[, 1], 
+  id = 1:4,
+  x = layout[, 1],
   y = layout[, 2]
 )
 edges <- data.frame(
@@ -279,16 +282,17 @@ edges <- data.frame(
 ggplot() +
   geom_segment(data = edges,
                aes(x = x, y = y, xend = xend, yend = yend), color = "grey") +
-  geom_point(data = nodes, 
+  geom_point(data = nodes,
              aes(x = x, y = y), color = "darkorange", size = 9) +
-  geom_text(data = nodes, 
+  geom_text(data = nodes,
             aes(x = x, y = y, label = id)) +
-  theme_void(base_family = "Arial") 
+  theme_void(base_family = "serif")
 ```
 
 Thanks to the `graphicalExtremes` package, we can generate randomly a variogram matrix such that the induced Husler-Reiss graphical model is the same as the graph above. Thus, we get these following matrix : 
 
 ```{r variogram, echo=FALSE}
+tar_load(graphical_model_parameters)
 graphical_model_parameters$Gamma
 ```
 
@@ -346,7 +350,7 @@ Moreover, for such $d_0$, we also need to check if the matrix is semi definite p
 In this configuration, we find none matrix : 
 
 ```{r matrix-search, eval=FALSE}
-alternative_graph_research |> 
+alternative_graph_research |>
   rowwise() |>
   filter(semi_def(Sigma_Gamma + ker_gamma(c(a, b, c, d_zero)))) |> # check if the matrix is semi-def pos
   ungroup() |>
@@ -354,8 +358,8 @@ alternative_graph_research |>
 ```
 
 ```{r number-matrix, echo=FALSE}
-tar_load(number_alternative_graph)  
-number_alternative_graph
+tar_load(number_alternative_graph)
+knitr::kable(number_alternative_graph)
 ```
 
 To conclude with this first simulation, we did not find a matrix whose the graphical model induced is not include in the variogram one.

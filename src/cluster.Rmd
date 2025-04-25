@@ -23,6 +23,7 @@ always_allow_html: true
 knitr::opts_chunk$set(echo = TRUE)
 pacman::p_load(graphicalExtremes,
                targets)
+source("./src/functions.R")
 ```
 
 We want to use the graphical model tools for extreme value theory to build a new way of clustering variable, as done for the graphical models for Gaussian vector [@touwClusterpathGaussianGraphical2024].
@@ -1019,9 +1020,24 @@ weigth_graph_first_sim
 
 We immediately notice that the graph seems to be numerically unconnected, and this can be felt on the optimization with large value of $\lambda$ : indeed, for $\lambda = 10^7$ we still find the two right clusters which did not merge. 
 
+
+For better understanding, there are several graph which describe the evolution of the number of clusters and the correspondence between the true clsuter and the estimated one : 
+
+```{r, echo = FALSE}
+#| fig.cap: Summary of the optimization results with the $\lambda$.
+tar_load(first_sim_plots)
+first_sim_plots
+```
+
 **With replications.**
 
 There is the results for 500 replications of the previous experiment :
+
+```{r, echo = FALSE}
+#| fig.cap: Summary of the optimization results with the $\lambda$.
+tar_load(first_sim_rep_results)
+plot_info(first_sim_rep_results)
+```
 
 
 # Application on fligth delay data 
