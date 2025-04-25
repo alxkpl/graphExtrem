@@ -354,7 +354,7 @@ list(
       coef <- 20 * runif(5 * d) - 10.  # all the no zero coefficients
 
       mat <- coef[1:5]
-      for(i in 2:d){
+      for (i in 2:d) {
         mat <- c(mat, rep(0, K - 3), coef[((i - 1) * 5 + 1):(5 * i)])
       }
       M <- matrix(mat, byrow = TRUE, nc = K)
@@ -384,20 +384,20 @@ list(
   # Estimation of the "classic" extremal independence using MST algorithm
   # to build the tree graphical model as done in (Engelke and Volgushev 2022)
   tar_target(
-    latent_10_graph_estimation,
-    {
-      n <- latent_10_sim_parameters$n
-      k <- 300
-      res <- (matrixStats::colRanks(latent_10_simulation, 
-                                    ties.method = "max") / n) > 1 - k / n 
+             latent_10_graph_estimation,
+             {
+               n <- latent_10_sim_parameters$n
+               k <- 300
+               res <- (matrixStats::colRanks(latent_10_simulation,
+                                             ties.method = "max") / n) > 1 - k / n 
 
-      df <- - log((res %*% t(res)) / k)
-      completeGraph <- graph_from_adjacency_matrix(df,
-                                                   mode = "undirected",
-                                                   weighted = TRUE)
+               df <- - log((res %*% t(res)) / k)
+               completeGraph <- graph_from_adjacency_matrix(df,
+                                                            mode = "undirected",
+                                                            weighted = TRUE)
 
-      mst(completeGraph, algorithm = "prim")
-    }),
+               mst(completeGraph, algorithm = "prim")
+             }),
 
   #---------------------- Variable Clustering for HR models --------------------
   ##================ First simulation optimization ================
@@ -441,13 +441,24 @@ list(
 
   tar_target(
     first_sim_optimisation_results,
-    future_map(seq(0, 1e-2, 1e-4),
-               \(.) best_clusters(data = first_sim_clustering,
-                                  chi = first_sim_param_cluster$chi,
-                                  l_grid = .,
-                                  it_max = 2000
-      )
-    )
+    future_map(seq(0, 1e-2, 1e-4), \(.) {
+      best_clusters(data = first_sim_clustering,
+                    chi = first_sim_param_cluster$chi,
+                    l_grid = .,
+                    it_max = 2000)
+    })
+  ),
+
+  tar_target(
+    first_sim_results,
+    all_info(first_sim_param_cluster$clusters,
+             first_sim_optimisation_results,
+             lambda = seq(0, 1e-2, 1e-4), one_sim = TRUE)
+  ),
+
+  tar_target(
+    first_sim_plots,
+    plot_info(first_sim_results, one_sim = TRUE)
   ),
 
   tar_target(
@@ -461,11 +472,12 @@ list(
       D <- D_tilde2_r(R.init, as.list(1:d))
       W <- matrix(rep(0, d * d), nc = d)
 
-      for(k in 1:(d - 1)){
-        for(l in (k + 1):d){
+      for (k in 1:(d - 1)) {
+        for (l in (k + 1):d){
           W[k, l] <- exp(-1 * D(k, l))
         }
       }
+
       W <- W + t(W)
 
       # Graph creation
@@ -517,18 +529,21 @@ list(
     first_sim_rep_pen_results,
     {
       m <- first_sim_rep_data |> summarise(max = max(sim))
-      lambda <- seq(0.1, 2, 0.1)
-      future_map(1:m$max, function(i){
+      lambda <- seq(0, 3e-2, 1e-4)
+      future_map(1:m$max, function(i) {
         data <- first_sim_rep_data |>
           filter(sim == i) |>
           select(-sim) |>
           as.matrix()
-        return(
-          future_map(lambda, \(.) best_clusters(data,
-                                                chi = first_sim_param_cluster$chi,
-                                                l_grid = .))
+
+        future_map(lambda, \(.) {
+          best_clusters(data,
+                        chi = first_sim_param_cluster$chi,
+                        l_grid = .)
+        }
         )
-      })
+      }
+      )
     }
   ),
 
@@ -536,16 +551,17 @@ list(
     first_sim_rep_nopen_results,
     {
       m <- first_sim_rep_data |> summarise(max = max(sim))
-      future_map(1:m$max, function(i){
+      future_map(1:m$max, function(i) {
         data <- first_sim_rep_data |>
           filter(sim == i) |>
           select(-sim) |>
           as.matrix()
-        return(
-          best_clusters(data,
-                        chi = first_sim_param_cluster$chi,
-                        l_grid = 0)
-        )
+
+
+        best_clusters(data,
+                      chi = first_sim_param_cluster$chi,
+                      l_grid = 0)
+
       })
     }
   ),
@@ -554,7 +570,7 @@ list(
   tar_target(
     first_sim_rep_results,
     {
-      lambda <- seq(0.1, 2, 0.1)
+      lambda <- seq(0, 3e-2, 1e-4)
       all_info(cluster.init = first_sim_param_cluster$clusters,
                list_res = first_sim_rep_pen_results, lambda = lambda)
     }
