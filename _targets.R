@@ -22,6 +22,7 @@ tar_option_set(packages = c("graphicalExtremes",
                             "hrbrthemes",
                             "gridExtra",
                             "igraph",
+                            "tidygraph",
                             "ggraph",
                             "evd",
                             "pracma",
@@ -58,7 +59,7 @@ list(
   # the simulations
   tar_target(
     chi_trivariate_simulation_results,
-    data.frame(num_sim = 1:nrow(Gamma_cond_indep_12_replicate),
+    data.frame(num_sim = seq_len(nrow(Gamma_cond_indep_12_replicate)),
                Gamma_cond_indep_12_replicate,
                row.names = NULL) |>
       rowwise() |>
@@ -72,7 +73,7 @@ list(
   # Computation of the conditional coefficient for all the simulation
   tar_target(
     cond_trivariate_simulation_results,
-    data.frame(num_sim = 1:nrow(Gamma_cond_indep_12_replicate),
+    data.frame(num_sim = seq_len(nrow(Gamma_cond_indep_12_replicate)),
                Gamma_cond_indep_12_replicate,
                row.names = NULL) |>
       rowwise() |>
@@ -389,7 +390,7 @@ list(
                n <- latent_10_sim_parameters$n
                k <- 300
                res <- (matrixStats::colRanks(latent_10_simulation,
-                                             ties.method = "max") / n) > 1 - k / n 
+                                             ties.method = "max") / n) > 1 - k / n
 
                df <- - log((res %*% t(res)) / k)
                completeGraph <- graph_from_adjacency_matrix(df,
@@ -497,6 +498,13 @@ list(
     }
   ),
 
+  # Hierarchical clustering graph for the first simulation
+
+  tar_target(
+    hclust_first_sim,
+    gg_cluster(first_sim_optimisation_results)
+  ),
+
   # Replication of the first simulation
   tar_rep(
     first_sim_clustering_replicate,
@@ -520,7 +528,7 @@ list(
 
       rep |>
         tibble() |>
-        mutate(sim = (1:nrow(rep) + (n - 1)) %/% n) -> data_rep
+        mutate(sim = (seq_len(nrow(rep)) + (n - 1)) %/% n)
     }
   ),
 
@@ -624,7 +632,7 @@ list(
 
       rep |>
         tibble() |>
-        mutate(sim = (1:nrow(rep) + (n - 1)) %/% n) -> data_rep
+        mutate(sim = (seq_len(nrow(rep)) + (n - 1)) %/% n)
     }
   ),
 
@@ -634,16 +642,17 @@ list(
     {
       m <- unbal_sim_rep_data |> summarise(max = max(sim))
       lambda <- seq(0.1, 3, 0.1)
-      future_map(1:m$max, function(i){
+      future_map(1:m$max, function(i) {
         data <- unbal_sim_rep_data |>
           filter(sim == i) |>
           select(-sim) |>
           as.matrix()
-        return(
-          future_map(lambda, \(.) best_clusters(data,
-                                                unbal_sim_param_cluster$chi,
-                                                l_grid = .))
-        )
+
+        future_map(lambda, \(.) {
+          best_clusters(data,
+                        unbal_sim_param_cluster$chi,
+                        l_grid = .)
+        })
       })
     }
   ),
@@ -652,15 +661,15 @@ list(
     unbal_sim_rep_nopen_results,
     {
       m <- unbal_sim_rep_data |> summarise(max = max(sim))
-      future_map(1:m$max, function(i){
+      future_map(1:m$max, function(i) {
         data <- unbal_sim_rep_data |>
           filter(sim == i) |>
           select(-sim) |>
           as.matrix()
-        return(
-          best_clusters(data, chi = unbal_sim_param_cluster$chi,
-                        l_grid = 0)
-        )
+
+        best_clusters(data, chi = unbal_sim_param_cluster$chi,
+                      l_grid = 0)
+
       })
     }
   ),
@@ -724,7 +733,7 @@ list(
 
       rep |>
         tibble() |>
-        mutate(sim = (1:nrow(rep) + (n - 1)) %/% n) -> data_rep
+        mutate(sim = (seq_len(nrow(rep)) + (n - 1)) %/% n)
     }
   ),
 
@@ -739,11 +748,12 @@ list(
           filter(sim == i) |>
           select(-sim) |>
           as.matrix()
-        return(
-          future_map(lambda, \(.) best_clusters(data, 
-                                                gr3_bal_sim_param_cluster$chi,
-                                                l_grid = .))
-        )
+
+        future_map(lambda, \(.) {
+          best_clusters(data,
+                        gr3_bal_sim_param_cluster$chi,
+                        l_grid = .)
+        })
       })
     }
   ),
@@ -752,15 +762,15 @@ list(
     gr3_bal_sim_rep_nopen_results,
     {
       m <- gr3_bal_sim_rep_data |> summarise(max = max(sim))
-      future_map(1:m$max, function(i){
+      future_map(1:m$max, function(i) {
         data <- gr3_bal_sim_rep_data |>
           filter(sim == i) |>
           select(-sim) |>
           as.matrix()
-        return(
-          best_clusters(data, chi = gr3_bal_sim_param_cluster$chi,
-                        l_grid = 0)
-        )
+
+        best_clusters(data, chi = gr3_bal_sim_param_cluster$chi,
+                      l_grid = 0)
+
       })
     }
   ),
