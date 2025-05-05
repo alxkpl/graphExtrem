@@ -743,7 +743,7 @@ list(
     {
       m <- gr3_bal_sim_rep_data |> summarise(max = max(sim))
       lambda <- seq(0.1, 3, 0.1)
-      future_map(1:m$max, function(i){
+      future_map(1:m$max, function(i) {
         data <- gr3_bal_sim_rep_data |>
           filter(sim == i) |>
           select(-sim) |>
