@@ -19,7 +19,7 @@ always_allow_html: true
 \newcommand{\indep}{\perp \!\! \perp}
 \newcommand{\indic}{1\!\!1}
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 pacman::p_load(graphicalExtremes,
                targets)
@@ -656,7 +656,7 @@ $$
 and we will choose the value $h^*$ which minimizes the objective function provided that the alternative matrix of clusters $\tilde R^{(t+1)}$ is positive. 
 
 
-### Fusing approximation
+## Fusing approximation
 
 Let suppose that we can write $\Theta = f(R)$ and let's note $\varepsilon_f$ the fusing threshold between two clusters. Assume that the two clusters $C_k$ and $C_l$ are mergeable that is to say : 
 
@@ -888,7 +888,7 @@ And so $|L_\mathcal P (R, \lambda) - L_\mathcal P (R^*, \lambda) | \rightarrow 0
 
 *I think we can optimize the constant.*
 
-### Condition on the one cluster fusing
+## Condition on the one cluster fusing
 
 One problem can appear during the optimization procedure : the non fusion of the clusters in one element when $\lambda \rightarrow \infty$.
 
@@ -906,12 +906,43 @@ $$
 
 In that equation, we see that we will not have garantee that the clusters $E_m$ fuse between them because for large $\lambda$ we will normally get the $E_m$ clusters and then the penalty will not appear when we get the $M$ clusters.
 
+## Hierachical clustering
 
-## Simulation study
+We  would like to justify the use of a dendrogram to represents the clusterpath of the variables along the value of $\lambda$.
+
+First let's recall the problem and see what we can say. We would like to get a solution : 
+
+$$
+\arg\min_\Theta \{ L(\Theta) + \lambda\mathcal{P}(\Theta) \} , \quad \quad \Theta \in \mathcal P^1_d.
+$$
+
+First, [@hentschelStatisticalInferenceHuslerReiss2023] show that the function $L$ is convex on $\mathcal P^1_d$. As $\mathcal P$ is only a linear combination (with positive coefficient) of distances, the penalised likelihood is also convex on $\mathcal P^1_d$. 
+
+Moreover, we have also :
+
+**Proposition.** The set $\mathcal P^1_d$ is convex.
+
+**Proof.** By definition a matrix $A$ belongs to $\mathcal P^1_d$ if it is symmetric and : 
+$$
+x^t A x \ge 0, \quad \quad \text{with equality iff } x \in < \indic >.
+$$
+
+Let be $A$ and $B$ two matrices in $mathcal P_d^1$. Let $\mu \in (0,1)$ then we have : 
+
+- $\mu A + (1-\mu)B$ is symmetric.
+
+- let $x \in \mathbb R^d$, then : 
+$$
+x^t(\mu A + (1-\mu)B) x = \mu \underbrace{(x^t A x)}_{\ge 0} + (1-\mu) \underbrace{x^t B x}_{\ge 0} \ge 0 
+$$
+
+More $x^t(\mu A + (1-\mu)B) x = 0$ if and only if $x^t A x = 0$ and $x^t B x = 0$ (because all is positive). As $A$ and $B$ are in $\mathcal P_d^1$ theses two equality occur if and only if $x \in < \indic >$. Thus, $\mu A + (1-\mu)B \ in \mathcal P_d^1$
+
+# Simulation study
 
 Now, we want to check if the algorithm is working on basic simulation of Husler-Reiss data. For the simulation, we will use the function `rmpareto()` from the `R`-package `graphicalExtremes` developed in [@engelkeGraphicalModelsExtremes2020].
 
-### First simulation
+## First simulation
 
 We will first try our algorithm on easy example. We will assume that the Husler-Reiss model gets only two clusters of size $4$ and $3$. We will fix the following values :
 
@@ -1057,6 +1088,9 @@ There is the results for 500 replications of the previous experiment :
 tar_load(first_sim_rep_results)
 plot_info(first_sim_rep_results)
 ```
+
+
+
 
 
 # Application on fligth delay data 

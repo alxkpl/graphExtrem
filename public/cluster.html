@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-04-30" />
+        <meta name="date" content="2025-05-07" />
     
     <title>Variable clustering for Husler-Reiss graphical models</title>
 
@@ -1231,7 +1231,15 @@ graphical models</a></h2>
       derivative</a></li>
       <li><a href="#choice-of-a-step-for-descent" id="toc-choice-of-a-step-for-descent">Choice of a step for
       descent</a></li>
-      <li><a href="#simulation-study" id="toc-simulation-study">Simulation study</a></li>
+      <li><a href="#fusing-approximation" id="toc-fusing-approximation">Fusing approximation</a></li>
+      <li><a href="#condition-on-the-one-cluster-fusing" id="toc-condition-on-the-one-cluster-fusing">Condition on the one
+      cluster fusing</a></li>
+      <li><a href="#hierachical-clustering" id="toc-hierachical-clustering">Hierachical clustering</a></li>
+      </ul></li>
+      <li><a href="#simulation-study" id="toc-simulation-study">Simulation study</a>
+      <ul>
+      <li><a href="#first-simulation" id="toc-first-simulation">First
+      simulation</a></li>
       </ul></li>
       <li><a href="#application-on-fligth-delay-data" id="toc-application-on-fligth-delay-data">Application on fligth
       delay data</a></li>
@@ -1248,7 +1256,7 @@ graphical models</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-04-30</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-05-07</p>
           </div>
    </div>
      
@@ -1982,8 +1990,9 @@ which minimizes the objective function provided that the alternative
 matrix of clusters <span class="math inline">\(\tilde R^{(t+1)}\)</span>
 is positive.</p>
 </div>
-<div id="fusing-approximation" class="section level3">
-<h3>Fusing approximation</h3>
+</div>
+<div id="fusing-approximation" class="section level2">
+<h2>Fusing approximation</h2>
 <p>Let suppose that we can write <span class="math inline">\(\Theta =
 f(R)\)</span> and let’s note <span class="math inline">\(\varepsilon_f\)</span> the fusing threshold
 between two clusters. Assume that the two clusters <span class="math inline">\(C_k\)</span> and <span class="math inline">\(C_l\)</span> are mergeable that is to say :</p>
@@ -2216,8 +2225,8 @@ L_\mathcal P (R^*, \lambda) | \rightarrow 0\)</span> when <span class="math inli
 </div>
 <p><em>I think we can optimize the constant.</em></p>
 </div>
-<div id="condition-on-the-one-cluster-fusing" class="section level3">
-<h3>Condition on the one cluster fusing</h3>
+<div id="condition-on-the-one-cluster-fusing" class="section level2">
+<h2>Condition on the one cluster fusing</h2>
 <p>One problem can appear during the optimization procedure : the non
 fusion of the clusters in one element when <span class="math inline">\(\lambda \rightarrow \infty\)</span>.</p>
 <p>Indeed, let’s take <span class="math inline">\(W\)</span> the weigth
@@ -2240,15 +2249,47 @@ because for large <span class="math inline">\(\lambda\)</span> we will
 normally get the <span class="math inline">\(E_m\)</span> clusters and
 then the penalty will not appear when we get the <span class="math inline">\(M\)</span> clusters.</p>
 </div>
+<div id="hierachical-clustering" class="section level2">
+<h2>Hierachical clustering</h2>
+<p>We would like to justify the use of a dendrogram to represents the
+clusterpath of the variables along the value of <span class="math inline">\(\lambda\)</span>.</p>
+<p>First let’s recall the problem and see what we can say. We would like
+to get a solution :</p>
+<p><span class="math display">\[
+\arg\min_\Theta \{ L_(\Theta) + \lambda\mathcal{P}(\Theta) \} , \quad
+\quad \Theta \in \mathcal P^1_d.
+\]</span></p>
+<p>First, <span class="citation">(Hentschel, Engelke, and Segers
+2023)</span> show that the function <span class="math inline">\(L\)</span> is convex on <span class="math inline">\(\mathcal P^1_d\)</span>. As <span class="math inline">\(\mathcal P\)</span> is only a linear combination
+(iwth positive coefficient) of distances, the penalised likelihood is
+also convex on <span class="math inline">\(\mathcal P^1_d\)</span>.</p>
+<p>Moreover, we have also :</p>
+<p><strong>Proposition.</strong> The set <span class="math inline">\(\mathcal P^1_d\)</span> is convex.</p>
+<p><strong>Proof.</strong> By definition a matrix <span class="math inline">\(A\)</span> belongs to <span class="math inline">\(\mathcal P^1_d\)</span> if it is symmetric and :
+<span class="math display">\[
+x^t A x \ge 0, \quad \quad \text{with equality iff } x \in &lt;
+1\!\!1&gt;.
+\]</span></p>
+<p>Let be <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> two matrices in <span class="math inline">\(mathcal P_d^1\)</span>. Let <span class="math inline">\(\mu \in [0,1]\)</span> then we have :</p>
+<ul>
+<li><p><span class="math inline">\(\mu A + (1-\mu)B\)</span> is
+symmetric.</p></li>
+<li><p>let <span class="math inline">\(x \in \mathbb R^d\)</span>, then
+: <span class="math display">\[
+x^t(\mu A + (1-\mu)B) x = \mu \underbrace{(x^t A x)}_{\ge 0} + (1-\mu)
+\underbrace{x^t B x}_{\ge 0} \ge 0
+\]</span></p></li>
+</ul>
 </div>
-<div id="simulation-study" class="section level2">
-<h2>Simulation study</h2>
+</div>
+<div id="simulation-study" class="section level1">
+<h1>Simulation study</h1>
 <p>Now, we want to check if the algorithm is working on basic simulation
 of Husler-Reiss data. For the simulation, we will use the function
 <code>rmpareto()</code> from the <code>R</code>-package
 <code>graphicalExtremes</code> developed in <span class="citation">(Engelke and Hitz 2020)</span>.</p>
-<div id="first-simulation" class="section level3">
-<h3>First simulation</h3>
+<div id="first-simulation" class="section level2">
+<h2>First simulation</h2>
 <p>We will first try our algorithm on easy example. We will assume that
 the Husler-Reiss model gets only two clusters of size <span class="math inline">\(4\)</span> and <span class="math inline">\(3\)</span>. We will fix the following values :</p>
 <p><span class="math display">\[
@@ -2380,7 +2421,6 @@ Hierarchical clustering of the variable according to <span class="math inline">\
 <p class="caption">
 Summary of the optimization results with the <span class="math inline">\(\lambda\)</span>.
 </p>
-</div>
 </div>
 </div>
 </div>
