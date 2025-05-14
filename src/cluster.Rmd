@@ -910,10 +910,10 @@ In that equation, we see that we will not have garantee that the clusters $E_m$ 
 
 We  would like to justify the use of a dendrogram to represents the clusterpath of the variables along the value of $\lambda$.
 
-First let's recall the problem and see what we can say. We would like to get a solution : 
+First let's recall the problem and see what we can say. We would like to get a solution :
 
 $$
-\arg\min_\Theta \{ L(\Theta) + \lambda\mathcal{P}(\Theta) \} , \quad \quad \Theta \in \mathcal P^1_d.
+Q_\lambda : \arg\min_\Theta \{ L(\Theta) + \lambda\mathcal{P}(\Theta) \} , \quad \quad \Theta \in \mathcal P^1_d.
 $$
 
 First, [@hentschelStatisticalInferenceHuslerReiss2023] show that the function $L$ is convex on $\mathcal P^1_d$. As $\mathcal P$ is only a linear combination (with positive coefficient) of distances, the penalised likelihood is also convex on $\mathcal P^1_d$. 
@@ -927,7 +927,7 @@ $$
 x^t A x \ge 0, \quad \quad \text{with equality iff } x \in < \indic >.
 $$
 
-Let be $A$ and $B$ two matrices in $mathcal P_d^1$. Let $\mu \in (0,1)$ then we have : 
+Let be $A$ and $B$ two matrices in $\mathcal P_d^1$. Let $\mu \in (0,1)$ then we have : 
 
 - $\mu A + (1-\mu)B$ is symmetric.
 
@@ -936,7 +936,102 @@ $$
 x^t(\mu A + (1-\mu)B) x = \mu \underbrace{(x^t A x)}_{\ge 0} + (1-\mu) \underbrace{x^t B x}_{\ge 0} \ge 0 
 $$
 
-More $x^t(\mu A + (1-\mu)B) x = 0$ if and only if $x^t A x = 0$ and $x^t B x = 0$ (because all is positive). As $A$ and $B$ are in $\mathcal P_d^1$ theses two equality occur if and only if $x \in < \indic >$. Thus, $\mu A + (1-\mu)B \ in \mathcal P_d^1$
+More $x^t(\mu A + (1-\mu)B) x = 0$ if and only if $x^t A x = 0$ and $x^t B x = 0$ (because all is positive). As $A$ and $B$ are in $\mathcal P_d^1$ theses two equality occur if and only if $x \in < \indic >$. Thus, $\mu A + (1-\mu)B \in \mathcal P_d^1$. 
+
+<div style="text-align:right;">$\square$</div>
+
+Thus the problem $Q_\lambda$ is a convex problem and admits a unique minimizer.
+
+Now, let's study in details a specific model. 
+
+**Proposition.** Let $\lambda > 0$ and the problem $Q_\lambda$. Assume that it exists $\lambda^*>0$ such that the solution of the corresponding problem verifies $\mathcal P(\Theta)=0$. Then for all $\lambda \ge \lambda^*$, the solution of $Q_\lambda$ is the same as $Q_{\lambda^*}$.
+
+**Proof.** First let's note that for $\lambda' \le \lambda$ with $\Theta$ and $\Theta'$ the respective solutions of  $Q_\lambda$ and  $Q_{\lambda'}$, and we have : 
+
+$$
+ \mathcal P(\Theta') \ge \mathcal P(\Theta)
+$$
+
+Now if we take $\lambda' = \lambda^*$, we have : 
+
+$$
+\mathcal P(\Theta) = 0
+$$
+
+And thus for all $\lambda^* \le \lambda$ the problem $Q_\lambda$ is equivalent to : 
+
+$$
+\arg \min_{\Theta, \mathcal P(\Theta) = 0} L(\Theta)
+$$
+
+But as the set $\{\Theta \in \mathcal P^d_1, \mathcal P(\Theta) = 0\}$ is convex, the solution is unique again and then does not change from $\lambda^*$.
+
+<div style="text-align:right;">$\square$</div>
+
+From now, we will suppose that the assumptions of the last proposition are verified. Then, we can define a the following function : 
+
+\begin{align*}
+\Theta : [0, \lambda^*] &\rightarrow \mathcal P_d^1 \\
+\lambda &\mapsto \Theta(\lambda)
+\end{align*}
+
+where $\Theta(\lambda)$ is the solution of the problem $Q_\lambda$ (well defined by the convexity of the problem).
+
+We would like to show that it is a path between two elements in $\mathcal P_d^1$ : the first one is the classical estimator of the precision matrix $\Theta(0) = \hat \Theta$ and the second one is a matrix such that we will note $\Theta^* = \Theta(\lambda^*)$ for convenience. Thus, the main goal here is to prove the continuity of the application of solution.
+
+**Lemma.** Let be $\{\Theta(\lambda)\}_{\lambda \in [0, \lambda^*]}$, the collection of all the solution of the problem $Q_\lambda$ for all $\lambda \ge 0$. The set $\{||\Theta(\lambda)||_F~|~\lambda \in [0, \lambda^*]\}$ is bounded.
+
+**Proof.** First, let's stress that the application $L$ is coercive on $\mathcal P_d^1$, that means that : 
+$$
+\lim_{||\Theta||_F \rightarrow +\infty} L(\Theta) = +\infty
+$$
+
+Then, as we have for all $\lambda \le \lambda^*$ : 
+
+$$
+L(\Theta(\lambda)) + \lambda \mathcal P(\Theta(\lambda)) \le L(\Theta^*) + \lambda^* \mathcal P(\Theta^*)
+$$
+
+Therefore, as the image of the collection by the application is bounded, we must have that the set $\{||\Theta(\lambda)||_F~|~\lambda \in [0, \lambda^*]\}$ is bounded otherwise it will bring a contradiction with the coercivity of the appplication $L$.
+
+<div style="text-align:right;">$\square$</div>
+
+**Proposition.** The application $\lambda \mapsto \Theta(\lambda)$ is a path between $\hat \Theta$ and $\Theta^*$. 
+
+**Proof.** Let be $(\lambda_n)_{n \in \mathbb N}$ a sequence of $[0, \lambda^*]$  which converges to a limit $\lambda'$. Then, we can build a new sequence $(\Theta_n)_{n \in \mathbb N}$ in $\mathcal P_d^1$, induced by the latter, and defined by : 
+
+$$
+\Theta_n = \Theta(\lambda_n)
+$$
+
+We would like to show that the sequence $(\Theta_n)_{n \in \mathbb N}$ converges to the matrix $\Theta'= \Theta(\lambda')$.
+
+First, from the lemma, we have that the sequence $(\Theta_n)_{n \in \mathbb N}$ is bounded. Moreover, let's take a convergent subsequence $(\Theta_{\phi(n)})_{n \in \mathbb N}$ and let's note its limit $\tilde \Theta$. By definition, we have that for all $\Theta \in \mathcal P_d^1$ : 
+
+$$
+L(\Theta_{\phi(n)}) + \lambda_{\phi(n)} \mathcal P(\Theta_{\phi(n)}) \le L(\Theta) + \lambda_{\phi(n)} \mathcal P(\Theta) 
+$$
+
+Therefore, if we take the limit : 
+$$
+L(\tilde \Theta) + \lambda' \mathcal P(\tilde \Theta) \le L(\Theta) + \lambda' \mathcal P(\Theta) 
+$$
+
+But, this means that $\tilde \Theta$ is a solution of the problem $Q_{\lambda'}$ and by unicity we have $\tilde \Theta = \Theta'$. 
+
+So, as the sequence $(\Theta_n)_{n \in \mathbb N}$ is bounded and admits only one subsequential limit, the sequence converge to this limit which is $\Theta(\lambda')$. So the application $\lambda \mapsto \Theta(\lambda)$ is continuous.
+
+<div style="text-align:right;">$\square$</div>
+
+Now, we would like to show the crucial point of our algorithm. Let's note : 
+
+$$
+d_{ij}(\Theta) = D( \theta_{.i}, \theta_{.j}),
+$$
+
+for all $i, j \in V$.
+
+
 
 # Simulation study
 
@@ -1044,7 +1139,7 @@ R_res <- first_sim_optimisation_results[[50]]$R
 
 \begin{equation*}
 \hat R = 
-\begin{pmatrix} 
+\begin{pmatrix}
 `r R_res[1,1]` & `r R_res[1,2]` \\
 `r R_res[2,1]` & `r R_res[2,2]`
 \end{pmatrix}
@@ -1088,10 +1183,6 @@ There is the results for 500 replications of the previous experiment :
 tar_load(first_sim_rep_results)
 plot_info(first_sim_rep_results)
 ```
-
-
-
-
 
 # Application on fligth delay data 
 
