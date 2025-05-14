@@ -1023,14 +1023,6 @@ So, as the sequence $(\Theta_n)_{n \in \mathbb N}$ is bounded and admits only on
 
 <div style="text-align:right;">$\square$</div>
 
-Now, we would like to show the crucial point of our algorithm. Let's note : 
-
-$$
-d_{ij}(\Theta) = D( \theta_{.i}, \theta_{.j}),
-$$
-
-for all $i, j \in V$.
-
 
 
 # Simulation study

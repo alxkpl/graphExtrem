@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-05-12" />
+        <meta name="date" content="2025-05-14" />
     
     <title>Variable clustering for Husler-Reiss graphical models</title>
 
@@ -1256,7 +1256,7 @@ graphical models</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-05-12</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-05-14</p>
           </div>
    </div>
      
@@ -2390,49 +2390,6 @@ L(\tilde \Theta) + \lambda&#39; \mathcal P(\tilde \Theta) \le L(\Theta)
 the sequence converge to this limit which is <span class="math inline">\(\Theta(\lambda&#39;)\)</span>. So the application
 <span class="math inline">\(\lambda \mapsto \Theta(\lambda)\)</span> is
 continuous.</p>
-<div style="text-align:right;">
-<span class="math inline">\(\square\)</span>
-</div>
-<p>Now, we would like to show the crucial point of our algorithm. Let’s
-note :</p>
-<p><span class="math display">\[
-d_{ij}(\Theta) = D( \theta_{.i}, \theta_{.j}),
-\]</span></p>
-<p>for all <span class="math inline">\(i, j \in V\)</span>.</p>
-<p><strong>Theorem.</strong> Let be the problem <span class="math inline">\(Q_\lambda\)</span> and let’s assume that it exists
-<span class="math inline">\(\lambda^*&gt;0\)</span> such that the
-solution of the corresponding problem verifies <span class="math inline">\(\mathcal P(\Theta)=0\)</span>. Thus, we have for
-all <span class="math inline">\(\lambda &lt; \lambda&#39;\)</span> :</p>
-<p><span class="math display">\[
-\quad d_{ij}(\Theta(\lambda)) &lt; \varepsilon_f \Longrightarrow \quad
-d_{ij}(\Theta(\lambda&#39;)) &lt; \varepsilon_f
-\]</span></p>
-<p>This means that if we fuse only two variable for some penalization,
-we will fuse the two same variables for stronger penalization.</p>
-<p><strong>Proof.</strong> Let’s assume that it exists a <span class="math inline">\(lambda&gt;0\)</span> such that :</p>
-<p><span class="math display">\[
-\quad d_{ij}(\Theta(\lambda)) &lt; \varepsilon_f
-\]</span></p>
-<p>Then, we can find a positive number <span class="math inline">\(\eta&gt;0\)</span> such that :</p>
-<p><span class="math display">\[
-\quad d_{ij}(\Theta(\lambda)) \le \varepsilon_f - \eta
-\]</span></p>
-<p>As the <span class="math inline">\(\Theta\)</span> function is
-defined on a compact space (<span class="math inline">\([0,
-\lambda^*]\)</span>) it follows from the Heine Theorem that <span class="math inline">\(\lambda \mapsto d_{ij}(\Theta(\lambda))\)</span>
-is also uniformly continuous, that means we can find <span class="math inline">\(\delta_{\eta}\)</span> such that :</p>
-<p><span class="math display">\[
-| \lambda_1 - \lambda_2 | \le \delta_{\eta} \Rightarrow
-|d_{ij}(\Theta(\lambda_1)) - d_{ij}(\Theta(\lambda_2))|&lt;
-\frac{\eta}{2}
-\]</span></p>
-<p>Now, let’s take <span class="math inline">\(\lambda&#39;&gt;0\)</span> such that <span class="math inline">\(| \lambda - \lambda&#39; | \le
-\delta_{\eta}\)</span>, then :</p>
-<p><span class="math display">\[
-d_{ij}(\Theta(\lambda&#39;)) \le \frac{\eta}{2} +
-d_{ij}(\Theta(\lambda)) \le \frac{\eta}{2} + \varepsilon_f - \eta
-\le  \varepsilon_f - \frac{\eta}{2}
-\]</span></p>
 <div style="text-align:right;">
 <span class="math inline">\(\square\)</span>
 </div>
