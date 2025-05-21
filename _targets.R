@@ -463,24 +463,10 @@ list(
   ),
 
   tar_target(
-    weigth_graph_first_sim,
+    weight_graph_first_sim,
     {
-      Gamma_est <- emp_vario(first_sim_clustering)
-      d <- ncol(first_sim_clustering)
-      R.init <- Gamma2Theta(Gamma_est)
-
-      # Exponential weights construction
-      D <- D_tilde2_r(R.init, as.list(1:d))
-      W <- matrix(rep(0, d * d), nc = d)
-
-      for (k in 1:(d - 1)) {
-        for (l in (k + 1):d){
-          W[k, l] <- exp(-1 * D(k, l))
-        }
-      }
-
-      W <- W + t(W)
-
+      W <- compute_W(first_sim_clustering)
+ 
       # Graph creation
       g <- graph_from_adjacency_matrix(W, mode = "undirected",
                                        weighted = TRUE, diag = FALSE)
@@ -584,6 +570,11 @@ list(
     }
   ),
 
+  tar_target(
+    hclust_first_sim_rep,
+    average_hierarchy(first_sim_rep_pen_results)
+  ),
+
   ##======================= Unbalanced class =====================
   tar_target(
     unbal_sim_param_cluster,
@@ -641,7 +632,7 @@ list(
     unbal_sim_rep_pen_results,
     {
       m <- unbal_sim_rep_data |> summarise(max = max(sim))
-      lambda <- seq(0.1, 3, 0.1)
+      lambda <- seq(0, 4e-2, 5e-4)
       future_map(1:m$max, function(i) {
         data <- unbal_sim_rep_data |>
           filter(sim == i) |>
@@ -678,10 +669,15 @@ list(
   tar_target(
     unbal_sim_rep_results,
     {
-      lambda <- seq(0.1, 3, 0.1)
+      lambda <- seq(0, 4e-2, 5e-4)
       all_info(cluster.init = unbal_sim_param_cluster$clusters,
                list_res = unbal_sim_rep_pen_results, lambda = lambda)
     }
+  ),
+
+  tar_target(
+    unbal_sim_hierarchy,
+    average_hierarchy(unbal_sim_rep_pen_results)
   ),
 
   ##======================== With three balanced groups ========================
@@ -705,7 +701,7 @@ list(
         Gamma = Gamma,
         chi = 1,
         n = 1e3,
-        d = 7
+        d = 15
       )
     }
   ),
@@ -742,7 +738,7 @@ list(
     gr3_bal_sim_rep_pen_results,
     {
       m <- gr3_bal_sim_rep_data |> summarise(max = max(sim))
-      lambda <- seq(0.1, 3, 0.1)
+      lambda <- seq(0, 1, 1e-1)
       future_map(1:m$max, function(i) {
         data <- gr3_bal_sim_rep_data |>
           filter(sim == i) |>
@@ -779,14 +775,191 @@ list(
   tar_target(
     gr3_bal_sim_rep_results,
     {
-      lambda <- seq(0.1, 3, 0.1)
+      lambda <- seq(0, 1, 1e-1)
       all_info(cluster.init = gr3_bal_sim_param_cluster$clusters,
                list_res = gr3_bal_sim_rep_pen_results, lambda = lambda)
     }
   ),
 
+  tar_target(
+    gr3_bal_hierarchy,
+    average_hierarchy(gr3_bal_sim_rep_pen_results)
+  ),
 
+  ##=================== With three balanced groups with noise ==================
+  tar_rep(
+    gr3_noise_sim_clustering_replicate,
+    {
+      # Error matrix creation
+      sim <- matrix(rnorm(n = gr3_bal_sim_param_cluster$d**2, 0.1, 1e-2), nc = gr3_bal_sim_param_cluster$d)
+      E <- matrix(0, gr3_bal_sim_param_cluster$d, gr3_bal_sim_param_cluster$d)
 
+      # Keep only the upper trinagular matrix produce symetric matrix
+      E[upper.tri(E, diag = TRUE)] <- sim[upper.tri(sim, diag = TRUE)]
+
+      # No error in the diagonal to preserve gamma_ii = 0
+      diag(E) <- 0
+
+      # Perturbating matrix
+      G_noise <- abs(gr3_bal_sim_param_cluster$Gamma + E + t(E))
+
+      # Simulation with the new matrix
+      rmpareto(n = gr3_bal_sim_param_cluster$n,
+               model = "HR",
+               par = G_noise)
+    },
+    batches = 1,
+    reps = 200,
+    iteration = "vector"               # the output of the replicates is a list
+  ),
+
+  # Data formatting to separate the replications
+  tar_target(
+    gr3_noise_sim_rep_data,
+    {
+      rep <- gr3_noise_sim_clustering_replicate
+
+      n <- gr3_bal_sim_param_cluster$n
+
+      row.names(rep) <- NULL
+
+      rep |>
+        tibble() |>
+        mutate(sim = (seq_len(nrow(rep)) + (n - 1)) %/% n)
+    }
+  ),
+
+  # Computation of optimization results for each replication
+  tar_target(
+    gr3_noise_sim_rep_pen_results,
+    {
+      m <- gr3_noise_sim_rep_data |> summarise(max = max(sim))
+      lambda <- seq(0, 2, 25e-2)
+      future_map(1:m$max, function(i) {
+        data <- gr3_noise_sim_rep_data |>
+          filter(sim == i) |>
+          select(-sim) |>
+          as.matrix()
+
+        future_map(lambda, \(.) {
+          best_clusters(data,
+                        gr3_bal_sim_param_cluster$chi,
+                        l_grid = .)
+        })
+      })
+    }
+  ),
+
+  tar_target(
+    gr3_noise_sim_rep_nopen_results,
+    {
+      m <- gr3_noise_sim_rep_data |> summarise(max = max(sim))
+      future_map(1:m$max, function(i) {
+        data <- gr3_noise_sim_rep_data |>
+          filter(sim == i) |>
+          select(-sim) |>
+          as.matrix()
+
+        best_clusters(data, chi = gr3_bal_sim_param_cluster$chi,
+                      l_grid = 0)
+
+      })
+    }
+  ),
+
+  # Formatting and plot the results
+  tar_target(
+    gr3_noise_sim_rep_results,
+    {
+      lambda <- seq(0, 2, 25e-2)
+      all_info(cluster.init = gr3_bal_sim_param_cluster$clusters,
+               list_res = gr3_noise_sim_rep_pen_results, lambda = lambda)
+    }
+  ),
+
+  tar_target(
+    gr3_noise_sim_numeric_results,
+    {
+      # Some numerical results in different situations
+      ## When 3 clusters is reached
+      nb_3clusters <- gr3_noise_sim_rep_results |>
+        filter(nb_cluster == 3) |>
+        select(simulation) |>
+        unique() |>
+        count() |>
+        as.numeric()
+
+      average_ARI <- gr3_noise_sim_rep_results |>
+        filter(nb_cluster == 3) |>
+        group_by(simulation) |>
+        summarise(minARI = min(ARI)) |>
+        summarise(m = mean(minARI)) |>
+        as.numeric()
+
+      ## When 3 clusters is not reached before the lambda max
+      over_3clusters <- gr3_noise_sim_rep_results |>
+        filter(l == 2, nb_cluster > 3) |>
+        count() |>
+        as.numeric()
+
+      over3_average_ARI <- gr3_noise_sim_rep_results |>
+        filter(l == 2, nb_cluster > 3) |>
+        summarise(m = mean(ARI)) |>
+        as.numeric()
+
+      # When we finally end with 2 clusters or less
+      under_3clusters <- gr3_noise_sim_rep_results |>
+        filter(l == 2, nb_cluster < 3) |>
+        count() |>
+        as.numeric()
+
+      under3_average_ARI <- gr3_noise_sim_rep_results |>
+        filter(l == 2, nb_cluster < 3) |>
+        summarise(m = mean(ARI)) |>
+        as.numeric()
+
+      list(
+        with_3 = c(nb_3clusters, average_ARI),
+        other = data.frame(under3 = c(under_3clusters, under3_average_ARI),
+                           over3 = c(over_3clusters, over3_average_ARI))
+      )
+    }
+  ),
+
+  tar_target(
+    gr3_noise_hierarchy,
+    average_hierarchy(gr3_noise_sim_rep_pen_results)
+  ),
+
+  tar_target(
+    average_weight_graph_noise_sim,
+    {
+      data <- future_map(1:200, function(i) {
+        gr3_noise_sim_rep_data |>
+          filter(sim == i) |>
+          select(-sim) |>
+          as.matrix()
+      }
+      )
+
+      W <- (Reduce("+", lapply(data, compute_W))) / 200
+
+      # Graph creation
+      g <- graph_from_adjacency_matrix(W, mode = "undirected",
+                                       weighted = TRUE, diag = FALSE)
+      ggraph(g, layout = "circle") +  # 'dh' = Davidson-Harel layout
+        geom_edge_link(aes(edge_width = weight,
+                           edge_alpha = weight, color = weight),
+                       show.legend = c(edge_width = FALSE,
+                                       edge_alpha = FALSE, color = TRUE)) +
+        geom_node_point(size = 10, color = "grey70") +
+        geom_node_text(aes(label = 1:7)) +
+        scale_edge_color_gradient(low = "white", high = "darkorange2",
+                                  name = "Weight values") +
+        scale_edge_width(range = 0.9) +
+        theme_void()
+    }
+  ),
 
   #----------------------------- Export document -------------------------------
   # Trivariate coefficient documents
