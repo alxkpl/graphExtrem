@@ -1,3 +1,15 @@
+pacman::p_load(
+  dplyr,
+  ggplot2,
+  ggraph,
+  tidygraph,
+  igraph,
+  gridExtra,
+  tidyr,
+  evd,
+  tibble,
+  graphicalExtremes
+)
 #---------------------- Functions for travariate document ----------------------
 
 #' 3x3 variogram generator for a trivariate Husler-Reiss model
@@ -18,7 +30,7 @@ random_Gamma12 <- function(k) {
   a <- b + c
   Gamma <- matrix(c(0, a, b, a, 0, c, b, c, 0), nr = 3)
 
-  while (!(checkGamma(Gamma, returnBoolean = TRUE, alert = FALSE))) {
+  while (!(graphicalExtremes::checkGamma(Gamma, returnBoolean = TRUE, alert = FALSE))) {
     b <- k * runif(1)
     c <- k * runif(1)
     a <- b + c
@@ -84,9 +96,9 @@ lambda_2 <- function(Gamma_params) {
   if (sum(round(abs(c(rho_1, rho_2, rho_3)), 8) >= 1)) {
     NA
   }else {
-    pnorm2d(x = sqrt(a) / 2, y = sqrt(b) / 2, rho = rho_1)[1] +
-      pnorm2d(x = sqrt(a) / 2, y = sqrt(c) / 2, rho = rho_2)[1] +
-      pnorm2d(x = sqrt(b) / 2, y = sqrt(c) / 2, rho = rho_3)[1]
+    fMultivar::pnorm2d(x = sqrt(a) / 2, y = sqrt(b) / 2, rho = rho_1)[1] +
+      fMultivar::pnorm2d(x = sqrt(a) / 2, y = sqrt(c) / 2, rho = rho_2)[1] +
+      fMultivar::pnorm2d(x = sqrt(b) / 2, y = sqrt(c) / 2, rho = rho_3)[1]
   }
 }
 
@@ -320,6 +332,29 @@ psolve <- function(A, tol = 1e-12) {
   return(
     L %*% solve(t(L) %*% L) %*% solve(t(L) %*% L) %*% t(L)
   )
+}
+
+#' Computation of the first weight matrix
+#' @param data the data
+#'
+#' @returns The initial wieght matrix without fused variables.
+#'
+#' @example
+#'
+compute_W <- function(data) {
+  Gamma_est <- graphicalExtremes::emp_vario(data)
+  d <- ncol(data)
+  R.init <- graphicalExtremes::Gamma2Theta(Gamma_est)
+  # Exponential weights construction
+  D <- D_tilde2_r(R.init, as.list(1:d))
+  W <- matrix(rep(0, d * d), nc = d)
+
+  for (k in 1:(d - 1)) {
+    for (l in (k + 1):d){
+      W[k, l] <- exp(-1 * D(k, l))
+    }
+  }
+  W + t(W)
 }
 
 #' Computation of the clustered weight matrix
@@ -910,9 +945,9 @@ get_cluster <- function(gamma, weights, lambda, ...) {
 #' @examples
 best_clusters <- function(data, chi, l_grid, it_max = 1000) {
   # Initialization
-  Gamma_est <- emp_vario(data)
+  Gamma_est <- graphicalExtremes::emp_vario(data)
   d <- ncol(data)
-  R.init <- Gamma2Theta(Gamma_est)
+  R.init <- graphicalExtremes::Gamma2Theta(Gamma_est)
 
   # Exponential weights construction 
   D <- D_tilde2_r(R.init, as.list(1:d))
@@ -986,7 +1021,7 @@ best_clusters <- function(data, chi, l_grid, it_max = 1000) {
 #' @param clusters2 The second cluster to compare.
 #'
 #' @returns Return FALSE if the clusters have not the same number of cluster. Otherwise,
-#' 
+#'
 #'
 #' @examples
 #'
@@ -1005,7 +1040,14 @@ compare_clusters <- function(clusters1, clusters2) {
 
 
 
-
+#' Detect the merge and give all information about cluster and lambda.
+#'
+#' @param solution_list Solution's list from best_clusters.
+#'
+#' @returns Return the list of the solution where a change occurs between the list of clusters.
+#'
+#' @examples
+#'
 detect_merge <- function(solution_list) {
   # Initialiser les états
   d <- sum(sapply(solution_list[[1]]$clusters, length))
@@ -1037,6 +1079,15 @@ detect_merge <- function(solution_list) {
 
 }
 
+
+#' Give the adjacency matrix coresponding to the right hierarchical according to the fusion
+#' during optimization.
+#'
+#' @param event_list the list of solution from detect_fusion.
+#' @param lambda_max The lambda which end the optimization.
+#'
+#' @returns A matrix which will be use for the construction of the dendrogram.
+#'
 get_adjacency_matrix <- function(event_list, lambda_max) {
 
   d <- sum(sapply(event_list[[1]]$clusters, length))
@@ -1068,6 +1119,12 @@ get_adjacency_matrix <- function(event_list, lambda_max) {
 
 }
 
+#' Plot the dendrogram for the optimization
+#'
+#' @param list_results A list of results optimization from best_clusters.
+#'
+#' @returns The dendrogram obtained from the simulation results for each lambda.
+#'
 gg_cluster <- function(list_results) {
 
   d <- sum(sapply(list_results[[1]]$clusters, length))
@@ -1077,6 +1134,49 @@ gg_cluster <- function(list_results) {
   options(warn = 0)
 
   A <- get_adjacency_matrix(event_list, lambda_max)
+
+  hclust_results <- hclust(as.dist(A), method = "average")
+
+  hclust_results$label <- 1:d
+
+  graph <- as_tbl_graph(hclust_results)
+
+  # Dessiner l'arbre
+  ggraph(graph, layout = "dendrogram", height = height) +
+    geom_edge_elbow(linewidth = 1.5, alpha = 0.8, color = "darkorange2") +
+    geom_node_text(aes(label = ifelse(leaf, label, "")), size = 4, vjust = 1.7, color = "grey40") +
+    geom_node_point(color = "grey40", shape = 18, size = 3) +
+    ylab(expression(lambda)) +
+    theme_minimal() +
+    theme(axis.text.x = element_blank(),
+          axis.title.x = element_blank(),
+          panel.grid = element_blank(), axis.line.y = element_line(color = "grey50"),
+          plot.margin = margin(10, 10, 10, 10),
+          axis.title.y = element_text(angle = 0, size = 15),
+          axis.ticks.y = element_line(color = "grey50", linewidth = 0.5),  # Couleur et taille des ticks
+          axis.ticks.length = unit(0.1, "cm"))
+}
+
+
+#' Plot the average dendrogram for the replicate optimization
+#'
+#' @param replicates A list of results optimization replicates from best_clusters.
+#'
+#' @returns The dendrogram obtained from the simulation results for each lambda.
+#'
+average_hierarchy <- function(replicates) {
+
+  d <- sum(sapply(replicates[[1]][[1]]$clusters, length))
+
+  N <- length(replicates)
+
+  lambda_max <- replicates[[1]][[length(replicates[[1]])]]$lambda
+
+  list_detect <- lapply(replicates, detect_merge)
+
+  Adj_list <- lapply(list_detect, \(.) get_adjacency_matrix(., lambda_max))
+
+  A <- as.dist(Reduce("+", Adj_list) / N)
 
   hclust_results <- hclust(as.dist(A), method = "average")
 
