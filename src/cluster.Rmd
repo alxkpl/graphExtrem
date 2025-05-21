@@ -19,12 +19,16 @@ always_allow_html: true
 \newcommand{\indep}{\perp \!\! \perp}
 \newcommand{\indic}{1\!\!1}
 
-```{r setup, include=FALSE, message=FALSE}
+```{r setup, include=FALSE, message=FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 pacman::p_load(graphicalExtremes,
                targets)
+
 source("./src/functions.R")
 ```
+
+\newpage
 
 We want to use the graphical model tools for extreme value theory to build a new way of clustering variable, as done for the graphical models for Gaussian vector [@touwClusterpathGaussianGraphical2024].
 
@@ -68,7 +72,7 @@ We would like to cluster the variable using the graphical model structure to be 
 However for general graph, it is not easy. Indeed even with three clusters, we can have this type of situation : 
 
 <center>
-![3 differents way of clustering where $A$ is in blue, $B$ in green and $C$ in red.](../figure/clusters.png)
+![3 differents way of clustering where $A$ is in blue, $B$ in green and $C$ in red.](../figure/clusters.png){width=80%}
 </center>
 $~$
 
@@ -198,10 +202,8 @@ where $A$ is a $K\times K$ diagonal matrix, $R$ a $K\times K$ symmetric matrix, 
 
 We can then get this type of "graph factorisation" which is unique due to precision matrix structure : 
 
-
-
 <center>
-![Graph factorisation thanks to the precision matrix structure](../figure/cluster_graph.png){width=90%}
+![Graph factorisation thanks to the precision matrix structure](../figure/cluster_graph.png){width=70%}
 </center>
 
 $~$
@@ -267,8 +269,6 @@ where $||.||$ is the $l^2$ norm.
 
 The algorithm is a gradient descent algorithm, adding conditions to detect clusters and fuse variables. 
 
-\newpage
-
 | Algorithm 1 : Clusterpath   |
 | :--------------- |
 |**Input:** initial guess $\Theta$, initial estimation $\overline\Sigma$, initial clusters, weight $w_{ij}$, regularisation $\lambda$ |
@@ -280,7 +280,7 @@ The algorithm is a gradient descent algorithm, adding conditions to detect clust
 |**end while** |
 |**return** $\Theta$, clusters|
 
-The `gradient` function depends on all the parameters, `step_grad(.)` is just the step part of a gradient descent algorithm : we update the estimation by :
+The `gradient` function depends on all the parameters, `step_grad(.)` is just the step part of a gradient descent algorithm. We update the estimation by :
 
 $$
 \hat\Theta_{k+1} \leftarrow \hat\Theta_k - h \times \nabla L(\Theta)
@@ -789,7 +789,7 @@ $$
 
 (Sure, the role of $k'$ and $l'$ is symmetric due to the symmetry of the matrices).
 
-Now we need to see the structure of the difference between the mamtrices. We can summarize this with the following figure : 
+Now we need to see the structure of the difference between the mamtrices. We can summarize this with the following figure : \newpage
 
 <center>
 ![Coefficient repartition in the difference of the matrices.](../figure/theta_diff.png)
@@ -1023,6 +1023,13 @@ So, as the sequence $(\Theta_n)_{n \in \mathbb N}$ is bounded and admits only on
 
 <div style="text-align:right;">$\square$</div>
 
+Now, we would like to show the crucial point of our algorithm. Let's note : 
+
+$$
+d_{ij}(\Theta) = D( \theta_{.i}, \theta_{.j}),
+$$
+
+for all $i, j \in V$.
 
 
 # Simulation study
@@ -1040,9 +1047,9 @@ $$
 and the clusters are $C_1 = \{1,2,3,4\}$ and $C_2 = \{5,6,7\}$.
 
 *We can also verify that this matrix follows the condition of the previous section.*
-\newpage 
+ 
 <center>
-![Graph factorisation for the first simulation.](../figure/first_sim.png)
+![Graph factorisation for the first simulation.](../figure/first_sim.png){width=70%}
 </center>
 
 $~$
@@ -1125,7 +1132,7 @@ For the results, we get :
 - we estimated the $\hat R$ matrix as : 
 
 ```{r R-result, echo = FALSE}
-R_res <- first_sim_optimisation_results[[50]]$R
+R_res <- first_sim_optimisation_results[[100]]$R
 ```
 
 
@@ -1138,45 +1145,210 @@ R_res <- first_sim_optimisation_results[[50]]$R
 \end{equation*}
 
 - a negative log-likelihood which takes the value `r round(first_sim_optimisation_results[[50]]$nllh, 2)` whereas it takes the value `r round(first_sim_optimisation_no_penalty$nllh, 2)` for non-penalised optimization. 
+\newpage
 
 As we saw previously, there is the graph of the weight matrix $W$ for this simulation : 
 
-```{r W-matrix, echo=FALSE}
+<center>
+```{r W-matrix, echo=FALSE, fig.align='center', fig.width=5, fig.height=5}
 #| fig.cap: Graph according to the adjacency matrix of weights $W$.
 tar_load(weigth_graph_first_sim)
 weigth_graph_first_sim
 ```
+</center>
 
 We immediately notice that the graph seems to be numerically unconnected, and this can be felt on the optimization with large value of $\lambda$ : indeed, for $\lambda = 10^7$ we still find the two right clusters which did not merge. 
 
 
 For better understanding, there are several graph which describe the evolution of the number of clusters and the correspondence between the true clsuter and the estimated one : 
+\newpage 
 
-```{r first-sim-plot, echo = FALSE}
+<center>
+```{r first-sim-plot, echo = FALSE, fig.align='center', fig.width=8, fig.height=4.5}
 #| fig.cap: Summary of the optimization results with the $\lambda$.
 tar_load(first_sim_plots)
 first_sim_plots
 ```
-
+</center>
 One last thing we can show is the hierarchical clustering graph, that is original goal of this method :
-
-```{r hclust-first-sim, echo = FALSE}
+<center>
+```{r hclust-first-sim, echo = FALSE, fig.align='center', fig.width=8, fig.height=4.5}
 #| fig.cap: Hierarchical clustering of the variable according to $\lambda$.
 tar_load(hclust_first_sim)
 hclust_first_sim
 ```
+</center>
+
+\newpage 
 
 **With replications.**
 
-There is the results for 500 replications of the previous experiment :
+There is the results for 500 replications of the previous experiment : \newpage
 
-```{r first-rep-sim-plot, echo = FALSE}
-#| fig.cap: Summary of the optimization results with the $\lambda$.
+```{r first-rep-sim-plot, echo = FALSE, fig.align='center', fig.width=8, fig.height=4.5}
 tar_load(first_sim_rep_results)
 plot_info(first_sim_rep_results)
 ```
 
-# Application on fligth delay data 
+```{r hclust-first-sim-rep, echo = FALSE, fig.align='center', fig.width=8, fig.height=4.5}
+#| fig.cap: Summary of the results and average Hierarchical clustering (on the 500 replicates) of the variable according to $\lambda$.
+tar_load(hclust_first_sim_rep)
+hclust_first_sim_rep
+```
+
+
+## Simulation with unbalanced clusters
+
+We would like to change the setting of the model, and unbalance a cluster rather one other. We choose the following submatrix : 
+
+$$
+R = \begin{pmatrix} 1 &-3\\ -3 & 1 \end{pmatrix}
+$$
+
+and the clusters are $C_1 = \{1,2\}$ and $C_2 = \{3,4,5,6,7\}$.
+
+We get these results :
+
+```{r, echo=FALSE, fig.align='center', fig.width=8, fig.height=5}
+#| fig.cap: Summary of the optimization results with the $\lambda$ for unbalanced clusters ($K=2$).
+tar_load(unbal_sim_rep_results)
+plot_info(unbal_sim_rep_results)
+```
+
+with the following hierarchic tree : \newpage 
+
+```{r, echo=FALSE}
+#| fig.cap: Average Hierarchical clustering of the variable according to $\lambda$ for unbalanced clusters ($K=2$).
+tar_load(unbal_sim_hierarchy)
+unbal_sim_hierarchy
+```
+
+We can observe a pretty similar result than in the first case. However, we can stress that each time, the average graph tends to fuse the biggest cluster first even if the $ARI$ is always equal to one when we get two clusters.
+
+```{r minARI-unbal, eval=FALSE, echo=FALSE}
+unbal_sim_rep_results |>
+  filter(nb_cluster == 2) |>
+  summarise(m = min(ARI))
+```
+
+
+## Simulation with three balanced clusters 
+
+Now, we assume taht we have an Husler-Reiss model, with the following sub-matrix : 
+$$
+R_3 = \begin{pmatrix} 
+      1 & -3 & 0 \\
+      -3 & 2 & -2 \\
+      0 & -2 & 1
+    \end{pmatrix}
+$$
+
+and the clusters are $C_1 = \{1,2,3,4,5\}$, $C_2 = \{6,7,8,9,10\}$ and $C_3 = \{11,12,13,14,15\}$.
+
+We get these results : \newpage
+
+```{r gr3-bal-info, echo=FALSE, fig.align='center', fig.width=8, fig.height=6}
+#| fig.cap: Summary of the optimization results with the $\lambda$ for 3 balanced groups.
+tar_load(gr3_bal_sim_rep_results)
+plot_info(gr3_bal_sim_rep_results)
+```
+
+with the following hierarchic tree : \newpage 
+
+```{r gr3-bal-hierarchy, echo=FALSE}
+#| fig.cap: Average Hierarchical clustering of the variable according to $\lambda$ for 3 balanced groups.
+tar_load(gr3_bal_hierarchy)
+gr3_bal_hierarchy
+```
+
+Here, we can see that the merging of the variables occur a bit latter than the two first cases. Even if the average graph looks at it shoulb be, we see that we need to go further with $\lambda$ to get better $ARI$. Moreover, when we look at the results where the algorithm gives three clusters, we always get an $ARI$ equal to one (that means we always gather the right variables together).
+
+```{r minARI-3gr, eval=FALSE, echo=FALSE}
+gr3_bal_sim_rep_results |>
+  filter(nb_cluster == 3) |>
+  summarise(m = min(ARI))
+```
+
+## Simulation with noise
+
+Now let's take the previous Husler-reiss model and let's add a random noise $\varepsilon_{ij} \sim \mathcal N(0, (0.01)^2)$ for each coefficient. That means we will build the data with the following matrix :
+
+$$
+\Gamma_3 + E
+$$
+
+where $E = (\varepsilon_{ij})_{i,j \in V}$ such that $E^t = E$ and $\varepsilon_{ii} = 0$ for all $i \in V$, and the matrix $\Gamma_3$ is obtained from the $R_3$ matrix and the three previous clusters. 
+
+*Of course, we have a problem if $\varepsilon_{ij} + \gamma_{ij} \le 0$. In this case we will take $-(\varepsilon_{ij} + \gamma_{ij})$ as coefficient.*
+
+The aim here is to see if we arrive to find the clusters structure of the model even with a small error on the coefficient.
+
+**Error order for the perturbation**
+
+In this configuration, let's see how the perturbing matrix is different from the original one. First, we can easely see taht from the distribution of the $\varepsilon$, we have that : 
+
+$$
+\mathbb P (\varepsilon_{ij} <0 ) \le `r pnorm(0,0.1,0.01)`
+$$
+
+Thus, we have that : 
+
+$$
+\mathbb P (\bigcup_{i < j} \varepsilon_{ij}\le -\gamma_{ij}) \le \sum_{i < j}\mathbb P ( \varepsilon_{ij}\le -\gamma_{ij}) \le \frac{(d-1)(d-2)}{2} `r pnorm(0,0.1,0.01)`
+$$
+
+So, we have with probability almost $1$, that the perturbing matrix $\tilde \Gamma_3$, is just the matrix $\Gamma_3 +E$. But : 
+
+$$
+|| \tilde \Gamma_3 - \Gamma_3 ||_F^2 = 2\sum_{i< j} \varepsilon_{ij}^2 \approx (d-1)(d-2) \mathbb E[\varepsilon^2]
+$$
+
+And in our case (as $d=15$), we deduce that $|| \tilde \Gamma_3 - \Gamma_3 ||_F^2 \approx 1.84$. Finally the average relative error for the matrix will be : 
+
+$$
+\frac{|| \tilde \Gamma_3 - \Gamma_3||_F^2 }{||\Gamma_3 ||_F^2} \approx \frac{1.84}{11.88} \approx 0.155
+$$
+
+Having this in mind, we get these results : \newpage
+
+```{r, echo=FALSE , fig.align='center', fig.width=8, fig.height=6}
+#| fig.cap: Summary of the optimization results with the $\lambda$ for 3 disturbing groups.
+tar_load(gr3_noise_sim_rep_results)
+plot_info(gr3_noise_sim_rep_results)
+```
+
+with the following graph : \newpage
+
+```{r, echo = FALSE}
+#| fig.cap: Average Hierarchical clustering of the variable according to $\lambda$ for 3 disturbing groups.
+tar_load(gr3_noise_hierarchy)
+gr3_noise_hierarchy
+```
+
+Again, we see a deterioration of the fusing results which occur latter than the 3 balanced group cases, that is not surprising with the noise adding. Furthermore, we can see the fusing of the clusters $C_1$ and $C_3$. The perturbation of the matrice's coefficients decrease the performance and make loose to the clusterpath algorithm the non-merging effect due to the weight computation.
+
+Moreover, the merging in two clusters avoids the convergence of the $ARI$ coefficient for large $\lambda$, where as we did not have this effect for the previous simulations.
+
+```{r, echo=FALSE}
+tar_load(gr3_noise_sim_numeric_results)
+with_3 <- gr3_noise_sim_numeric_results$with_3
+other <- gr3_noise_sim_numeric_results$other
+```
+
+Several results about these noised replications : 
+
+- there is only `r with_3[1]` replicates which reach 3 clusters for a $\lambda$ and they sort them with an average $ARI$ of `r with_3[2]`. Thus, we observe that it exists some cases where the algorithm miss class the variables.
+
+- we can summarise the other case, that is to say either 3 clusters is not reached before maximum $\lambda$ or we fuse too many variables (that means it leaves only two or one clusters at the maximum $\lambda$) : 
+
+```{r echo = FALSE}
+row.names(other) <- c("Number of simulation", "Average ARI")
+knitr::kable(other, row.names = TRUE, caption = "Results for no 3-clusters sorting")
+```
+
+Here, we can see there are still many cases where the minimal number of clusters is not reached (`r other[1, 2]` simulations, i.e `r other[1, 2] / 200 * 100` % of the total number). Moreover, we can stress that `r other[1, 1] / 200 * 100` % of the simulations are over clustered (with a final class number smaller than 3).
+
+# Application on flight delay data 
 
 # Appendix 
 
