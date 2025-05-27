@@ -198,7 +198,7 @@ r_{21} \indic \indic^t& r_{22} \indic \indic^t & \dots & r_{2K} \indic \indic^t 
 r_{K1} \indic \indic^t & r_{K2} \indic \indic^t & \dots &r_{KK} \indic \indic^t
 \end{pmatrix},
 $$
-where $A$ is a $K\times K$ diagonal matrix, $R$ a $K\times K$ symmetric matrix, $I_p$ the $p \times p$identity matrix.
+where $A$ is a $K\times K$ diagonal matrix, $R$ a $K\times K$ symmetric matrix called the reduced matrix, $I_p$ the $p \times p$identity matrix.
 
 We can then get this type of "graph factorisation" which is unique due to precision matrix structure : 
 
@@ -260,7 +260,7 @@ which "can be interpreted as a group lasso penalty".
 
 The choice of $w_{ij}$ is also free, even if they present one which seems better (or nearer from the data) using : 
 $$
-w_{ij} = \exp(-\chi ||\theta_{\cdot i} - \theta_{\cdot j}||^2)
+w_{ij} = \exp(-\zeta ||\theta_{\cdot i} - \theta_{\cdot j}||^2)
 $$
 
 where $||.||$ is the $l^2$ norm.
@@ -620,7 +620,7 @@ r_{K1} \indic \indic^t & \cdots & \cdots &r_{KK-1} \indic \indic^t  & A_K - XI_{
 Thus we can reproduce these operations in each $p_k$ blocks. Finally, by summing the one column with the minus one, we get :
 
 $$
-P_\Theta(X) =\prod_{k = 1} ^K (a_k - r_{kk} - X)^{p_k-1} \det(\tilde R)
+P_\Theta(X) =\prod_{k = 1} ^K (a_k - r_{kk} - X)^{p_k-1} \det(\tilde R - X I_K)
 $$
 
 Obviously, if the condition of the proposition are true, then the root of this polynomial are all positive. 
@@ -906,9 +906,7 @@ $$
 
 In that equation, we see that we will not have garantee that the clusters $E_m$ fuse between them because for large $\lambda$ we will normally get the $E_m$ clusters and then the penalty will not appear when we get the $M$ clusters.
 
-## Hierachical clustering
-
-We  would like to justify the use of a dendrogram to represents the clusterpath of the variables along the value of $\lambda$.
+## Continuity of the solution
 
 First let's recall the problem and see what we can say. We would like to get a solution :
 
@@ -1032,6 +1030,162 @@ $$
 for all $i, j \in V$.
 
 
+# Concentration results
+
+## On the weights
+
+First, we want ot recall a results from [@engelkeLearningExtremalGraphical2024] about the empirical variogram :
+
+**Theorem.** Let be $X_1,\dots, X_n$ independent copies of a random vector $X$ where its attraction domain is an Husler-reiss distribution. Let be the empirical variogram $\hat \Gamma$ as defined in [@engelkeLearningExtremalGraphical2024]. Let $\alpha \in (0,1)$ arbitrary. Then, it exists $C$, $c$ and $M$ depending on $\alpha$ such that we have : 
+
+$$
+\mathbb P \big(||\hat \Gamma - \Gamma ||_\infty > f(n) \big) < g(n),
+$$
+
+where $f(n) = C \Big( n^{\beta(\alpha - 1)}(\alpha -1)^2 \log(n)^2 + \frac{1}{\log(n)^4}+ \frac{1}{n^{\frac \alpha 2}}\Big)$ and $g(n) = M d^3 \times \exp(- \frac{cn^\alpha}{\log(n)^8})$.
+
+*We can notice that for both functions, we have :* 
+$$
+f(n) \underset{n \rightarrow \infty}{\longrightarrow} 0,
+$$
+
+*and*
+
+$$
+g(n) \underset{n \rightarrow \infty}{\longrightarrow} 0.
+$$
+
+We will use this inequality to show the following statement :
+
+**Proposition.** Let be $Y$ a HRGM with the cluster graph structure. Let be $\hat \Gamma$ the empirical variogram verifying the above concentration inequality. Let be $(\zeta_n)_{n\in \mathbb N}$, a sequence which tends to infinity and such that : 
+
+$$
+\zeta_n = o_n((4(d-2)f(n)^2)^{-1}).
+$$
+
+Then we have : 
+
+- if $i$ and $j$ are in the same cluster, then : 
+
+$$
+\mathbb P \big(w_{ij}^{(n)} < \exp(-4(d-2)\zeta_n f(n)^2)\big) \le 2(d-2)g(n)
+$$
+
+- for large enough $n$, if $i$ and $j$ are not in the same clusters, then : 
+
+$$
+\mathbb P\big(w_{ij}^{(n)} > \exp(-\zeta_n F_{ij}(n)^2)\big) \le 2g(n)
+$$
+
+**Proof.** We have to split the proof in two part : when $i$, $j$ are in the same cluster, and where they are not. 
+
+**Case where $i$ and $j$ are in the same cluster.**
+
+First, we can easily see that for $k \neq i,j$, we have that : 
+
+$$
+|\hat \Gamma_{ik} - \hat \Gamma_{jk}| \le |\hat \Gamma_{ik} - \Gamma_{ik}|+|\hat \Gamma_{ik} - \Gamma_{jk}|
+$$
+
+Thus, as we have a control on $||\hat \Gamma - \Gamma||_\infty$ by the theorem, we have the control on each coefficient individually, and we can deduce that : 
+
+$$
+\mathbb P \big(|\hat \Gamma_{ik} - \hat \Gamma_{jk}| > 2f(n) \big) \le 2g(n)
+$$
+
+As we have this inequality for all $k \neq i,j$, we have also : 
+
+$$
+\mathbb P \big(d_{ij}(\hat \Gamma) > 4(d-2)f(n)^2 \big) \le 2(d-2)g(n)
+$$
+
+Now, let's note $F(n) = 4(d-2)f(n)^2$ and $G(n) = 2(d-2)g(n)$. We can obtain the concentration inequality using the bijection $t \mapsto \exp(-\zeta t)$ : 
+
+$$
+\mathbb P \big(w_{ij}^{(n)} < \exp(-\zeta F(n)) \big) \le G(n)
+$$
+
+which show the first part of the proposition. 
+
+**Case where $i$ and $j$ are not in the same cluster.**
+
+First, we have : 
+
+$$
+| |\hat \Gamma_{ik} - \hat \Gamma_{jk}| - |\Gamma_{ik} -  \Gamma_{jk}| | \le |\hat \Gamma_{ik} - \Gamma_{ik}| + |\hat \Gamma_{jk} -  \Gamma_{jk}| 
+$$
+
+So, as $f(n) \underset{n \rightarrow \infty}{\longrightarrow} 0$, let's take from which $2f(n) < |\Gamma_{ik} -  \Gamma_{jk}|$. Now using the concentration inequality and the upper majoration, we get :
+
+$$
+\mathbb P \big(|\Gamma_{ik} -  \Gamma_{jk}| - 2f(n) > |\hat \Gamma_{ik} - \hat \Gamma_{jk}| \big) \le 2g(n)
+$$
+
+Let's note $F_{ij}(n) = \max_{k \neq i,j} \{ |\Gamma_{ik} -  \Gamma_{jk}| \} -2f(n)$, then we have : 
+
+$$
+\mathbb P \big(F_{ij}(n)^2 > d_{ij}(\hat \Gamma) \big) \le \mathbb P \big( \bigcap_{k\neq i, j}\{F_{ij}(n) > |\hat \Gamma_{ik} - \hat \Gamma_{jk}| \}\big)
+$$
+
+If we note $k^*$ the indice where the minimum is reached, we have : 
+
+$$
+\mathbb P \big(F_{ij}(n)^2 > d_{ij}(\hat \Gamma) \big) \le \mathbb P \big(F_{ij}(n) > |\hat \Gamma_{ik^*} - \hat \Gamma_{jk^*}| \big) \le 2g(n)
+$$
+
+Thus, by using again the bijection $t \mapsto \exp(-\zeta t)$, we obtain that : 
+
+$$
+\mathbb P\big(w_{ij}^{(n)} > \exp(-\zeta F_{ij}(n)^2)\big) \le 2g(n)
+$$
+
+which show the second inequality. 
+
+**Choice of the sequence $\zeta_n$**
+
+Now, we saw that we have these two results : 
+
+$$
+\mathbb P \big(w_{ij}^{(n)} < \exp(-\zeta F(n)) \big) < G(n),
+$$
+
+and :
+
+$$
+\mathbb P\big(w_{ij}^{(n)} > \exp(-\zeta F_{ij}(n)^2)\big) \le 2g(n).
+$$
+
+We have that $F(n)$ is equivalent to $\log(n)^{-4}$ when $n$ tends to infinity. Then, let's take a sequence $(\zeta_n)_{n \in \mathbb N^*}$ which is equivalent to $\log(n)^s$ with $0< s < 4$, for example $\zeta_n = \log(n)^3$. Then we have : 
+
+$$
+\zeta_n F(n) = o_n(1)
+$$
+
+that means $\zeta_n F(n) \underset{n \rightarrow \infty}{\longrightarrow} 0$.
+
+Moreover, $\zeta_n \underset{n \rightarrow \infty}{\longrightarrow} +\infty$ and $F_{ij}(n) \underset{n \rightarrow \infty}{\longrightarrow} \max_{k \neq i,j} \{ |\Gamma_{ik} -  \Gamma_{jk}| \}>0$ and then : 
+
+$$
+F_{ij}(n)\zeta_n \underset{n \rightarrow \infty}{\sim} \log(n)^3 \max_{k \neq i,j} \{ |\Gamma_{ik} -  \Gamma_{jk}| \}
+$$
+
+and this conclude the proof.
+
+<div style="text-align:right;">$\square$</div>
+
+*We also see with these concentration inequalities that :* 
+$$
+\mathbb P(w_{ij}^{(n)} < 1) \underset{n \rightarrow \infty}{\longrightarrow} 0,
+$$
+
+*for $i$, $j$ in the same cluster and :*
+
+$$
+\mathbb P(w_{ij}^{(n)} > 0) \underset{n \rightarrow \infty}{\longrightarrow} 0,
+$$
+
+*otherwise.*
+
 # Simulation study
 
 Now, we want to check if the algorithm is working on basic simulation of Husler-Reiss data. For the simulation, we will use the function `rmpareto()` from the `R`-package `graphicalExtremes` developed in [@engelkeGraphicalModelsExtremes2020].
@@ -1110,9 +1264,9 @@ Now, we have the parameters to build simulations and try to cluster the variable
 
 - we will use the exponential weights defined by : 
 $$
-w_{ij} = \exp(- \chi D^2(\overline \theta_{i, \cdot}, \overline\theta_{j, \cdot}))
+w_{ij} = \exp(- \zeta D^2(\overline \theta_{i, \cdot}, \overline\theta_{j, \cdot}))
 $$
-where the tune parameter $\chi$ is equal to one.
+where the tune parameter $\zeta$ is equal to one.
 
 - the merging threshold in `merge_clusters()` is set at $\varepsilon = 10^{-1}$.
 
@@ -1271,7 +1425,7 @@ gr3_bal_sim_rep_results |>
 
 ## Simulation with noise
 
-Now let's take the previous Husler-reiss model and let's add a random noise $\varepsilon_{ij} \sim \mathcal N(0, (0.01)^2)$ for each coefficient. That means we will build the data with the following matrix :
+Now let's take the previous Husler-reiss model and let's add a random noise $\varepsilon_{ij} \sim \mathcal N(0.1, (0.01)^2)$ for each coefficient. That means we will build the data with the following matrix :
 
 $$
 \Gamma_3 + E
@@ -1347,6 +1501,69 @@ knitr::kable(other, row.names = TRUE, caption = "Results for no 3-clusters sorti
 ```
 
 Here, we can see there are still many cases where the minimal number of clusters is not reached (`r other[1, 2]` simulations, i.e `r other[1, 2] / 200 * 100` % of the total number). Moreover, we can stress that `r other[1, 1] / 200 * 100` % of the simulations are over clustered (with a final class number smaller than 3).
+
+## Initialization with the $\chi$ matrix
+
+We would like to initialize a new simulation from the extremal coefficient matrix $\chi$, and not from the precision matrix $\Theta$ for bette understanding (in term of extremal independance). 
+
+Thus, we will use the $R_\chi$ matrix, wish is given by : 
+
+$$
+\begin{matrix}
+R_\chi = \begin{pmatrix} 
+      0.2 & 0.25 & 0.32 \\
+      0.25 & 0.6 & 0.45 \\
+      0.32 & 0.45 & 0.8
+    \end{pmatrix}
+\end{matrix}
+$$
+
+and we will keep the same clusters as the previous simualtions, that is ot say $C_1 = \{1,2,3,4,5\}$, $C_2 = \{6,7,8,9,10\}$ and $C_3 = \{11,12,13,14,15\}$.
+
+We get pretty same results about the clustering : 
+
+```{r chi-plot-info, echo=FALSE}
+tar_load(chi_init_sim_rep_results)
+plot_info(chi_init_sim_rep_results)
+```
+
+with this hierarchic tree : 
+
+```{r hierarchy-chi, echo = FALSE}
+tar_load(chi_init_hierarchy)
+chi_init_hierarchy
+```
+
+There is no additionnal commentary to do with these simulation, knowing what happened precedently except the fact that it merges to two clusters.
+
+```{r, echo=FALSE, eval=FALSE}
+chi_init_sim_rep_results |>
+  filter(nb_cluster == 3) |>
+  summarise(m = min(ARI))
+```
+
+But, we can try to get the estimation of the $R_\chi$ from the optimization with the good number of clusters.
+
+```{r echo=FALSE}
+tar_load(chi_init_sim_rep_pen_results)
+results <- chi_init_sim_rep_pen_results[[1]]
+R <- results[[9]]$R
+clusters <- results[[9]]$clusters
+Chi <- build_theta(R, clusters) |> Theta2Gamma() |> Gamma2chi()
+
+R_chi <- extract_R_matrix(Chi, clusters)
+```
+
+
+$$
+\begin{matrix}
+\hat R_\chi = \begin{pmatrix} 
+      `r round(R_chi[1, 1], 3)` & `r round(R_chi[1, 2], 3)` & `r round(R_chi[1, 3], 3)` \\
+      `r round(R_chi[2, 1], 3)` & `r round(R_chi[2, 2], 3)` & `r round(R_chi[2, 3], 3)` \\
+      `r round(R_chi[3, 1], 3)` & `r round(R_chi[3, 2], 3)` & `r round(R_chi[3, 3], 3)`
+    \end{pmatrix}
+\end{matrix}
+$$
 
 # Application on flight delay data 
 
