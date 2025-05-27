@@ -163,7 +163,7 @@ ker_gamma <- function(diagonal) {
 #' @examples
 #'
 semi_def <- function(matrix) {
-  !sum(eigen(matrix)$values < -1e-10)        # for numerical errors
+  !sum(Re(eigen(matrix)$values) < -1e-10)        # for numerical errors
 }
 
 #----------------------- Gradient descent for clustering -----------------------
@@ -357,6 +357,51 @@ compute_W <- function(data) {
   W + t(W)
 }
 
+#' Transform a chi matrix to the corresponding variogram
+#'
+#' @param Chi_matrix the matrix with the chi coefficient
+#'
+#' @return The corresponding variogram matrix $\Gamma$.
+#'
+#' @example
+#'
+ChiToGamma <- function(Chi_matrix) {
+
+  (2 * qnorm((2 - Chi_matrix) / 2))**2
+
+}
+
+
+
+#' Function to extract the coefficient of the reduced matrix R
+#' 
+#' @param matrix A block matrix which can be factorizable.
+#' @param clusters a list of vectors : the variable index per clusters.
+#' 
+#' @return A matrix on size the number of clusters (length(clusters)). It
+#' corresponds to the reduced matrix R of the original matrix (see clusters document
+#' for definition).)
+extract_R_matrix <- function(matrix, clusters) {
+
+  K <- length(clusters)
+  indx <- 1:K
+  R <- matrix(rep(NA, K * K), nc = K)
+
+  for (i in indx) {
+    k <- clusters[[i]][1]
+    if (length(clusters[[i]]) > 1) {
+      l <- clusters[[i]][2]
+      R[i, i] <- matrix[k, l]
+    }
+    for (j in indx[-i]){
+      l <- clusters[[j]][1]
+      R[i, j] <- matrix[k, l]
+    }
+  }
+
+  R
+}
+
 #' Computation of the clustered weight matrix
 #'
 #' @param weights a d x d symmetric matrix with a zero diagonal.
@@ -395,7 +440,7 @@ weight_clustered <- function(weights) {
 #'               3,6,9), nc = 3)
 #' gen_det(A)
 gen_det <- function(A, tol = 1e-10) {
-  res <- eigen(A, only.values = TRUE)$values
+  res <- Re(eigen(A, only.values = TRUE)$values)      # avoid complex number (impossible for symmetric matrices)
   return(
     prod(res[res > tol])
   )
@@ -1037,7 +1082,6 @@ compare_clusters <- function(clusters1, clusters2) {
     )
   )
 }
-
 
 
 #' Detect the merge and give all information about cluster and lambda.
