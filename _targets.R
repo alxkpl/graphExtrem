@@ -419,7 +419,7 @@ list(
         clusters = clusters,
         Theta = Theta,
         Gamma = Gamma,
-        chi = 1,
+        chi = 1,    # zeta
         n = 2e3,
         d = 7
       )
@@ -466,7 +466,7 @@ list(
     weight_graph_first_sim,
     {
       W <- compute_W(first_sim_clustering)
- 
+
       # Graph creation
       g <- graph_from_adjacency_matrix(W, mode = "undirected",
                                        weighted = TRUE, diag = FALSE)
@@ -959,6 +959,115 @@ list(
         scale_edge_width(range = 0.9) +
         theme_void()
     }
+  ),
+
+
+  ##==================== With chi matrix innitialization =======================
+  tar_target(
+    chi_init_sim_param_cluster,
+    {
+      # Construction of clusters and R matrix
+      R_chi <- matrix(c(0.2, 0.25, 0.32,
+                        0.25, 0.6, 0.45,
+                        0.32, 0.45, 0.8), nc = 3)
+      clusters <- list(1:5, 6:10, 11:15)
+
+      # Construction of induced theta and corresponding variogram gamma
+      Chi <- build_theta(R_chi, clusters)
+      diag(Chi) <- 1
+      Gamma <- ChiToGamma(Chi)
+
+      list(
+        R_chi = R_chi,
+        clusters = clusters,
+        Chi = Chi,
+        Gamma = Gamma,
+        zeta = 1,
+        n = 1e3,
+        d = 15
+      )
+    }
+  ),
+
+  # Replication of the 3 groups balanced simulation
+  tar_rep(
+    chi_init_sim_clustering_replicate,
+    rmpareto(n = chi_init_sim_param_cluster$n,
+             model = "HR",
+             par = chi_init_sim_param_cluster$Gamma),
+    batches = 1,
+    reps = 200,
+    iteration = "vector"               # the output of the replicates is a list
+  ),
+
+  # Data formatting to separate the replications
+  tar_target(
+    chi_init_sim_rep_data,
+    {
+      rep <- chi_init_sim_clustering_replicate
+
+      n <- chi_init_sim_param_cluster$n
+
+      row.names(rep) <- NULL
+
+      rep |>
+        tibble() |>
+        mutate(sim = (seq_len(nrow(rep)) + (n - 1)) %/% n)
+    }
+  ),
+
+  # Computation of optimization results for each replication
+  tar_target(
+    chi_init_sim_rep_pen_results,
+    {
+      m <- chi_init_sim_rep_data |> summarise(max = max(sim))
+      lambda <- seq(0, 1, 1e-1)
+      n_sim <- 1:m$max
+      future_map(n_sim[-c(50, 86, 137)], function(i) {
+        data <- chi_init_sim_rep_data |>
+          filter(sim == i) |>
+          select(-sim) |>
+          as.matrix()
+
+        future_map(lambda, \(.) {
+          best_clusters(data,
+                        chi_init_sim_param_cluster$zeta,
+                        l_grid = .)
+        })
+      })
+    }
+  ),
+
+  tar_target(
+    chi_init_sim_rep_nopen_results,
+    {
+      m <- chi_init_sim_rep_data |> summarise(max = max(sim))
+      future_map(1:m$max, function(i) {
+        data <- chi_init_sim_rep_data |>
+          filter(sim == i) |>
+          select(-sim) |>
+          as.matrix()
+
+        best_clusters(data, chi = chi_init_sim_param_cluster$zeta,
+                      l_grid = 0)
+
+      })
+    }
+  ),
+
+  # Formatting and plot the results
+  tar_target(
+    chi_init_sim_rep_results,
+    {
+      lambda <- seq(0, 1, 1e-1)
+      all_info(cluster.init = chi_init_sim_param_cluster$clusters,
+               list_res = chi_init_sim_rep_pen_results, lambda = lambda)
+    }
+  ),
+
+  tar_target(
+    chi_init_hierarchy,
+    average_hierarchy(chi_init_sim_rep_pen_results)
   ),
 
   #----------------------------- Export document -------------------------------
