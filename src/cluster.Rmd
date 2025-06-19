@@ -1217,6 +1217,8 @@ where $L(\Theta, \lambda) = -\log(|\Theta|_+) - \frac 12 \text{tr}(\Gamma\Theta)
 
 **Proof.** Consequence of the continuity of $\Gamma \mapsto -\log(|\Theta|_+) - \frac 12 \text{tr}(\Gamma\Theta)$, the last theorems and the preservation of the convergence in probability by linear combination.
 
+*We can also show that it converges almost surely, due to the consistency of the empirical variogram estimator.*
+
 <div style="text-align:right;">$\square$</div>
 
 Before showing the results, we want to show the following lemma :
@@ -1242,7 +1244,43 @@ The case for an arbitrary $Y_n$ is obvious by using the sequence $Z_n = X_n - Y_
 
 <div style="text-align:right;">$\square$</div>
 
-Now, we arre able to show the consistency of our estimation and also, of our clusters.
+**Lemma.** Let be $X_1, \dots, X_n$, $n$ replications of a $K$-CHRGM and $(\zeta_n)_{n \in \mathbb N^*}$ a sequence which is equivalent to $\log(n)^s$ for $s \in (0,8)$. For all fixed $\lambda>0$, we denote by $\Theta_n(\lambda)$ the solution of the optimization problem for each $n$. Then $\{ \Theta_n(\lambda), n \in \mathbb N^*\}$ is bounded almost surely.
+
+
+**Proof.** Let be $\Theta^*$ the minimizer of $L$. Let's now consider $r = ||\Theta^*||_F / 2$ and the closed ball $\bar B(\Theta^*, r)$. We have already shown that $L_{\mathcal P}^{(n)}$ and $L$ are lipschitzian functions then as $L_{\mathcal P}^{(n)}$ converges pointwisely to $L$ almost surely, we can deduce that it converges also uniformly on $\bar B(\Theta^*, r)$ alsmost surely. 
+
+Thus, let's choose now $N$ such that for all $n\ge N$, we have : 
+
+$$
+||L_{\mathcal P}^{(n)} - L ||_\infty \le \varepsilon.
+$$
+
+To choose the right $\varepsilon>0$, let's considere the continuous application on the sphere of  $\bar B(\Theta^*, r)$ : 
+
+$$
+\Theta \longmapsto L(\Theta, \lambda) - L(\Theta^*, \lambda) 
+$$
+
+By continuity, the minimum, that we will not $m$ is reached, and is positive so we will choose $\varepsilon = \frac m 3$. Therefore, for all valid matrix in the sphere, we have that : 
+$$
+|L_{\mathcal P}^{(n)}(\Theta, \lambda) - L(\Theta, \lambda)| \le \varepsilon \le \frac{L(\Theta) - L(\Theta^*)}{3}
+$$
+
+and so that $L_{\mathcal P}^{(n)}(\Theta, \lambda) > L_{\mathcal P}^{(n)}(\Theta^*, \lambda)$. 
+
+Now let's take $n \ge N$ and let's consider the solution $\Theta_n(\lambda)$. We all the previous construction, this ùatrix can't be out of the closed ball $\bar B(\Theta^*, r)$ because otherwise, by considering the segment $[\Theta^*, \Theta_n(\lambda)] \subset \mathcal P^1_d$, we only have to choose the matrix $\Theta_1$ such that $\Theta^* - \Theta_1|| = r$ and use the convexity to end on : 
+
+$$
+L_{\mathcal P}^{(n)}(\Theta, \lambda) \le \mu_1 L_{\mathcal P}^{(n)}(\Theta^*, \lambda) + (1-\mu_1) L_{\mathcal P}^{(n)}(\Theta_n(\lambda), \lambda) \le L_{\mathcal P}^{(n)}(\Theta^*, \lambda)
+$$
+
+which is a contradiction.
+
+Thus for $n \ge N$, $\Theta_n(\lambda)$ belongs to the closed ball almost surely, and we can deduce the bound of the all sequence almost surely. 
+
+<div style="text-align:right;">$\square$</div>
+
+Now, we are able to show the consistency of our estimation and also, of our clusters.
 
 **Theorem.** Let be $X_1, \dots, X_n$, $n$ replications of a $K$-CHRGM and $(\zeta_n)_{n \in \mathbb N^*}$ a sequence which is equivalent to $\log(n)^s$ for $s \in (0,8)$. For all fixed $\lambda>0$, we denote by $\Theta_n(\lambda)$ the solution of the optimization problem for each $n$. Then we have : 
 
