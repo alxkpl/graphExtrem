@@ -1352,6 +1352,55 @@ And therefore, $\Theta_\infty(\lambda)=\Theta^*$ almost surely. As the sequence 
 
 <div style="text-align:right;">$\square$</div>
 
+## Right merging
+
+Let's recall that to merge the clusters during the algorithm, we look at the closest variable and verify if they are enough close in the sense of a threshold.
+
+For fixed $\lambda>0$, let $V_n^\lambda$ be a random variable which takes values in $F_d= \{(i,j) \in [\! |1, d|\! ]^2 | i<j \}$, defined as : 
+
+$$
+V_n^\lambda = \arg\min_{(i,j) \in F_d} d_{ij}(\Theta_n(\lambda))
+$$
+
+We denote by $T$ the set of pair in $F_d$ that are in the same clusters. 
+
+**Proposition.** We have for all $\lambda > 0$, $\mathbb P\big(\bigcup_{n\in\mathbb N^*} \bigcap_{k \ge n} V_n^\lambda \in T\big) = 1$.
+
+**Proof.** We know from the previous proposition that : 
+$$
+d_{ij}(\Theta_n(\lambda))  \overset{a.s.}{\underset{n \rightarrow \infty}{\longrightarrow}} 0 \Leftrightarrow (i,j)\in T.
+$$
+
+Let $\omega \in \Omega$, the set where the convergence holds. Moreover, let's denote by $\bar V(\omega)$ the set of its subsequence limits. 
+
+For $v\in \bar V(\omega)$,with the associated subsequence $V_{\phi(n)}^\lambda(\omega)$, as $d_{ij}(\Theta_n(\lambda))  \overset{a.s.}{\underset{n \rightarrow \infty}{\longrightarrow}} 0$ for some $(i,j) \in F_d$, we have that : 
+
+$$
+d_{V_{\phi(n)}^\lambda(\omega)}(\Theta_n(\lambda))  \overset{a.s.}{\underset{n \rightarrow \infty}{\longrightarrow}} 0
+$$
+
+But per definition, the sequence $V_n^\lambda(\omega)$ belongs to a finite set so if $V_{\phi(n)}^\lambda(\omega)$ that means that it exists some $m \in \mathbb N$ such that $V_{\phi(n)}^\lambda(\omega)$ is constant for any $n > m$. Thus, we finally get that : 
+
+$$
+d_{v}(\Theta_n(\lambda))  \overset{a.s.}{\underset{n \rightarrow \infty}{\longrightarrow}} 0
+$$
+
+and then that $v \in T$ and so $\bar V(\omega) \subset T$ almost surely.  
+
+Finally, as $V_{\phi(n)}^\lambda(\omega)$ belongs to a finite, we have that it exists $N(\omega) \in \mathbb N$ such that $V_{\phi(n)}(\lambda)(\omega) \in \bar V(\omega) \subset T$. Otherwise : 
+$$
+\mathbb P\big(\bigcup_{n\in\mathbb N^*} \bigcap_{k \ge n} V_n^\lambda \in T\big) = 1
+$$
+
+<div style="text-align:right;">$\square$</div>
+
+**Remarks.**
+
+- The proposition still holds if we are in the case of merging two clusters of size greater than one (its the same arguments), if have already well clustered the variables.
+
+- The proposition means that with probability one, we can found a sample size such that we will always select a good pair to merge (even if this one is not under the threshold). It is off course still the case for clusters merging.
+
+- As all we have $d_{V_{\phi(n)}(\lambda)(\omega)}(\Theta_n(\lambda))  \overset{a.s.}{\underset{n \rightarrow \infty}{\longrightarrow}} 0$, the threshold $\varepsilon_f$ is a supplementary element to avoid missclustering.
 
 # Simulation study
 
