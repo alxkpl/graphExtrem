@@ -625,7 +625,7 @@ $$
 
 Obviously, if the condition of the proposition are true, then the root of this polynomial are all positive. 
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 
 ### Gridline search for the optimal step size
@@ -884,7 +884,7 @@ Thus, we can fuse all the inequality to get :
 
 And so $|L_\mathcal P (R, \lambda) - L_\mathcal P (R^*, \lambda) | \rightarrow 0$ when $\varepsilon_f \rightarrow 0$.
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 *I think we can optimize the constant.*
 
@@ -936,7 +936,7 @@ $$
 
 More $x^t(\mu A + (1-\mu)B) x = 0$ if and only if $x^t A x = 0$ and $x^t B x = 0$ (because all is positive). As $A$ and $B$ are in $\mathcal P_d^1$ theses two equality occur if and only if $x \in < \indic >$. Thus, $\mu A + (1-\mu)B \in \mathcal P_d^1$. 
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 Thus the problem $Q_\lambda$ is a convex problem and admits a unique minimizer.
 
@@ -964,7 +964,7 @@ $$
 
 But as the set $\{\Theta \in \mathcal P^d_1, \mathcal P(\Theta) = 0\}$ is convex, the solution is unique again and then does not change from $\lambda^*$.
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 From now, we will suppose that the assumptions of the last proposition are verified. Then, we can define a the following function : 
 
@@ -992,7 +992,7 @@ $$
 
 Therefore, as the image of the collection by the application is bounded, we must have that the set $\{||\Theta(\lambda)||_F~|~\lambda \in [0, \lambda^*]\}$ is bounded otherwise it will bring a contradiction with the coercivity of the appplication $L$.
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 **Proposition.** The application $\lambda \mapsto \Theta(\lambda)$ is a path between $\hat \Theta$ and $\Theta^*$. 
 
@@ -1019,7 +1019,7 @@ But, this means that $\tilde \Theta$ is a solution of the problem $Q_{\lambda'}$
 
 So, as the sequence $(\Theta_n)_{n \in \mathbb N}$ is bounded and admits only one subsequential limit, the sequence converge to this limit which is $\Theta(\lambda')$. So the application $\lambda \mapsto \Theta(\lambda)$ is continuous.
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 Now, we would like to show the crucial point of our algorithm. Let's note : 
 
@@ -1054,6 +1054,25 @@ $$
 $$
 g(n) \underset{n \rightarrow \infty}{\longrightarrow} 0.
 $$
+
+Moreover, we can write an alternative version to this concentration inequality. 
+
+**Corollary.** In the same situation as the last we have for $\varepsilon < C \frac{e^{-1}}{2}$ : 
+
+$$
+\mathbb P(||\hat \Gamma_n - \Gamma ||_\infty > \varepsilon) \le Md^3 e^{-c\left[ \sqrt[4]{n} (\frac{\varepsilon}{C} - \frac{e^{-1}}{2})^2-1\right]}
+$$
+
+**Proof.** First, the map $x \mapsto Ax^K \log(x)^2$ is (upper) bounded and the maximum is reached for $x =  e^{-2K}$. In our cases, we have that for $\alpha = \frac 12$ : 
+$$
+C ( n^{\beta (\alpha-1)}(\alpha-1)^2\log(n)^2 + \frac{1+\lambda}{\sqrt{n^\alpha}}) \le C \left( \frac 14 e^{-\frac{\beta^2}{2}} \beta^2 + \frac{1+\lambda}{\sqrt[4]{n}}\right)
+$$
+
+Finally, we just have to notice that $\frac 14 e^{-\frac{\beta^2}{2}} \beta^2 \le \frac{e^{-1}}{2}$ for any $\beta >0$ and $\varepsilon \le C \left(\frac{e^{-1}}{2} + \frac{1 + \sqrt[4]{n} / \log(n)^4}{\sqrt[4]{n}} \right) \le C \frac{e^{-1}}{2}$ to end the proof.
+
+<div style="text-align:right;">\hfill $\square$</div>
+
+With this formulation, one can notice that using Borel-Cantelli lemma, we obtain the convergence almost surely of $\hat \Gamma_n$ to $\Gamma$ since $e^{-\sqrt[4]{n}} = o(\frac{1}{n^2})$.
 
 We will use this inequality to show the following statement :
 
@@ -1171,7 +1190,7 @@ $$
 
 and this conclude the proof.
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 *We also see with these concentration inequalities that :* 
 $$
@@ -1219,7 +1238,7 @@ where $L(\Theta, \lambda) = -\log(|\Theta|_+) - \frac 12 \text{tr}(\Gamma\Theta)
 
 *We can also show that it converges almost surely, due to the consistency of the empirical variogram estimator.*
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 Before showing the results, we want to show the following lemma :
 
@@ -1242,7 +1261,7 @@ Thus, $X$ is positive almost surely.
 
 The case for an arbitrary $Y_n$ is obvious by using the sequence $Z_n = X_n - Y_n$.
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 **Lemma.** Let be $X_1, \dots, X_n$, $n$ replications of a $K$-CHRGM and $(\zeta_n)_{n \in \mathbb N^*}$ a sequence which is equivalent to $\log(n)^s$ for $s \in (0,8)$. For all fixed $\lambda>0$, we denote by $\Theta_n(\lambda)$ the solution of the optimization problem for each $n$. Then $\{ \Theta_n(\lambda), n \in \mathbb N^*\}$ is bounded almost surely.
 
@@ -1278,7 +1297,7 @@ which is a contradiction.
 
 Thus for $n \ge N$, $\Theta_n(\lambda)$ belongs to the closed ball almost surely, and we can deduce the bound of the all sequence almost surely. 
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 Now, we are able to show the consistency of our estimation and also, of our clusters.
 
@@ -1350,7 +1369,7 @@ $$
 
 And therefore, $\Theta_\infty(\lambda)=\Theta^*$ almost surely. As the sequence $\Theta_{\phi(n)}(\lambda)$ admits only one subsequential limit, it converges for all subsequence where $U_n$ converges, almost surely. We can then deduce that $U_n$ admits also one subsequential limit and this means that $\Theta_n(\lambda)$ converges almsot surely to $\Theta^*$.
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 ## Right merging
 
@@ -1392,7 +1411,7 @@ $$
 \mathbb P\big(\bigcup_{n\in\mathbb N^*} \bigcap_{k \ge n} V_n^\lambda \in T\big) = 1
 $$
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 **Remarks.**
 
@@ -1401,6 +1420,65 @@ $$
 - The proposition means that with probability one, we can found a sample size such that we will always select a good pair to merge (even if this one is not under the threshold). It is off course still the case for clusters merging.
 
 - As all we have $d_{V_{\phi(n)}(\lambda)(\omega)}(\Theta_n(\lambda))  \overset{a.s.}{\underset{n \rightarrow \infty}{\longrightarrow}} 0$, the threshold $\varepsilon_f$ is a supplementary element to avoid missclustering.
+
+
+Then, lets recall the concentration results for $\hat \Gamma^{(n)}$: 
+
+**Proposition.** Let be the empirical variogram $\hat \Gamma$ as defined in [@engelkeLearningExtremalGraphical2024]. Let $\alpha \in (0,1)$ arbitrary. Then, it exists $C$, $c$ and $M$ depending on $\alpha$ such that for any   $\lambda \le n^{\alpha/2} /(\log(n))^4$ we have : 
+$$
+\mathbb P(||\hat \Gamma^{(n)} - \Gamma||_\infty > C ( n^{\beta (\alpha-1)}(\alpha-1)^2\log(n)^2 + \frac{1+\lambda}{\sqrt{n^\alpha}})) \le M d^3 e^{-c\lambda^2}
+$$
+
+This also means that for any $0<\varepsilon \le f(n)$ we have that : 
+
+$$
+\mathbb P(||\hat \Gamma^{(n)} - \Gamma||_\infty > \varepsilon) \le M d^3 e^{-c\left(\sqrt{n^\alpha}(\frac{\varepsilon}{C} - n^{\beta (\alpha-1)}(\alpha-1)^2\log(n)^2)-1\right)^2}
+$$
+
+We can deduce a control on the solutions of the optimization problem : 
+
+**Theorem.** Let $\lambda>0$. Then we have that for any $0<\varepsilon < ???$ : 
+
+$$
+\mathbb P(||\Theta_n(\lambda) - \Theta^*|| > \varepsilon) \le ...
+$$
+
+**Proof.** We note $\mathcal S^{d-1} = \{\Theta \in \mathcal M_d(\mathbb R) | ||\Theta|| = 1 \}$. First, let's define for each $\varepsilon>0$ :
+
+$$
+\mu_\varepsilon = \inf_{\Theta \in \mathcal S^{d-1}} \left\{ L(\Theta^* +\varepsilon \Theta, \lambda) - L(\Theta^*) \right\}
+$$
+
+which is positive.
+
+By convexity of the $L_\mathcal P^{(n)}$, we have for every $\Theta \in \mathcal S^{d-1}$ and every $\delta \in (0,1)$ that: 
+$$
+(1 - \delta) L_\mathcal P^{(n)}(\Theta^*, \lambda) + \delta  L_\mathcal P^{(n)}(\Theta^* + \frac{\varepsilon}{\delta} \Theta, \lambda) \ge L_\mathcal P^{(n)}(\Theta^* + \varepsilon \Theta, \lambda)
+$$
+
+Let $\Delta_n(\Theta, \lambda) = L_\mathcal P^{(n)}(\Theta, \lambda) - L(\Theta, \lambda)$. Then we have : 
+
+
+\begin{align*}
+ \delta ( L_\mathcal P^{(n)}(\Theta^* + \frac{\varepsilon}{\delta} \Theta, \lambda) - L_\mathcal P^{(n)}(\Theta^*, \lambda)) & \ge L_\mathcal P^{(n)}(\Theta^* + \varepsilon \Theta, \lambda) - L_\mathcal P^{(n)}(\Theta^*, \lambda)\\
+  & \ge \left( L(\Theta^*+ \varepsilon\Theta, \lambda) - L(\Theta^*, \lambda) \right) + \left(\Delta_n(\Theta^* + \varepsilon\Theta, \lambda) - \Delta_n(\Theta^*, \lambda) \right)
+\end{align*}
+
+
+Hence, we have for all $\Theta \in \mathbb S^{d-1}$, and $\delta$ that : 
+
+$$
+\delta ( L_\mathcal P^{(n)}(\Theta^* + \frac{\varepsilon}{\delta} \Theta, \lambda) - L_\mathcal P^{(n)}(\Theta^*, \lambda)) \ge \mu_\varepsilon - 2 \Delta_n
+$$
+
+where $\Delta_n = \sup_{\{\Theta : || \Theta - \Theta^* ||<\varepsilon \}} |\Delta_n(\Theta, \lambda)|$. But, if $\Theta_n(\lambda)$ is in outside the set $\{\Theta : || \Theta - \Theta^* ||<\varepsilon \}$, it follows that the right-hand is non-positive since $\Theta_n(\lambda)$ is the minimum of $L_\mathcal P^{(n)}(\cdot, \lambda)$. Thus, it implies : 
+
+$$
+\mathbb P(||\Theta_n(\lambda) - \Theta^*|| > \varepsilon) \le \mathbb P(\Delta_n \ge \frac{\mu_\varepsilon}{2})
+$$
+
+<div style="text-align:right;">\hfill $\square$</div>
+
 
 # Simulation study
 
@@ -1842,7 +1920,7 @@ where $P(\theta_1, \dots, \theta_{\frac{d(d+1)}{2}},Y_1, \dots, Y_d) = \prod_{i 
 
 We can deduce that $\lambda$ is semi-algebraic. As the projection preserve the property, all the eigen functions are semi-algebraic.
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 We will continue by showing the continuity of the easier one.
 
@@ -1880,7 +1958,7 @@ $$
 
 which is ending the proof.
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 For the other eigen values, we will use another characterization of them using the Min-max theorem.
 
@@ -1954,7 +2032,7 @@ $$
 |\lambda_{k}(M) - \lambda_{k}(M') | \le ||M - M'||_F
 $$
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 
 ## Some Lipschitz results
@@ -1979,7 +2057,7 @@ So, we can deduce that :
 \end{align*}
 
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 **Lemma.** Let $a \in \mathbb R$. Let's define the sequence $(u_n)_{n \in \mathbb N}$ by : 
 $$
@@ -1992,7 +2070,7 @@ Then $\forall n \in \mathbb N, u_n = na^{n-1}$.
 
 **Proof.** By induction.
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 
 With these results, we can say :
@@ -2035,7 +2113,7 @@ Finally, we have by induction that :
 
 - the Lipschitz constant is $L_d$.
 
-<div style="text-align:right;">$\square$</div>
+<div style="text-align:right;">\hfill $\square$</div>
 
 ### References
 
