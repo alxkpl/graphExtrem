@@ -1237,6 +1237,46 @@ list(
     average_hierarchy(chi_init_sim_rep_pen_results)
   ),
 
+  #----------------------- PCA and spectral clustering -------------------------
+  tar_target(
+    graph_pca,
+    graph_from_literal(1 - - 2 - - 3 - - 4 - - 1,
+                       1 - - 3, 5 - - 4, 5 - - 6 - - 7 - - 5,
+                       7 - - 8,
+                       8 - - 9 - - 10 - - 11 - - 12 - - 8)
+  ),
+
+  tar_target(
+    pca_parameter,
+    {
+      Gamma <- generate_random_graphical_Gamma(graph_pca)
+      Theta <- Gamma2Theta(Gamma)
+      Chi <- Gamma2chi(Gamma)
+      list(Chi = Chi, Theta = Theta, Gamma = Gamma)
+    }
+  ),
+
+  tar_target(
+    pca_simulation,
+    rmpareto(n = 200, model = "HR", par = pca_parameter$Gamma)
+  ),
+
+  tar_target(
+    pca_empirical_estimation,
+    list(
+      Gamma = emp_vario(pca_simulation),
+      Chi = emp_chi(pca_simulation)
+    )
+  ),
+
+  tar_target(
+    pca_graph_estimation,
+    eglearn(pca_simulation,
+            reg_method = "glasso",
+            complete_Gamma = TRUE,
+            rholist = 0.41)
+  ),
+
   #----------------------------- Export document -------------------------------
   # Trivariate coefficient documents
   ## HTML

@@ -1,0 +1,262 @@
+---
+title: "PCA on graph and multigraph"
+author: "CAPEL Alexandre"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc_depth: 2
+    number_sections: true
+    fig_caption: true
+    pandoc_args: ["-F","pandoc-crossref"]
+  pdf_document:
+    toc: true
+    number_sections: true
+bibliography: biblio.bib
+always_allow_html: true
+---
+
+In this document, we try would try to cluster graph node using a particular PCA on graph, and maybe extend the notion to to cluster node with several graph data.
+
+```{r, echo=FALSE}
+pacman::p_load("ggraph",
+               "targets",
+               "ggplot2",
+               "tibble",
+               "dplyr",
+               "hrbrthemes")
+```
+
+# Test on simulation for one graph
+
+In this section, we would like to try the method found in [@saerensPrincipalComponentsAnalysis2004] using principal component analysis on a weighted graph. 
+
+Let $V = \{1, \dots, d\}$ the set of nodes.
+
+## Method
+
+The procedure use the Laplacian matrix of a weighted graph. Let $\mathcal G = (V, E, W)$ an undirected weigthed graph, where $W$ is the weught matrix where $w_{ij} \ge 0$. From this matrix and the set of edges $E$, we define the adjacency matrix $A$ as:
+
+$$
+a_{ij} = \begin{cases} w_{ij} \quad \text{if } (i,j) \in E, \\ 0 \quad (i,j) \notin E, \end{cases}
+$$
+
+From this matrix, we are able to define the Laplacian matrix $L=D-A$ where the matrix $D$ is a diagonal matrix where $d_i = \sum_{i=1}^d a_{ij}$. 
+
+The goal is to use the generalised inverse of the Laplacian matrix $L^+$ as a new metric called the Euclidian Commute Time Distance (ECTD), and make PCA on this matrix, see [@saerensPrincipalComponentsAnalysis2004] for details. It is also linked to the spectral clustering to the graph. 
+
+## Adaptation for extremal graphical model
+
+In their example, they used the inverse of the distance between the nodes to set the weights.
+
+The graphical models for extreme produce a graph where an edge does not exist between two nodes if they are independent conditionally to the other nodes. In that sense, we can use weights that measure the strength of extremal dependence between them and mix it with a graph estimation of the vector to being the clustering.
+
+In [@engelkeStructureLearningExtremal2022], they see the graph weighted by two notion : the variogram or the extremal coefficient. Tey compute a minimal spanning tree to compute their estimation which are consistent for empirical estimation of these two quantities.  
+
+Thus, we will use two possible weights:
+
+$$
+w_{ij} = \chi_{ij} \quad \quad \text{or} \quad \quad w_{ij} = \frac{1}{\Gamma_{ij}}
+$$
+
+## Application in simulation 
+
+For the simulation, we choose a graph of 12 edges with the following structure:
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+#| fig.cap: Graphical structure of the simulation.
+tar_load(graph_pca)
+
+ggraph(graph_pca, layout = "auto") +
+  geom_edge_link(color = "grey50") +
+  geom_node_point(size = 10, color = "darkorange") +
+  geom_node_text(aes(label = name)) +
+  theme_void()
+```
+
+A first look on this graph suggests us to make the 3 clusters formed by $\{1,2,3,4\}$, $\{5,6,7\}$ and $\{8,9,10,11,12\}$. What clustering will we produce with the procedure ?
+
+### Known graph
+
+First, let's see what is going on when we know the graph structure. We assume that the data are Husler-Reiss Pareto distributed, and we take a random variogram with the respect to this graphical structure thanks to `generate_random_graphical_Gamma` function from `graphicalExtremes` package. We get: 
+
+```{r echo=FALSE}
+tar_load(pca_parameter)
+Gamma <- pca_parameter$Gamma
+Chi <- pca_parameter$Chi
+```
+
+
+\begin{equation*}
+ \Gamma = 
+ \begin{pmatrix}
+  `r round(Gamma[1,1],2)` & `r round(Gamma[1,2],2)` & `r round(Gamma[1,3],2)` & `r round(Gamma[1,4],2)` & `r round(Gamma[1,5],2)` & `r round(Gamma[1,6],2)` & `r round(Gamma[1,7],2)` & `r round(Gamma[1,8],2)` & `r round(Gamma[1,9],2)` & `r round(Gamma[1,10],2)` & `r round(Gamma[1,11],2)` & `r round(Gamma[1,12],2)` \\
+  `r round(Gamma[2,1],2)` & `r round(Gamma[2,2],2)` & `r round(Gamma[2,3],2)` & `r round(Gamma[2,4],2)` & `r round(Gamma[2,5],2)` & `r round(Gamma[2,6],2)` & `r round(Gamma[2,7],2)` & `r round(Gamma[2,8],2)` & `r round(Gamma[2,9],2)` & `r round(Gamma[2,10],2)` & `r round(Gamma[2,11],2)` & `r round(Gamma[2,12],2)` \\
+  `r round(Gamma[3,1],2)` & `r round(Gamma[3,2],2)` & `r round(Gamma[3,3],2)` & `r round(Gamma[3,4],2)` & `r round(Gamma[3,5],2)` & `r round(Gamma[3,6],2)` & `r round(Gamma[3,7],2)` & `r round(Gamma[3,8],2)` & `r round(Gamma[3,9],2)` & `r round(Gamma[3,10],2)` & `r round(Gamma[3,11],2)` & `r round(Gamma[3,12],2)` \\
+  `r round(Gamma[4,1],2)` & `r round(Gamma[4,2],2)` & `r round(Gamma[4,3],2)` & `r round(Gamma[4,4],2)` & `r round(Gamma[4,5],2)` & `r round(Gamma[4,6],2)` & `r round(Gamma[4,7],2)` & `r round(Gamma[4,8],2)` & `r round(Gamma[4,9],2)` & `r round(Gamma[4,10],2)` & `r round(Gamma[4,11],2)` & `r round(Gamma[4,12],2)` \\
+  `r round(Gamma[5,1],2)` & `r round(Gamma[5,2],2)` & `r round(Gamma[5,3],2)` & `r round(Gamma[5,4],2)` & `r round(Gamma[5,5],2)` & `r round(Gamma[5,6],2)` & `r round(Gamma[5,7],2)` & `r round(Gamma[5,8],2)` & `r round(Gamma[5,9],2)` & `r round(Gamma[5,10],2)` & `r round(Gamma[5,11],2)` & `r round(Gamma[5,12],2)` \\
+  `r round(Gamma[6,1],2)` & `r round(Gamma[6,2],2)` & `r round(Gamma[6,3],2)` & `r round(Gamma[6,4],2)` & `r round(Gamma[6,5],2)` & `r round(Gamma[6,6],2)` & `r round(Gamma[6,7],2)` & `r round(Gamma[6,8],2)` & `r round(Gamma[6,9],2)` & `r round(Gamma[6,10],2)` & `r round(Gamma[6,11],2)` & `r round(Gamma[6,12],2)` \\
+  `r round(Gamma[7,1],2)` & `r round(Gamma[7,2],2)` & `r round(Gamma[7,3],2)` & `r round(Gamma[7,4],2)` & `r round(Gamma[7,5],2)` & `r round(Gamma[7,6],2)` & `r round(Gamma[7,7],2)` & `r round(Gamma[7,8],2)` & `r round(Gamma[7,9],2)` & `r round(Gamma[7,10],2)` & `r round(Gamma[7,11],2)` & `r round(Gamma[7,12],2)` \\
+  `r round(Gamma[8,1],2)` & `r round(Gamma[8,2],2)` & `r round(Gamma[8,3],2)` & `r round(Gamma[8,4],2)` & `r round(Gamma[8,5],2)` & `r round(Gamma[8,6],2)` & `r round(Gamma[8,7],2)` & `r round(Gamma[8,8],2)` & `r round(Gamma[8,9],2)` & `r round(Gamma[8,10],2)` & `r round(Gamma[8,11],2)` & `r round(Gamma[8,12],2)` \\
+  `r round(Gamma[9,1],2)` & `r round(Gamma[9,2],2)` & `r round(Gamma[9,3],2)` & `r round(Gamma[9,4],2)` & `r round(Gamma[9,5],2)` & `r round(Gamma[9,6],2)` & `r round(Gamma[9,7],2)` & `r round(Gamma[9,8],2)` & `r round(Gamma[9,9],2)` & `r round(Gamma[9,10],2)` & `r round(Gamma[9,11],2)` & `r round(Gamma[9,12],2)` \\
+  `r round(Gamma[10,1],2)` & `r round(Gamma[10,2],2)` & `r round(Gamma[10,3],2)` & `r round(Gamma[10,4],2)` & `r round(Gamma[10,5],2)` & `r round(Gamma[10,6],2)` & `r round(Gamma[10,7],2)` & `r round(Gamma[10,8],2)` & `r round(Gamma[10,9],2)` & `r round(Gamma[10,10],2)` & `r round(Gamma[10,11],2)` & `r round(Gamma[10,12],2)` \\
+  `r round(Gamma[11,1],2)` & `r round(Gamma[11,2],2)` & `r round(Gamma[11,3],2)` & `r round(Gamma[11,4],2)` & `r round(Gamma[11,5],2)` & `r round(Gamma[11,6],2)` & `r round(Gamma[11,7],2)` & `r round(Gamma[11,8],2)` & `r round(Gamma[11,9],2)` & `r round(Gamma[11,10],2)` & `r round(Gamma[11,11],2)` & `r round(Gamma[11,12],2)` \\
+  `r round(Gamma[12,1],2)` & `r round(Gamma[12,2],2)` & `r round(Gamma[12,3],2)`& `r round(Gamma[12,4],2)` & `r round(Gamma[12,5],2)` & `r round(Gamma[12,6],2)` & `r round(Gamma[12,7],2)` & `r round(Gamma[12,8],2)` & `r round(Gamma[12,9],2)` & `r round(Gamma[12,10],2)` & `r round(Gamma[12,11],2)` & `r round(Gamma[12,12],2)` \\
+ \end{pmatrix}
+ \end{equation*}
+
+
+And the extremal coefficient matrix: 
+
+\begin{equation*}
+ \chi = 
+ \begin{pmatrix}
+  `r round(Chi[1,1],2)` & `r round(Chi[1,2],2)` & `r round(Chi[1,3],2)` & `r round(Chi[1,4],2)` & `r round(Chi[1,5],2)` & `r round(Chi[1,6],2)` & `r round(Chi[1,7],2)` & `r round(Chi[1,8],2)` & `r round(Chi[1,9],2)` & `r round(Chi[1,10],2)` & `r round(Chi[1,11],2)` & `r round(Chi[1,12],2)` \\
+  `r round(Chi[2,1],2)` & `r round(Chi[2,2],2)` & `r round(Chi[2,3],2)` & `r round(Chi[2,4],2)` & `r round(Chi[2,5],2)` & `r round(Chi[2,6],2)` & `r round(Chi[2,7],2)` & `r round(Chi[2,8],2)` & `r round(Chi[2,9],2)` & `r round(Chi[2,10],2)` & `r round(Chi[2,11],2)` & `r round(Chi[2,12],2)` \\
+  `r round(Chi[3,1],2)` & `r round(Chi[3,2],2)` & `r round(Chi[3,3],2)` & `r round(Chi[3,4],2)` & `r round(Chi[3,5],2)` & `r round(Chi[3,6],2)` & `r round(Chi[3,7],2)` & `r round(Chi[3,8],2)` & `r round(Chi[3,9],2)` & `r round(Chi[3,10],2)` & `r round(Chi[3,11],2)` & `r round(Chi[3,12],2)` \\
+  `r round(Chi[4,1],2)` & `r round(Chi[4,2],2)` & `r round(Chi[4,3],2)` & `r round(Chi[4,4],2)` & `r round(Chi[4,5],2)` & `r round(Chi[4,6],2)` & `r round(Chi[4,7],2)` & `r round(Chi[4,8],2)` & `r round(Chi[4,9],2)` & `r round(Chi[4,10],2)` & `r round(Chi[4,11],2)` & `r round(Chi[4,12],2)` \\
+  `r round(Chi[5,1],2)` & `r round(Chi[5,2],2)` & `r round(Chi[5,3],2)` & `r round(Chi[5,4],2)` & `r round(Chi[5,5],2)` & `r round(Chi[5,6],2)` & `r round(Chi[5,7],2)` & `r round(Chi[5,8],2)` & `r round(Chi[5,9],2)` & `r round(Chi[5,10],2)` & `r round(Chi[5,11],2)` & `r round(Chi[5,12],2)` \\
+  `r round(Chi[6,1],2)` & `r round(Chi[6,2],2)` & `r round(Chi[6,3],2)` & `r round(Chi[6,4],2)` & `r round(Chi[6,5],2)` & `r round(Chi[6,6],2)` & `r round(Chi[6,7],2)` & `r round(Chi[6,8],2)` & `r round(Chi[6,9],2)` & `r round(Chi[6,10],2)` & `r round(Chi[6,11],2)` & `r round(Chi[6,12],2)` \\
+  `r round(Chi[7,1],2)` & `r round(Chi[7,2],2)` & `r round(Chi[7,3],2)` & `r round(Chi[7,4],2)` & `r round(Chi[7,5],2)` & `r round(Chi[7,6],2)` & `r round(Chi[7,7],2)` & `r round(Chi[7,8],2)` & `r round(Chi[7,9],2)` & `r round(Chi[7,10],2)` & `r round(Chi[7,11],2)` & `r round(Chi[7,12],2)` \\
+  `r round(Chi[8,1],2)` & `r round(Chi[8,2],2)` & `r round(Chi[8,3],2)` & `r round(Chi[8,4],2)` & `r round(Chi[8,5],2)` & `r round(Chi[8,6],2)` & `r round(Chi[8,7],2)` & `r round(Chi[8,8],2)` & `r round(Chi[8,9],2)` & `r round(Chi[8,10],2)` & `r round(Chi[8,11],2)` & `r round(Chi[8,12],2)` \\
+  `r round(Chi[9,1],2)` & `r round(Chi[9,2],2)` & `r round(Chi[9,3],2)` & `r round(Chi[9,4],2)` & `r round(Chi[9,5],2)` & `r round(Chi[9,6],2)` & `r round(Chi[9,7],2)` & `r round(Chi[9,8],2)` & `r round(Chi[9,9],2)` & `r round(Chi[9,10],2)` & `r round(Chi[9,11],2)` & `r round(Chi[9,12],2)` \\
+  `r round(Chi[10,1],2)` & `r round(Chi[10,2],2)` & `r round(Chi[10,3],2)` & `r round(Chi[10,4],2)` & `r round(Chi[10,5],2)` & `r round(Chi[10,6],2)` & `r round(Chi[10,7],2)` & `r round(Chi[10,8],2)` & `r round(Chi[10,9],2)` & `r round(Chi[10,10],2)` & `r round(Chi[10,11],2)` & `r round(Chi[10,12],2)` \\
+  `r round(Chi[11,1],2)` & `r round(Chi[11,2],2)` & `r round(Chi[11,3],2)` & `r round(Chi[11,4],2)` & `r round(Chi[11,5],2)` & `r round(Chi[11,6],2)` & `r round(Chi[11,7],2)` & `r round(Chi[11,8],2)` & `r round(Chi[11,9],2)` & `r round(Chi[11,10],2)` & `r round(Chi[11,11],2)` & `r round(Chi[11,12],2)` \\
+  `r round(Chi[12,1],2)` & `r round(Chi[12,2],2)` & `r round(Chi[12,3],2)` & `r round(Chi[12,4],2)` & `r round(Chi[12,5],2)` & `r round(Chi[12,6],2)` & `r round(Chi[12,7],2)` & `r round(Chi[12,8],2)` & `r round(Chi[12,9],2)` & `r round(Chi[12,10],2)` & `r round(Chi[12,11],2)` & `r round(Chi[12,12],2)` \\
+ \end{pmatrix}
+ \end{equation*}
+
+If we compute the PCA on the graph with the corresponding Laplacian matrix we get this for the two firsts principal component for the variogram: 
+
+```{r, echo=FALSE}
+#| fig.cap: First principal plane with the variogram Laplacian with known graph.
+tar_load(pca_empirical_estimation)
+
+A <- 1 / pca_empirical_estimation$Gamma
+diag(A) <- 0
+A[pca_parameter$Theta == 0] <- 0
+D <- rowSums(A)
+L <- diag(D) - A
+
+# ECTD metric
+L_p <- pinv(L)
+
+ACP <- eigen(L_p)
+
+U_tilde  <- ACP$vectors[, 1:2]
+
+X_tilde <- U_tilde %*% diag(sqrt(ACP$values[1:2]))
+
+X_tilde |>
+  as_tibble() |>
+  mutate(group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3)) |>
+  ggplot() +
+  aes(x = V1, y = V2, col = as.factor(group)) +
+  geom_point(show.legend = FALSE) +
+  theme_ipsum()
+```
+
+
+and this for the extremal coefficient: 
+
+```{r, echo=FALSE}
+#| fig.cap: First principal plane with the extremal coefficient Laplacian with known graph.
+A <- pca_empirical_estimation$Chi
+diag(A) <- 0
+A[pca_parameter$Theta == 0] <- 0
+D <- rowSums(A)
+L <- diag(D) - A
+
+# ECTD metric
+L_p <- pinv(L)
+
+ACP <- eigen(L_p)
+
+U_tilde  <- ACP$vectors[, 1:2]
+
+X_tilde <- U_tilde %*% diag(sqrt(ACP$values[1:2]))
+
+X_tilde |>
+  as_tibble() |>
+  mutate(group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3)) |>
+  ggplot() +
+  aes(x = V1, y = V2, col = as.factor(group)) +
+  geom_point(show.legend = FALSE) +
+  theme_ipsum()
+```
+
+The colors are made of the initial guess for the clusters.
+
+### Unknown graph
+
+With the unknown graph, we need first to estimate the graphical structure. In order to do that, we use `eglearn` function from `graphicalExtremes` introduced in [@engelkeLearningExtremalGraphical2024]. We get the following graph for a first estimation:
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#| fig.cap: Estimation of the graph.
+
+tar_load(pca_graph_estimation)
+
+Theta_hat <- Gamma2Theta(pca_graph_estimation$Gamma[[1]])
+
+ggraph(Theta2graph(Theta_hat), layout = "auto") +
+  geom_edge_link(color = "grey50") +
+  geom_node_point(size = 10, color = "darkorange") +
+  theme_void()
+```
+
+We do not have the right structure here, it can change the results from the previous estimation.
+
+Thus, we get with this graphical structure the following results for the variogram : 
+```{r, echo=FALSE}
+#| fig.cap: First principal plane with the extremal coefficient Laplacian with unknown graph.
+A <- 1 / pca_empirical_estimation$Gamma
+diag(A) <- 0
+A[Theta_hat == 0] <- 0
+D <- rowSums(A)
+L <- diag(D) - A
+
+# ECTD metric
+L_p <- pinv(L)
+
+ACP <- eigen(L_p)
+
+U_tilde  <- ACP$vectors[, 1:2]
+
+X_tilde <- U_tilde %*% diag(sqrt(ACP$values[1:2]))
+
+X_tilde |>
+  as_tibble() |>
+  mutate(group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3)) |>
+  ggplot() +
+  aes(x = V1, y = V2, col = as.factor(group)) +
+  geom_point(show.legend = FALSE) +
+  theme_ipsum()
+```
+
+and for the extremal coefficient:
+```{r, echo=FALSE}
+#| fig.cap: First principal plane with the extremal coefficient Laplacian with unknown graph.
+A <- pca_empirical_estimation$Chi
+diag(A) <- 0
+A[Theta_hat == 0] <- 0
+D <- rowSums(A)
+L <- diag(D) - A
+
+# ECTD metric
+L_p <- pinv(L)
+
+ACP <- eigen(L_p)
+
+U_tilde  <- ACP$vectors[, 1:2]
+
+X_tilde <- U_tilde %*% diag(sqrt(ACP$values[1:2]))
+
+X_tilde |>
+  as_tibble() |>
+  mutate(group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3)) |>
+  ggplot() +
+  aes(x = V1, y = V2, col = as.factor(group)) +
+  geom_point(show.legend = FALSE) +
+  theme_ipsum()
+```
+
+### References 
