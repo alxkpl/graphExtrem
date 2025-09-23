@@ -959,7 +959,7 @@ get_cluster <- function(gamma, weights, lambda, ...) {
       return(
         list(
           R = R,
-          clusters = clusters,
+          clusters = list(clusters),
           nllh = -(d - 1) * (d - 2) * R
         )
       )
@@ -1163,6 +1163,16 @@ get_adjacency_matrix <- function(event_list, lambda_max) {
 
 }
 
+one_cluster_check <- function(results_list) {
+  sum(
+    sapply(
+      results_list,
+      function(results) sum(sapply(results, \(.) class(.$clusters) == "numeric"))
+    )
+  )
+}
+
+
 #' Plot the dendrogram for the optimization
 #'
 #' @param list_results A list of results optimization from best_clusters.
@@ -1186,7 +1196,7 @@ gg_cluster <- function(list_results) {
   graph <- as_tbl_graph(hclust_results)
 
   # Dessiner l'arbre
-  ggraph(graph, layout = "dendrogram", height = height) +
+  p <- ggraph(graph, layout = "dendrogram", height = height) +
     geom_edge_elbow(linewidth = 1.5, alpha = 0.8, color = "darkorange2") +
     geom_node_text(aes(label = ifelse(leaf, label, "")), size = 4, vjust = 1.7, color = "grey40") +
     geom_node_point(color = "grey40", shape = 18, size = 3) +
@@ -1199,6 +1209,45 @@ gg_cluster <- function(list_results) {
           axis.title.y = element_text(angle = 0, size = 15),
           axis.ticks.y = element_line(color = "grey50", linewidth = 0.5),  # Couleur et taille des ticks
           axis.ticks.length = unit(0.1, "cm"))
+
+  if (!(length(event_list[[length(event_list)]]$clusters) %in% c(1, d))) {
+    layout <- create_layout(graph, layout = "dendrogram")
+    root <- layout |>
+      filter(height == lambda_max) |>
+      select(.ggraph.orig_index) |>
+      pull()
+
+    origin <- graph |>
+      activate(edges) |>
+      as_tibble() |>
+      filter(from %in% root) |>
+      pull(to)
+
+    x_point <- layout |>
+      filter(.ggraph.orig_index %in% origin, height < lambda_max) |>
+      pull(x)
+
+    df_rect <- data.frame(
+      xmin = 0,
+      xmax = d,
+      ymin = lambda_max,
+      ymax = 1.01 * lambda_max
+    )
+
+    df_point <- data.frame(x = x_point, y = lambda_max)
+    return(
+      p +
+        geom_rect(data = df_rect,
+                  aes(xmin = xmin,
+                      xmax = xmax,
+                      ymin = ymin,
+                      ymax = ymax),
+                  linewidth = 3, col = "white", fill = "white") +
+        geom_point(data = df_point, aes(x = x, y = y),
+                   color = "grey40", shape = 18, size = 6)
+    )
+  }
+  return(p)
 }
 
 
@@ -1229,7 +1278,7 @@ average_hierarchy <- function(replicates) {
   graph <- as_tbl_graph(hclust_results)
 
   # Dessiner l'arbre
-  ggraph(graph, layout = "dendrogram", height = height) +
+  p <- ggraph(graph, layout = "dendrogram", height = height) +
     geom_edge_elbow(linewidth = 1.5, alpha = 0.8, color = "darkorange2") +
     geom_node_text(aes(label = ifelse(leaf, label, "")), size = 4, vjust = 1.7, color = "grey40") +
     geom_node_point(color = "grey40", shape = 18, size = 3) +
@@ -1242,7 +1291,208 @@ average_hierarchy <- function(replicates) {
           axis.title.y = element_text(angle = 0, size = 15),
           axis.ticks.y = element_line(color = "grey50", linewidth = 0.5),  # Couleur et taille des ticks
           axis.ticks.length = unit(0.1, "cm"))
+
+  layout <- create_layout(graph, layout = "dendrogram")
+
+  one <- one_cluster_check(list_detect)
+
+  if (!one) {
+    root <- layout |>
+      filter(height == max(height)) |>
+      select(.ggraph.orig_index) |>
+      pull()
+    origin <- graph |>
+      activate(edges) |>
+      as_tibble() |>
+      filter(from %in% root) |>
+      pull(to)
+
+    x_point <- layout |>
+      filter(.ggraph.orig_index %in% origin, height < max(height)) |>
+      pull(x)
+
+    df_rect <- data.frame(
+      xmin = 0,
+      xmax = d,
+      ymin = lambda_max,
+      ymax = 1.01 * lambda_max
+    )
+
+    df_point <- data.frame(x = x_point, y = rep(lambda_max, length(x_point)))
+    return(
+      p +
+        geom_rect(data = df_rect,
+                  aes(xmin = xmin,
+                      xmax = xmax,
+                      ymin = ymin,
+                      ymax = ymax),
+                  linewidth = 3, col = "white", fill = "white") +
+        geom_point(data = df_point, aes(x = x, y = y),
+                   color = "grey40", shape = 18, size = 6)
+    )
+  }
+  return(p)
 }
+
+##============================ Gamma optimization ==============================
+build_gamma <- function(R, clusters) {
+  U <- U_matrix(clusters)
+  URUt <- U %*% R %*% t(U)
+  a <-  - diag(URUt)
+
+  URUt + diag(a)
+
+}
+
+sub_theta <- function(R, clusters) {
+  p <- sapply(clusters, length)           # Vector of cluster's size
+  tilde_R <- - as.numeric(R %*% p)
+
+  # Subtheta matrix :
+  R %*% diag(p) + diag(tilde_R)
+
+}
+
+
+neg_likelihood_gamma <- function(Theta) {
+  function(R, clusters) {
+    # Building of the theta matrix from R
+    gamma <- build_gamma(R, clusters)
+
+    # Computation of the log-determinant part
+    log_det <- log(gen_det(Theta))
+
+    # Computation of the trace part
+    tr <- sum(diag(Theta %*% gamma))
+
+
+    - log_det - .5 * tr
+  }
+}
+
+neg_likelihood_pen_gamma <- function(Theta, weights, lambda) {
+  nllh <- neg_likelihood_gamma(Theta)
+  pen <- penalty(weights)
+
+  function(R, clusters) {
+
+    nllh(R, clusters) + lambda * pen(R, clusters)
+
+  }
+}
+
+#' Gradient of the negative log likelihood without penalty
+#'
+#' @param Theta a d x d precision matrix.
+#'
+#' @returns A function of the R matrix and clusters and compute the gradient
+#' matrix of the negative log likelihood for a fixed variogram gamma. The
+#' gradient matrix can be computed by :
+#'
+#'                        dnllh = dtrace
+#' where :
+#'      - dtrace = - t(U) gamma U  + 0.5 diag(t(U) gamma U)
+#'
+#' @examples
+nloglike_grad_np_gamma <- function(Theta) {
+  function(R, clusters) {
+    # Get tu U matrix of clusters indicators
+    U <- U_matrix(clusters)
+    p <- colSums(U)
+
+    # Gradient (factorisation of the formula)
+    dlog <- - t(U) %*% (gamma) %*% U
+    diag <- - .5 * diag(diag(dlog * (p == 1)))
+
+    dlog + diag
+  }
+}
+
+
+
+
+#' Step for the gradient descent
+#'
+#' @param gamma a d x d matrix : the variogram matrix.
+#' @param weights a d x d symmetric matrix with a zero diagonal.
+#' @param lambda a positive number : the weight of the penalty.
+#' @param size_grid integer : size of the search grid for the optimal step.
+#'
+#' @returns A function of clusters and R matrix which returns the next step of
+#' the optimisation for the gradient descent algorithm.
+#'
+#' @examples
+#' R <- matrix(c(0.5, -1,
+#'               -1, -1), nr = 2)
+#' clusters <- list(c(1,3), c(2,4))
+#' W <- matrix(c(0, 1, 1, 1,
+#'               1, 0, 1, 1,
+#'               1, 1, 0, 1,
+#'               1, 1, 1, 0), nc = 4)
+#' gamma <- matrix(c(0,2,1,0,
+#'                   2,0,4,1,
+#'                   1,4,0,7,
+#'                   0,1,7,0), nc = 4)
+#' f <- step_gradient(gamma, W, 0.5)
+#' f(R, clusters)
+step_gradient_gamma <- function(Theta, weights, lambda, size_grid = 100) {
+  # Initialization of functions
+  dlog <- nloglike_grad_np_gamma(Theta)                     # Neg-lklh gradient part
+  dpen <- penalty_grad(weights)                       # Penalty gradient part
+
+  # Penalised negative log-likelihood
+  nllh <- neg_likelihood_pen_gamma(Theta, weights, lambda)
+
+  function(R, clusters) {
+    # Initialization
+    p <- sapply(clusters, length)           # Vector of cluster's size
+
+    # Gradient matrix computation
+    grad <- dlog(R, clusters) + lambda * dpen(R, clusters)
+
+    # Grid line search for optimal gradient step
+    # Grid line construction
+    if (max(p) == 1) {
+      s_opt <- optim(par = 1, fn = \(.) nllh(R - . * grad, clusters),
+                     method = "Brent", lower = 0, upper = 1)$par
+      while (!semi_def(sub_theta(R - s_opt * grad, clusters))) {
+        s_opt <- 0.95 * s_opt
+      }
+      return(list(step = s_opt, gradient = grad))
+    }
+    s_max <- min(
+      # Maximum step size to get positive matrix
+      abs(((R %*% p) / (grad %*% p))[p > 1])
+    )
+
+    s_opt <- optim(par = 1, fn = \(.) nllh(R - . * grad, clusters),
+                   method = "Brent", lower = 0, upper = min(s_max, 1))$par
+    while (!semi_def(sub_theta(R - s_opt * grad, clusters))) {
+      s_opt <- 0.95 * s_opt
+    }
+
+    # Returning results : size step and gradient matrix
+    list(step = s_opt, gradient = grad)
+
+
+    # Searching
+    # s_opt <- 0
+    # score <- nllh(R, clusters)
+    #
+    # for(i in 2:(length(s) - 1)){
+    #   # Better step size
+    #   if(score > nllh(R - s[i] * grad, clusters)){
+    #     # Positive matrix checking
+    #     if(semi_def(sub_theta(R - s[i] * grad, clusters))){
+    #       s_opt <- s[i]
+    #       score <- nllh(R - s_opt * grad, clusters)
+    #     }
+    #   }
+    # }
+  }
+}
+
+
 
 ##============================= Simulation study ===============================
 #' Give the lambda for a list of optimization results from replication.
@@ -1382,10 +1632,8 @@ get_info_replicate <- function(list_pen, list_nopen, cluster_init) {
   d_lambda |>
     inner_join(d_nllh, by = join_by(simulation)) |>
     inner_join(d_RI, by = join_by(simulation)) |>
-    mutate(nb_cluster = sapply(list_pen,  \(.) length(.$clusters)))
+    mutate(nb_cluster = sapply(list_pen,  \(.) ifelse(class(.$clusters) == "list", length(.$clusters), 1)))
 }
-
-
 
 
 #' Plot some graph to summarise the results of replications
@@ -1489,7 +1737,7 @@ all_info <- function(cluster.init, list_res, lambda, one_sim = FALSE){
   for(i in 2:m){
     data_inter <- get_rand_index(cluster.init, list_res[[i]]) |>
       mutate(l = lambda, simulation = i,
-             nb_cluster = sapply(list_res[[i]], \(.) length(.$clusters)))
+             nb_cluster = sapply(list_res[[i]], \(.) ifelse(class(.$clusters) == "list", length(.$clusters), 1)))
     data |> add_row(data_inter) -> data
   }
   return(
@@ -1552,6 +1800,52 @@ plot_info <- function(results, one_sim = FALSE) {
     final_plot
   )
 }
+
+#------------------------------- Cross Validation ------------------------------
+validation_score <- function(data_validation) {
+
+  Gamma_new <- graphicalExtremes::emp_vario(data_validation)
+
+  L <- neg_likelihood(Gamma_new)
+
+  function(res) L(res$R, res$clusters)
+
+}
+
+
+cross_validation <- function(data, lambda, chi, K) {
+  n <- nrow(data)
+
+  m <- n %/% K
+
+  llh <- matrix(rep(NA, K * length(lambda)), nr = K)
+
+  for (i in 0:(K - 1)) {
+    if (i == K - 1) {
+      filter <- (i * m + 1):n
+    } else {
+      filter <- (i * m + 1):((i + 1) * m)
+    }
+
+    data_t <- data[-filter, ]
+    data_v <- data[filter, ]
+
+    res <- future_map(lambda, \(.) {
+      best_clusters(data = data_t,
+                    chi = chi,
+                    l_grid = .,
+                    it_max = 2000)
+    })
+    f <- validation_score(data_v)
+
+    llh[i + 1, ] <- sapply(res, f)
+
+  }
+
+  colMeans(llh)
+
+}
+
 #------------------------------- Others functions ------------------------------
 
 ## Decomposition of the gradient computation using finite difference

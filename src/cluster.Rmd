@@ -1437,11 +1437,13 @@ $$
 
 We can deduce a control on the solutions of the optimization problem : 
 
-**Theorem.** Let $\lambda>0$. Then we have that for any $0<\varepsilon < ???$ : 
+**Theorem.** Let $\lambda>0$ and $r_{ij} = \max_{k\neq i, j} |\Gamma_{ik} - \Gamma_{jk}|$ and $u_{ij} = \min(\frac 12 r_{ij}, C e^{-1} / 2)$. Then we have that for any $0<\varepsilon <\min(Ce^{-1}/2, \min_{(i,j) \notin T}(\exp(-\zeta_n(r_{ij}-u_{ij})^2)))$ : 
 
 $$
-\mathbb P(||\Theta_n(\lambda) - \Theta^*|| > \varepsilon) \le ...
+\mathbb P(||\Theta_n(\lambda) - \Theta^*|| > \varepsilon) \le g_n(\frac{a}{24K_d}\varepsilon^2)+ \sum_{(i,j)\notin T}2g_n(\frac 12 (r_{ij} - \sqrt{\frac{ln(24K_d B(d,\varepsilon)/(a\varepsilon^2))}{\zeta_n}}))
 $$
+
+with $g_n(\varepsilon)= Md^3 e^{-c\left[ \sqrt[4]{n} (\frac{\varepsilon}{C} - \frac{e^{-1}}{2})^2-1\right]}$.
 
 **Proof.** We note $\mathcal S^{d-1} = \{\Theta \in \mathcal M_d(\mathbb R) | ||\Theta|| = 1 \}$. First, let's define for each $\varepsilon>0$ :
 
@@ -1475,6 +1477,69 @@ where $\Delta_n = \sup_{\{\Theta : || \Theta - \Theta^* ||<\varepsilon \}} |\De
 
 $$
 \mathbb P(||\Theta_n(\lambda) - \Theta^*|| > \varepsilon) \le \mathbb P(\Delta_n \ge \frac{\mu_\varepsilon}{2})
+$$
+
+As the function $L$ is $C^2$, we have that for all $\Theta \in \mathbb S^{d-1}$ : 
+
+$$
+L(\Theta^* +\varepsilon \Theta, \lambda) - L(\Theta^*) = \varepsilon^2 \int_0^1 \frac{(1-t)^2}{2} D^2L(\Theta^*+t\varepsilon \Theta)(\Theta) dt
+$$
+
+where $D^2L(\Theta^*+t\varepsilon \Theta)$ is the second order differential. We know that it is a bilinear application, which is "positive" (because $L$ is convex), it admits a minimum in the sphere $\mathbb S^{d-1}$ which is the smallest eigen value $\eta_\Theta>0$ of the matrix representation of this differential. Thus we have : 
+
+$$
+L(\Theta^* +\varepsilon \Theta, \lambda) - L(\Theta^*) \ge \varepsilon^2 \eta_\Theta \int_0^1 \frac{(1-t)^2}{2} dt = \frac{1}{6}\varepsilon^2 \eta_\Theta
+$$
+
+We already know that the eigen value application is continuous so it exists a>0 such that : 
+
+$$
+\mu_\varepsilon \ge \frac{a}{6}\varepsilon^2
+$$
+
+and therefore : 
+
+$$
+\mathbb P(||\Theta_n(\lambda) - \Theta^*|| > \varepsilon) \le \mathbb P(\Delta_n \ge \frac{a}{12}\varepsilon^2)
+$$
+
+Moreover, we have : 
+
+\begin{align*}
+|\Delta_n(\Theta, \lambda)| &\le | - \frac 12 tr((\hat \Gamma_n - \Gamma)\Theta) + \sum_{i,j} (w_{ij} - 1) d^2_{ij}(\Theta)| + \sum_{(i,j) \notin T} w_{ij} d_{ij}^2(\Theta) \\
+& \le K_d||\hat \Gamma_n - \Gamma||_\infty + \sum_{(i,j) \notin T} w_{ij} d_{ij}^2(\Theta)
+\end{align*}
+
+because the function is continuous in an compact space, so it is $K_d$-lipschitzian.
+
+Moreoever, we can give a bound of the distances : 
+
+$$
+d_{ij}^2(\Theta) \le (d-2)||\Theta_{i\cdot} - \Theta_{j\cdot}||_\infty^2 \le (d-2)(M+2\varepsilon)^2
+$$
+
+where $M = \max_{(i,j)\notin T} ||\Theta_{i\cdot}^* - \Theta_{j\cdot}^*||_\infty$.
+
+Thus, we can deduce that for $\varepsilon < C e^{-1} / 2$: 
+
+$$
+\mathbb P(||\Theta_n(\lambda) - \Theta^*|| > \varepsilon) \le \mathbb P(\Delta_n \ge \frac{a}{6}\varepsilon^2) \le g_n(\frac{a}{24K_d}\varepsilon^2)+ \sum_{(i,j)\notin T} \mathbb P(B(d,\varepsilon) w_{ij} > \frac{a}{24K_d}\varepsilon^2)
+$$
+
+where $B(d,\varepsilon) = (\frac{d(d-1)}{2} - |T|)(d-2)(M+2\varepsilon)^2$ and $g_n(\varepsilon)= Md^3 e^{-c\left[ \sqrt[4]{n} (\frac{\varepsilon}{C} - \frac{e^{-1}}{2})^2-1\right]}$.
+
+As in the weigth concentration results, one can show that for $\varepsilon < \exp(-\zeta_n(r_{ij}-u_{ij})^2)$: 
+
+$$
+\mathbb P(w_{ij}>\varepsilon) \le 2g_n(\frac 12 (r_{ij} - \sqrt{\frac{ln(1/\varepsilon)}{\zeta_n}}))
+$$
+
+with $r_{ij} = \max_{k\neq i, j} |\Gamma_{ik} - \Gamma_{jk}|$ and $u_{ij} = \min(\frac 12 r_{ij}, C e^{-1} / 2)$.
+
+Finally, we get for $\varepsilon<\min_{(i,j) \notin T}(\exp(-\zeta_n(r_{ij}-u_{ij})^2))$ that : 
+
+$$
+\mathbb P(||\Theta_n(\lambda) - \Theta^*|| > \varepsilon) \le g_n(\frac{a}{24K_d}\varepsilon^2)+ \sum_{(i,j)\notin T}2g_n(\frac 12 (r_{ij} - \sqrt{\frac{ln(24K_d B(d,\varepsilon)/(a\varepsilon^2))}{\zeta_n}}))
 $$
 
 <div style="text-align:right;">\hfill $\square$</div>

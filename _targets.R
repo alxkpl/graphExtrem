@@ -542,6 +542,23 @@ list(
   ),
 
   tar_target(
+    first_sim_rep_cross_val,
+    {
+      m <- first_sim_rep_data |> summarise(max = max(sim))
+      lambda <- seq(0, 3e-2, 1e-4)
+      future_map(1:m$max, function(i) {
+        data <- first_sim_rep_data |>
+          filter(sim == i) |>
+          select(-sim) |>
+          as.matrix()
+
+        cross_validation(data, lambda, first_sim_param_cluster$chi, 5)
+
+      })
+    }
+  ),
+
+  tar_target(
     first_sim_rep_nopen_results,
     {
       m <- first_sim_rep_data |> summarise(max = max(sim))
@@ -575,6 +592,93 @@ list(
     average_hierarchy(first_sim_rep_pen_results)
   ),
 
+  # Replication with smaller samples
+  # n = 500
+  tar_rep(
+    first_sim_clustering_replicate_500,
+    rmpareto(n = 500,
+             model = "HR",
+             par = first_sim_param_cluster$Gamma),
+    batches = 1,
+    reps = 200,
+    iteration = "vector"               # the output of the replicates is a list
+  ),
+
+  tar_target(
+    first_sim_rep_500_data,
+    {
+      rep <- first_sim_clustering_replicate_500
+
+      n <- 500
+
+      row.names(rep) <- NULL
+
+      rep |>
+        tibble() |>
+        mutate(sim = (seq_len(nrow(rep)) + (n - 1)) %/% n)
+    }
+  ),
+
+  tar_target(
+    first_sim_rep_500_cross_val,
+    {
+      m <- first_sim_rep_500_data |> summarise(max = max(sim))
+      lambda <- seq(0, 1, 5e-3)
+      future_map(1:m$max, function(i) {
+        data <- first_sim_rep_500_data |>
+          filter(sim == i) |>
+          select(-sim) |>
+          as.matrix()
+
+        cross_validation(data, lambda, first_sim_param_cluster$chi, 5)
+
+      })
+    }
+  ),
+
+  # Replication with smaller samples
+  # n = 100
+  tar_rep(
+    first_sim_clustering_replicate_100,
+    rmpareto(n = 100,
+             model = "HR",
+             par = first_sim_param_cluster$Gamma),
+    batches = 1,
+    reps = 200,
+    iteration = "vector"               # the output of the replicates is a list
+  ),
+
+  tar_target(
+    first_sim_rep_100_data,
+    {
+      rep <- first_sim_clustering_replicate_100
+
+      n <- 100
+
+      row.names(rep) <- NULL
+
+      rep |>
+        tibble() |>
+        mutate(sim = (seq_len(nrow(rep)) + (n - 1)) %/% n)
+    }
+  ),
+  # Too long
+  # tar_target(
+  #   first_sim_rep_100_cross_val,
+  #   {
+  #     m <- first_sim_rep_100_data |> summarise(max = max(sim))
+  #     lambda <- seq(0, 20, 1e-1)
+  #     future_map(1:m$max, function(i) {
+  #       data <- first_sim_rep_100_data |>
+  #         filter(sim == i) |>
+  #         select(-sim) |>
+  #         as.matrix()
+
+  #       cross_validation(data, lambda, first_sim_param_cluster$chi, 5)
+
+  #     })
+  #   }
+  # ),
   ##======================= Unbalanced class =====================
   tar_target(
     unbal_sim_param_cluster,
@@ -626,6 +730,7 @@ list(
         mutate(sim = (seq_len(nrow(rep)) + (n - 1)) %/% n)
     }
   ),
+
 
   # Computation of optimization results for each replication
   tar_target(
@@ -733,6 +838,23 @@ list(
     }
   ),
 
+  tar_target(
+    gr3_bal_sim_rep_cross_val,
+    {
+      m <- gr3_bal_sim_rep_data |> summarise(max = max(sim))
+      lambda <- seq(0, 10, 2e-1)
+      future_map(1:m$max, function(i) {
+        data <- gr3_bal_sim_rep_data |>
+          filter(sim == i) |>
+          select(-sim) |>
+          as.matrix()
+
+        cross_validation(data, lambda, gr3_bal_sim_param_cluster$chi, 5)
+
+      })
+    }
+  ),
+
   # Computation of optimization results for each replication
   tar_target(
     gr3_bal_sim_rep_pen_results,
@@ -785,6 +907,51 @@ list(
     gr3_bal_hierarchy,
     average_hierarchy(gr3_bal_sim_rep_pen_results)
   ),
+
+
+  # Cross validation with small sample
+  tar_rep(
+    gr3_bal_sim_500_replicate,
+    rmpareto(n = 500,
+             model = "HR",
+             par = gr3_bal_sim_param_cluster$Gamma),
+    batches = 1,
+    reps = 200,
+    iteration = "vector"               # the output of the replicates is a list
+  ),
+
+  tar_target(
+    gr3_bal_sim_500_data,
+    {
+      rep <- gr3_bal_sim_500_replicate
+
+      n <- 500
+
+      row.names(rep) <- NULL
+
+      rep |>
+        tibble() |>
+        mutate(sim = (seq_len(nrow(rep)) + (n - 1)) %/% n)
+    }
+  ),
+
+  # tar_target(
+  #   gr3_bal_sim_500_cross_val,
+  #   {
+  #     m <- gr3_bal_sim_500_data |> summarise(max = max(sim))
+  #     lambda <- seq(0, 200, 5)
+  #     future_map(1:m$max, function(i) {
+  #       data <- gr3_bal_sim_500_data |>
+  #         filter(sim == i) |>
+  #         select(-sim) |>
+  #         as.matrix()
+
+  #       cross_validation(data, lambda, gr3_bal_sim_param_cluster$chi, 5)
+
+  #     })
+  #   }
+  # ),
+
 
   ##=================== With three balanced groups with noise ==================
   tar_rep(
@@ -1137,6 +1304,20 @@ list(
     path = "./src/cluster.Rmd",
     output_format = "pdf_document",
     output_file = here("report", "cluster.pdf")
+  ),
+
+  tar_render(
+    pca_pdf, error = "continue",
+    path = "./src/pca.Rmd",
+    output_format = "pdf_document",
+    output_file = here("report", "pca.pdf")
+  ),
+
+  tar_render(
+    pca_html, error = "continue",
+    path = "./src/pca.Rmd",
+    output_format = "readthedown",
+    output_file = here("public", "pca.html")
   )
 )
 

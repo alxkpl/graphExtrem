@@ -7,7 +7,7 @@
 
         <meta name="author" content="CAPEL Alexandre" />
     
-        <meta name="date" content="2025-07-09" />
+        <meta name="date" content="2025-07-31" />
     
     <title>Variable clustering for Husler-Reiss graphical models</title>
 
@@ -1274,7 +1274,7 @@ graphical models</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> CAPEL
 Alexandre</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-07-09</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-07-31</p>
           </div>
    </div>
      
@@ -2928,11 +2928,20 @@ d^3 e^{-c\left(\sqrt{n^\alpha}(\frac{\varepsilon}{C} - n^{\beta
 \]</span></p>
 <p>We can deduce a control on the solutions of the optimization problem
 :</p>
-<p><strong>Theorem.</strong> Let <span class="math inline">\(\lambda&gt;0\)</span>. Then we have that for any
-<span class="math inline">\(0&lt;\varepsilon &lt; ???\)</span> :</p>
+<p><strong>Theorem.</strong> Let <span class="math inline">\(\lambda&gt;0\)</span> and <span class="math inline">\(r_{ij} = \max_{k\neq i, j} |\Gamma_{ik} -
+\Gamma_{jk}|\)</span> and <span class="math inline">\(u_{ij} =
+\min(\frac 12 r_{ij}, C e^{-1} / 2)\)</span>. Then we have that for any
+<span class="math inline">\(0&lt;\varepsilon &lt;\min(Ce^{-1}/2,
+\min_{(i,j) \notin T}(\exp(-\zeta_n(r_{ij}-u_{ij})^2)))\)</span> :</p>
 <p><span class="math display">\[
-\mathbb P(||\Theta_n(\lambda) - \Theta^*|| &gt; \varepsilon) \le ...
+\mathbb P(||\Theta_n(\lambda) - \Theta^*|| &gt; \varepsilon) \le
+g_n(\frac{a}{24K_d}\varepsilon^2)+ \sum_{(i,j)\notin T}2g_n(\frac 12
+(r_{ij} - \sqrt{\frac{ln(24K_d
+B(d,\varepsilon)/(a\varepsilon^2))}{\zeta_n}}))
 \]</span></p>
+<p>with <span class="math inline">\(g_n(\varepsilon)= Md^3 e^{-c\left[
+\sqrt[4]{n} (\frac{\varepsilon}{C} -
+\frac{e^{-1}}{2})^2-1\right]}\)</span>.</p>
 <p><strong>Proof.</strong> We note <span class="math inline">\(\mathcal
 S^{d-1} = \{\Theta \in \mathcal M_d(\mathbb R) | ||\Theta|| = 1
 \}\)</span>. First, let’s define for each <span class="math inline">\(\varepsilon&gt;0\)</span> :</p>
@@ -2978,6 +2987,77 @@ it implies :</p>
 <p><span class="math display">\[
 \mathbb P(||\Theta_n(\lambda) - \Theta^*|| &gt; \varepsilon) \le \mathbb
 P(\Delta_n \ge \frac{\mu_\varepsilon}{2})
+\]</span></p>
+<p>As the function <span class="math inline">\(L\)</span> is <span class="math inline">\(C^2\)</span>, we have that for all <span class="math inline">\(\Theta \in \mathbb S^{d-1}\)</span> :</p>
+<p><span class="math display">\[
+L(\Theta^* +\varepsilon \Theta, \lambda) - L(\Theta^*) = \varepsilon^2
+\int_0^1 \frac{(1-t)^2}{2} D^2L(\Theta^*+t\varepsilon \Theta)(\Theta) dt
+\]</span></p>
+<p>where <span class="math inline">\(D^2L(\Theta^*+t\varepsilon
+\Theta)\)</span> is the second order differential. We know that it is a
+bilinear application, which is “positive” (because <span class="math inline">\(L\)</span> is convex), it admits a minimum in the
+sphere <span class="math inline">\(\mathbb S^{d-1}\)</span> which is the
+smallest eigen value <span class="math inline">\(\eta_\Theta&gt;0\)</span> of the matrix
+representation of this differential. Thus we have :</p>
+<p><span class="math display">\[
+L(\Theta^* +\varepsilon \Theta, \lambda) - L(\Theta^*) \ge \varepsilon^2
+\eta_\Theta \int_0^1 \frac{(1-t)^2}{2} dt = \frac{1}{6}\varepsilon^2
+\eta_\Theta
+\]</span></p>
+<p>We already know that the eigen value application is continuous so it
+exists a&gt;0 such that :</p>
+<p><span class="math display">\[
+\mu_\varepsilon \ge \frac{a}{6}\varepsilon^2
+\]</span></p>
+<p>and therefore :</p>
+<p><span class="math display">\[
+\mathbb P(||\Theta_n(\lambda) - \Theta^*|| &gt; \varepsilon) \le \mathbb
+P(\Delta_n \ge \frac{a}{12}\varepsilon^2)
+\]</span></p>
+<p>Moreover, we have :</p>
+<p><span class="math display">\[\begin{align*}
+|\Delta_n(\Theta, \lambda)| &amp;\le | - \frac 12 tr((\hat \Gamma_n -
+\Gamma)\Theta) + \sum_{i,j} (w_{ij} - 1) d^2_{ij}(\Theta)| + \sum_{(i,j)
+\notin T} w_{ij} d_{ij}^2(\Theta) \\
+&amp; \le K_d||\hat \Gamma_n - \Gamma||_\infty + \sum_{(i,j) \notin T}
+w_{ij} d_{ij}^2(\Theta)
+\end{align*}\]</span></p>
+<p>because the function is continuous in an compact space, so it is
+<span class="math inline">\(K_d\)</span>-lipschitzian.</p>
+<p>Moreoever, we can give a bound of the distances :</p>
+<p><span class="math display">\[
+d_{ij}^2(\Theta) \le (d-2)||\Theta_{i\cdot} - \Theta_{j\cdot}||_\infty^2
+\le (d-2)(M+2\varepsilon)^2
+\]</span></p>
+<p>where <span class="math inline">\(M = \max_{(i,j)\notin T}
+||\Theta_{i\cdot}^* - \Theta_{j\cdot}^*||_\infty\)</span>.</p>
+<p>Thus, we can deduce that for <span class="math inline">\(\varepsilon
+&lt; C e^{-1} / 2\)</span>:</p>
+<p><span class="math display">\[
+\mathbb P(||\Theta_n(\lambda) - \Theta^*|| &gt; \varepsilon) \le \mathbb
+P(\Delta_n \ge \frac{a}{6}\varepsilon^2) \le
+g_n(\frac{a}{24K_d}\varepsilon^2)+ \sum_{(i,j)\notin T} \mathbb
+P(B(d,\varepsilon) w_{ij} &gt; \frac{a}{24K_d}\varepsilon^2)
+\]</span></p>
+<p>where <span class="math inline">\(B(d,\varepsilon) =
+(\frac{d(d-1)}{2} - |T|)(d-2)(M+2\varepsilon)^2\)</span> and <span class="math inline">\(g_n(\varepsilon)= Md^3 e^{-c\left[ \sqrt[4]{n}
+(\frac{\varepsilon}{C} - \frac{e^{-1}}{2})^2-1\right]}\)</span>.</p>
+<p>As in the weigth concentration results, one can show that for <span class="math inline">\(\varepsilon &lt;
+\exp(-\zeta_n(r_{ij}-u_{ij})^2)\)</span>:</p>
+<p><span class="math display">\[
+\mathbb P(w_{ij}&gt;\varepsilon) \le 2g_n(\frac 12 (r_{ij} -
+\sqrt{\frac{ln(1/\varepsilon)}{\zeta_n}}))
+\]</span></p>
+<p>with <span class="math inline">\(r_{ij} = \max_{k\neq i, j}
+|\Gamma_{ik} - \Gamma_{jk}|\)</span> and <span class="math inline">\(u_{ij} = \min(\frac 12 r_{ij}, C e^{-1} /
+2)\)</span>.</p>
+<p>Finally, we get for <span class="math inline">\(\varepsilon&lt;\min_{(i,j) \notin
+T}(\exp(-\zeta_n(r_{ij}-u_{ij})^2))\)</span> that :</p>
+<p><span class="math display">\[
+\mathbb P(||\Theta_n(\lambda) - \Theta^*|| &gt; \varepsilon) \le
+g_n(\frac{a}{24K_d}\varepsilon^2)+ \sum_{(i,j)\notin T}2g_n(\frac 12
+(r_{ij} - \sqrt{\frac{ln(24K_d
+B(d,\varepsilon)/(a\varepsilon^2))}{\zeta_n}}))
 \]</span></p>
 <div style="text-align:right;">
 <span class="math inline">\(\square\)</span>
