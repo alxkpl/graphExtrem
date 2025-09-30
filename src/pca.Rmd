@@ -17,13 +17,16 @@ always_allow_html: true
 
 In this document, we try would try to cluster graph node using a particular PCA on graph, and maybe extend the notion to to cluster node with several graph data.
 
-```{r, echo=FALSE}
+```{r loading, echo=FALSE}
 pacman::p_load("ggraph",
                "targets",
                "ggplot2",
                "tibble",
                "dplyr",
                "hrbrthemes")
+options(crayon.enabled = FALSE)
+options(cli.num_colors = 1)
+Sys.setenv("NO_COLOR" = 1)
 ```
 
 # Test on simulation for one graph
@@ -62,7 +65,7 @@ $$
 
 For the simulation, we choose a graph of 12 edges with the following structure:
 
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
+```{r graph, echo = FALSE, warning=FALSE, message=FALSE}
 #| fig.cap: Graphical structure of the simulation.
 tar_load(graph_pca)
 
@@ -79,55 +82,52 @@ A first look on this graph suggests us to make the 3 clusters formed by $\{1,2,3
 
 First, let's see what is going on when we know the graph structure. We assume that the data are Husler-Reiss Pareto distributed, and we take a random variogram with the respect to this graphical structure thanks to `generate_random_graphical_Gamma` function from `graphicalExtremes` package. We get: 
 
-```{r echo=FALSE}
+```{r gamma, echo=FALSE}
+#| fig.cap: Variogram matrix.
+
 tar_load(pca_parameter)
-Gamma <- pca_parameter$Gamma
-Chi <- pca_parameter$Chi
+pca_parameter$Gamma |>
+  as_tibble(rownames = "id") |>
+  pivot_longer(-id, names_to = "Var2", values_to = "value", names_prefix = "V") |>
+  ggplot(aes(x = factor(Var2, levels = as.character(1:12)),
+             y = factor(id, levels = as.character(1:12)), fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "darkorange", high = "red", midpoint = 3) +
+  scale_y_discrete(limits = rev)  +
+  theme_minimal() +
+  labs(fill = expression(Gamma[ij]),
+       x = "",
+       y = "") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 20)) +
+  coord_equal()
 ```
-
-
-\begin{equation*}
- \Gamma = 
- \begin{pmatrix}
-  `r round(Gamma[1,1],2)` & `r round(Gamma[1,2],2)` & `r round(Gamma[1,3],2)` & `r round(Gamma[1,4],2)` & `r round(Gamma[1,5],2)` & `r round(Gamma[1,6],2)` & `r round(Gamma[1,7],2)` & `r round(Gamma[1,8],2)` & `r round(Gamma[1,9],2)` & `r round(Gamma[1,10],2)` & `r round(Gamma[1,11],2)` & `r round(Gamma[1,12],2)` \\
-  `r round(Gamma[2,1],2)` & `r round(Gamma[2,2],2)` & `r round(Gamma[2,3],2)` & `r round(Gamma[2,4],2)` & `r round(Gamma[2,5],2)` & `r round(Gamma[2,6],2)` & `r round(Gamma[2,7],2)` & `r round(Gamma[2,8],2)` & `r round(Gamma[2,9],2)` & `r round(Gamma[2,10],2)` & `r round(Gamma[2,11],2)` & `r round(Gamma[2,12],2)` \\
-  `r round(Gamma[3,1],2)` & `r round(Gamma[3,2],2)` & `r round(Gamma[3,3],2)` & `r round(Gamma[3,4],2)` & `r round(Gamma[3,5],2)` & `r round(Gamma[3,6],2)` & `r round(Gamma[3,7],2)` & `r round(Gamma[3,8],2)` & `r round(Gamma[3,9],2)` & `r round(Gamma[3,10],2)` & `r round(Gamma[3,11],2)` & `r round(Gamma[3,12],2)` \\
-  `r round(Gamma[4,1],2)` & `r round(Gamma[4,2],2)` & `r round(Gamma[4,3],2)` & `r round(Gamma[4,4],2)` & `r round(Gamma[4,5],2)` & `r round(Gamma[4,6],2)` & `r round(Gamma[4,7],2)` & `r round(Gamma[4,8],2)` & `r round(Gamma[4,9],2)` & `r round(Gamma[4,10],2)` & `r round(Gamma[4,11],2)` & `r round(Gamma[4,12],2)` \\
-  `r round(Gamma[5,1],2)` & `r round(Gamma[5,2],2)` & `r round(Gamma[5,3],2)` & `r round(Gamma[5,4],2)` & `r round(Gamma[5,5],2)` & `r round(Gamma[5,6],2)` & `r round(Gamma[5,7],2)` & `r round(Gamma[5,8],2)` & `r round(Gamma[5,9],2)` & `r round(Gamma[5,10],2)` & `r round(Gamma[5,11],2)` & `r round(Gamma[5,12],2)` \\
-  `r round(Gamma[6,1],2)` & `r round(Gamma[6,2],2)` & `r round(Gamma[6,3],2)` & `r round(Gamma[6,4],2)` & `r round(Gamma[6,5],2)` & `r round(Gamma[6,6],2)` & `r round(Gamma[6,7],2)` & `r round(Gamma[6,8],2)` & `r round(Gamma[6,9],2)` & `r round(Gamma[6,10],2)` & `r round(Gamma[6,11],2)` & `r round(Gamma[6,12],2)` \\
-  `r round(Gamma[7,1],2)` & `r round(Gamma[7,2],2)` & `r round(Gamma[7,3],2)` & `r round(Gamma[7,4],2)` & `r round(Gamma[7,5],2)` & `r round(Gamma[7,6],2)` & `r round(Gamma[7,7],2)` & `r round(Gamma[7,8],2)` & `r round(Gamma[7,9],2)` & `r round(Gamma[7,10],2)` & `r round(Gamma[7,11],2)` & `r round(Gamma[7,12],2)` \\
-  `r round(Gamma[8,1],2)` & `r round(Gamma[8,2],2)` & `r round(Gamma[8,3],2)` & `r round(Gamma[8,4],2)` & `r round(Gamma[8,5],2)` & `r round(Gamma[8,6],2)` & `r round(Gamma[8,7],2)` & `r round(Gamma[8,8],2)` & `r round(Gamma[8,9],2)` & `r round(Gamma[8,10],2)` & `r round(Gamma[8,11],2)` & `r round(Gamma[8,12],2)` \\
-  `r round(Gamma[9,1],2)` & `r round(Gamma[9,2],2)` & `r round(Gamma[9,3],2)` & `r round(Gamma[9,4],2)` & `r round(Gamma[9,5],2)` & `r round(Gamma[9,6],2)` & `r round(Gamma[9,7],2)` & `r round(Gamma[9,8],2)` & `r round(Gamma[9,9],2)` & `r round(Gamma[9,10],2)` & `r round(Gamma[9,11],2)` & `r round(Gamma[9,12],2)` \\
-  `r round(Gamma[10,1],2)` & `r round(Gamma[10,2],2)` & `r round(Gamma[10,3],2)` & `r round(Gamma[10,4],2)` & `r round(Gamma[10,5],2)` & `r round(Gamma[10,6],2)` & `r round(Gamma[10,7],2)` & `r round(Gamma[10,8],2)` & `r round(Gamma[10,9],2)` & `r round(Gamma[10,10],2)` & `r round(Gamma[10,11],2)` & `r round(Gamma[10,12],2)` \\
-  `r round(Gamma[11,1],2)` & `r round(Gamma[11,2],2)` & `r round(Gamma[11,3],2)` & `r round(Gamma[11,4],2)` & `r round(Gamma[11,5],2)` & `r round(Gamma[11,6],2)` & `r round(Gamma[11,7],2)` & `r round(Gamma[11,8],2)` & `r round(Gamma[11,9],2)` & `r round(Gamma[11,10],2)` & `r round(Gamma[11,11],2)` & `r round(Gamma[11,12],2)` \\
-  `r round(Gamma[12,1],2)` & `r round(Gamma[12,2],2)` & `r round(Gamma[12,3],2)`& `r round(Gamma[12,4],2)` & `r round(Gamma[12,5],2)` & `r round(Gamma[12,6],2)` & `r round(Gamma[12,7],2)` & `r round(Gamma[12,8],2)` & `r round(Gamma[12,9],2)` & `r round(Gamma[12,10],2)` & `r round(Gamma[12,11],2)` & `r round(Gamma[12,12],2)` \\
- \end{pmatrix}
- \end{equation*}
-
 
 And the extremal coefficient matrix: 
 
-\begin{equation*}
- \chi = 
- \begin{pmatrix}
-  `r round(Chi[1,1],2)` & `r round(Chi[1,2],2)` & `r round(Chi[1,3],2)` & `r round(Chi[1,4],2)` & `r round(Chi[1,5],2)` & `r round(Chi[1,6],2)` & `r round(Chi[1,7],2)` & `r round(Chi[1,8],2)` & `r round(Chi[1,9],2)` & `r round(Chi[1,10],2)` & `r round(Chi[1,11],2)` & `r round(Chi[1,12],2)` \\
-  `r round(Chi[2,1],2)` & `r round(Chi[2,2],2)` & `r round(Chi[2,3],2)` & `r round(Chi[2,4],2)` & `r round(Chi[2,5],2)` & `r round(Chi[2,6],2)` & `r round(Chi[2,7],2)` & `r round(Chi[2,8],2)` & `r round(Chi[2,9],2)` & `r round(Chi[2,10],2)` & `r round(Chi[2,11],2)` & `r round(Chi[2,12],2)` \\
-  `r round(Chi[3,1],2)` & `r round(Chi[3,2],2)` & `r round(Chi[3,3],2)` & `r round(Chi[3,4],2)` & `r round(Chi[3,5],2)` & `r round(Chi[3,6],2)` & `r round(Chi[3,7],2)` & `r round(Chi[3,8],2)` & `r round(Chi[3,9],2)` & `r round(Chi[3,10],2)` & `r round(Chi[3,11],2)` & `r round(Chi[3,12],2)` \\
-  `r round(Chi[4,1],2)` & `r round(Chi[4,2],2)` & `r round(Chi[4,3],2)` & `r round(Chi[4,4],2)` & `r round(Chi[4,5],2)` & `r round(Chi[4,6],2)` & `r round(Chi[4,7],2)` & `r round(Chi[4,8],2)` & `r round(Chi[4,9],2)` & `r round(Chi[4,10],2)` & `r round(Chi[4,11],2)` & `r round(Chi[4,12],2)` \\
-  `r round(Chi[5,1],2)` & `r round(Chi[5,2],2)` & `r round(Chi[5,3],2)` & `r round(Chi[5,4],2)` & `r round(Chi[5,5],2)` & `r round(Chi[5,6],2)` & `r round(Chi[5,7],2)` & `r round(Chi[5,8],2)` & `r round(Chi[5,9],2)` & `r round(Chi[5,10],2)` & `r round(Chi[5,11],2)` & `r round(Chi[5,12],2)` \\
-  `r round(Chi[6,1],2)` & `r round(Chi[6,2],2)` & `r round(Chi[6,3],2)` & `r round(Chi[6,4],2)` & `r round(Chi[6,5],2)` & `r round(Chi[6,6],2)` & `r round(Chi[6,7],2)` & `r round(Chi[6,8],2)` & `r round(Chi[6,9],2)` & `r round(Chi[6,10],2)` & `r round(Chi[6,11],2)` & `r round(Chi[6,12],2)` \\
-  `r round(Chi[7,1],2)` & `r round(Chi[7,2],2)` & `r round(Chi[7,3],2)` & `r round(Chi[7,4],2)` & `r round(Chi[7,5],2)` & `r round(Chi[7,6],2)` & `r round(Chi[7,7],2)` & `r round(Chi[7,8],2)` & `r round(Chi[7,9],2)` & `r round(Chi[7,10],2)` & `r round(Chi[7,11],2)` & `r round(Chi[7,12],2)` \\
-  `r round(Chi[8,1],2)` & `r round(Chi[8,2],2)` & `r round(Chi[8,3],2)` & `r round(Chi[8,4],2)` & `r round(Chi[8,5],2)` & `r round(Chi[8,6],2)` & `r round(Chi[8,7],2)` & `r round(Chi[8,8],2)` & `r round(Chi[8,9],2)` & `r round(Chi[8,10],2)` & `r round(Chi[8,11],2)` & `r round(Chi[8,12],2)` \\
-  `r round(Chi[9,1],2)` & `r round(Chi[9,2],2)` & `r round(Chi[9,3],2)` & `r round(Chi[9,4],2)` & `r round(Chi[9,5],2)` & `r round(Chi[9,6],2)` & `r round(Chi[9,7],2)` & `r round(Chi[9,8],2)` & `r round(Chi[9,9],2)` & `r round(Chi[9,10],2)` & `r round(Chi[9,11],2)` & `r round(Chi[9,12],2)` \\
-  `r round(Chi[10,1],2)` & `r round(Chi[10,2],2)` & `r round(Chi[10,3],2)` & `r round(Chi[10,4],2)` & `r round(Chi[10,5],2)` & `r round(Chi[10,6],2)` & `r round(Chi[10,7],2)` & `r round(Chi[10,8],2)` & `r round(Chi[10,9],2)` & `r round(Chi[10,10],2)` & `r round(Chi[10,11],2)` & `r round(Chi[10,12],2)` \\
-  `r round(Chi[11,1],2)` & `r round(Chi[11,2],2)` & `r round(Chi[11,3],2)` & `r round(Chi[11,4],2)` & `r round(Chi[11,5],2)` & `r round(Chi[11,6],2)` & `r round(Chi[11,7],2)` & `r round(Chi[11,8],2)` & `r round(Chi[11,9],2)` & `r round(Chi[11,10],2)` & `r round(Chi[11,11],2)` & `r round(Chi[11,12],2)` \\
-  `r round(Chi[12,1],2)` & `r round(Chi[12,2],2)` & `r round(Chi[12,3],2)` & `r round(Chi[12,4],2)` & `r round(Chi[12,5],2)` & `r round(Chi[12,6],2)` & `r round(Chi[12,7],2)` & `r round(Chi[12,8],2)` & `r round(Chi[12,9],2)` & `r round(Chi[12,10],2)` & `r round(Chi[12,11],2)` & `r round(Chi[12,12],2)` \\
- \end{pmatrix}
- \end{equation*}
+```{r chi, echo=FALSE}
+#| fig.cap: Extremal coefficient matrix.
 
-If we compute the PCA on the graph with the corresponding Laplacian matrix we get this for the two firsts principal component for the variogram: 
+pca_parameter$Chi |>
+  as_tibble(rownames = "id") |>
+  pivot_longer(-id, names_to = "Var2", values_to = "value", names_prefix = "V") |>
+  ggplot(aes(x = factor(Var2, levels = as.character(1:12)),
+             y = factor(id, levels = as.character(1:12)), fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "darkorange", high = "red", midpoint = 0.5) +
+  scale_y_discrete(limits = rev)  +
+  theme_minimal() +
+  labs(fill = expression(chi[ij]),
+       x = "",
+       y = "") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 20)) +
+  coord_equal()
+```
 
-```{r, echo=FALSE}
+We can stress that block structure of the matrix seems to gather the node 4 with the second group instead of the first one with only the graphical structure. This observation will be confirmed with the method.
+
+Indeed, if we compute the PCA on the graph with the corresponding Laplacian matrix we get this for the two firsts principal component for the variogram: 
+
+```{r known-gamma, echo=FALSE}
 #| fig.cap: First principal plane with the variogram Laplacian with known graph.
 tar_load(pca_empirical_estimation)
 
@@ -148,17 +148,19 @@ X_tilde <- U_tilde %*% diag(sqrt(ACP$values[1:2]))
 
 X_tilde |>
   as_tibble() |>
-  mutate(group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3)) |>
-  ggplot() +
-  aes(x = V1, y = V2, col = as.factor(group)) +
-  geom_point(show.legend = FALSE) +
-  theme_ipsum()
+  mutate(
+    group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3),
+    id = row_number()   # crée un identifiant = numéro de ligne
+  ) |>
+  ggplot(aes(x = V1, y = V2, col = as.factor(group))) +
+  geom_text(aes(label = id), show.legend = FALSE) +
+  theme_ipsum(base_family = "serif")
 ```
 
 
 and this for the extremal coefficient: 
 
-```{r, echo=FALSE}
+```{r known-chi, echo=FALSE}
 #| fig.cap: First principal plane with the extremal coefficient Laplacian with known graph.
 A <- pca_empirical_estimation$Chi
 diag(A) <- 0
@@ -177,36 +179,39 @@ X_tilde <- U_tilde %*% diag(sqrt(ACP$values[1:2]))
 
 X_tilde |>
   as_tibble() |>
-  mutate(group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3)) |>
-  ggplot() +
-  aes(x = V1, y = V2, col = as.factor(group)) +
-  geom_point(show.legend = FALSE) +
-  theme_ipsum()
+  mutate(
+    group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3),
+    id = row_number()   # crée un identifiant = numéro de ligne
+  ) |>
+  ggplot(aes(x = V1, y = V2, col = as.factor(group))) +
+  geom_text(aes(label = id), show.legend = FALSE) +
+  theme_ipsum(base_family = "serif")
 ```
 
-The colors are made of the initial guess for the clusters.
+The colors are made of the initial guess for the clusters. Here, even knowing the true structure, we observe an uncertainty for the node 4, a doubt hightlighted with the extremal coefficient Laplacian.
 
 ### Unknown graph
 
 With the unknown graph, we need first to estimate the graphical structure. In order to do that, we use `eglearn` function from `graphicalExtremes` introduced in [@engelkeLearningExtremalGraphical2024]. We get the following graph for a first estimation:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r est-graph, echo=FALSE, message=FALSE, warning=FALSE}
 #| fig.cap: Estimation of the graph.
-
 tar_load(pca_graph_estimation)
 
 Theta_hat <- Gamma2Theta(pca_graph_estimation$Gamma[[1]])
 
-ggraph(Theta2graph(Theta_hat), layout = "auto") +
+ggraph(set_vertex_attr(Theta2graph(Theta_hat), "name", value = 1:12), layout = "auto") +
   geom_edge_link(color = "grey50") +
   geom_node_point(size = 10, color = "darkorange") +
+  geom_node_text(aes(label = name)) +
   theme_void()
 ```
 
-We do not have the right structure here, it can change the results from the previous estimation.
+We do not have the right structure here, it can change the results from the previous estimation, and it could erase the encertainty seen for the node 4.
 
 Thus, we get with this graphical structure the following results for the variogram : 
-```{r, echo=FALSE}
+
+```{r unknown-gamma, echo=FALSE}
 #| fig.cap: First principal plane with the extremal coefficient Laplacian with unknown graph.
 A <- 1 / pca_empirical_estimation$Gamma
 diag(A) <- 0
@@ -225,15 +230,18 @@ X_tilde <- U_tilde %*% diag(sqrt(ACP$values[1:2]))
 
 X_tilde |>
   as_tibble() |>
-  mutate(group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3)) |>
-  ggplot() +
-  aes(x = V1, y = V2, col = as.factor(group)) +
-  geom_point(show.legend = FALSE) +
-  theme_ipsum()
+  mutate(
+    group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3),
+    id = row_number()   # crée un identifiant = numéro de ligne
+  ) |>
+  ggplot(aes(x = V1, y = V2, col = as.factor(group))) +
+  geom_text(aes(label = id), show.legend = FALSE) +
+  theme_ipsum(base_family = "serif")
 ```
 
 and for the extremal coefficient:
-```{r, echo=FALSE}
+
+```{r unknown-chi, echo=FALSE}
 #| fig.cap: First principal plane with the extremal coefficient Laplacian with unknown graph.
 A <- pca_empirical_estimation$Chi
 diag(A) <- 0
@@ -252,11 +260,209 @@ X_tilde <- U_tilde %*% diag(sqrt(ACP$values[1:2]))
 
 X_tilde |>
   as_tibble() |>
-  mutate(group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3)) |>
-  ggplot() +
-  aes(x = V1, y = V2, col = as.factor(group)) +
-  geom_point(show.legend = FALSE) +
-  theme_ipsum()
+  mutate(
+    group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3),
+    id = row_number()   # crée un identifiant = numéro de ligne
+  ) |>
+  ggplot(aes(x = V1, y = V2, col = as.factor(group))) +
+  geom_text(aes(label = id), show.legend = FALSE) +
+  theme_ipsum(base_family = "serif")
 ```
+
+As expected, the node 4 is totally associated with the second group. With this first simulation, we can say that the procedure is sensible to the coefficient of the weights, not only on the graphical structure, a conclusion that we could predict. 
+
+### Simulation with all same dependence
+
+We would like to see if the algorithm can separate the nodes even with no clear block matrix structure in the variogram and the extremal coefficient matrix. 
+
+```{r, echo=FALSE}
+#| fig.cap: Structure on the extremal coefficient matrix with equal value in precision matrix.
+tar_load(pca_parameter_same_coeff)
+
+pca_parameter_same_coeff$Chi |>
+  as_tibble(rownames = "id") |>
+  pivot_longer(-id, names_to = "Var2", values_to = "value", names_prefix = "V") |>
+  ggplot(aes(x = factor(Var2, levels = as.character(1:54)),
+             y = factor(id, levels = as.character(1:54)), fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "darkorange", high = "red", midpoint = 0.75) +
+  scale_y_discrete(limits = rev)  +
+  theme_minimal() +
+  labs(fill = expression(Gamma[ij]),
+       x = "",
+       y = "") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 20)) +
+  coord_equal()
+```
+
+The goal is to see if we can see the clustering as an indicator of density of edges between the nodes in the same cluster.
+
+```{r, echo=FALSE}
+#| fig.cap: First principal plane with the extremal coefficient Laplacian with known same coefficient graph.
+tar_load(pca_empirical_estimation_same_coeff)
+
+
+A <- 1 / pca_empirical_estimation_same_coeff$Gamma
+diag(A) <- 0
+A[pca_parameter_same_coeff$Theta == 0] <- 0
+D <- rowSums(A)
+L <- diag(D) - A
+
+# ECTD metric
+L_p <- pinv(L)
+
+ACP <- eigen(L_p)
+
+U_tilde  <- ACP$vectors[, 1:2]
+
+X_tilde <- U_tilde %*% diag(sqrt(ACP$values[1:2]))
+
+X_tilde |>
+  as_tibble() |>
+  mutate(
+    group = c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3),
+    id = row_number()   # crée un identifiant = numéro de ligne
+  ) |>
+  ggplot(aes(x = V1, y = V2, col = as.factor(group))) +
+  geom_text(aes(label = id), show.legend = FALSE) +
+  theme_ipsum(base_family = "serif")
+```
+
+
+## Application on high dimensionnal graph
+
+Now we would like to challenge the procedure by increasing the dimension. Let's grow the number of variable to $d=54$ and let's simulate Hüsler-Reiss Pareto distributed data with this graphical structure:
+
+
+```{r, echo=FALSE, message=FALSE}
+#| fig.cap: High dimensional graph with sparse block structure
+tar_load(high_graph_pca)
+
+ggraph(high_graph_pca, layout = "auto") +
+  geom_edge_link(color = "grey70") +
+  geom_node_point(aes(color = as.factor(group)), size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE, size = 3) +
+  theme_void() +
+  theme(legend.position = "none")
+```
+
+We set the sample size to $n=200$. After the PCA on the two Laplacian, we end with:
+
+```{r, echo=FALSE}
+#| fig.cap: First principal plane with the extremal coefficient Laplacian with known high dimensional graph.
+tar_load(pca_empirical_estimation_high)
+tar_load(pca_high_parameter)
+
+A <- 1 / pca_empirical_estimation_high$Gamma
+diag(A) <- 0
+A[pca_high_parameter$Theta == 0] <- 0
+D <- rowSums(A)
+L <- diag(D) - A
+
+# ECTD metric
+L_p <- pinv(L)
+
+ACP <- eigen(L_p)
+
+U_tilde  <- ACP$vectors[, 1:2]
+
+X_tilde <- U_tilde %*% diag(sqrt(ACP$values[1:2]))
+
+X_tilde |>
+  as_tibble() |>
+  mutate(
+    group = c(rep(1, 12), rep(2, 12), rep(3, 12), rep(4, 18)),
+    id = row_number()   # crée un identifiant = numéro de ligne
+  ) |>
+  ggplot(aes(x = V1, y = V2, col = as.factor(group))) +
+  geom_text(aes(label = id), show.legend = FALSE) +
+  theme_ipsum(base_family = "serif")
+```
+
+and:
+
+```{r, echo=FALSE}
+#| fig.cap: First principal plane with the extremal coefficient Laplacian with known high dimensional graph.
+A <- pca_empirical_estimation_high$Chi
+diag(A) <- 0
+A[pca_high_parameter$Theta == 0] <- 0
+D <- rowSums(A)
+L <- diag(D) - A
+
+# ECTD metric
+L_p <- pinv(L)
+
+ACP <- eigen(L_p)
+
+U_tilde  <- ACP$vectors[, 1:2]
+
+X_tilde <- U_tilde %*% diag(sqrt(ACP$values[1:2]))
+
+X_tilde |>
+  as_tibble() |>
+  mutate(
+    group = c(rep(1, 12), rep(2, 12), rep(3, 12), rep(4, 18)),
+    id = row_number()   # crée un identifiant = numéro de ligne
+  ) |>
+  ggplot(aes(x = V1, y = V2, col = as.factor(group))) +
+  geom_text(aes(label = id), show.legend = FALSE) +
+  theme_ipsum(base_family = "serif")
+```
+
+We see stability in the procedure, even with random initialization for the variogram matrix of the model. 
+
+The estimation of the graph with `eglearn` gives: 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#| fig.cap: Estimated graph in high dimension.
+tar_load(pca_high_graph_estimation)
+ggraph(set_vertex_attr(pca_high_graph_estimation$graph[[1]], "name", value = 1:54), layout = "auto") +
+  geom_edge_link(color = "grey50") +
+  geom_node_point(size = 10,
+                  color = c(rep("salmon", 12), rep("limegreen", 12), rep("darkturquoise", 12), rep("orchid", 18))) +
+  geom_node_text(aes(label = name)) +
+  theme_void()
+```
+
+In we get the structure of the blue and purple group. However the red and green group fused totally: we can stress that it exists some ambiguity in the initial structure that can be miss interpretated during estimation. Then, by using this structure in the estimation of the principal component, we get the following first plane: 
+
+```{r, echo=FALSE}
+#| fig.cap: First principal plane with the extremal coefficient Laplacian with unknown high dimensional graph.
+
+est <- generate_random_graphical_Gamma(pca_high_graph_estimation$graph[[1]])
+
+theta_est <- Gamma2Theta(est)
+
+A <- pca_empirical_estimation_high$Chi
+diag(A) <- 0
+A[theta_est == 0] <- 0
+D <- rowSums(A)
+L <- diag(D) - A
+
+# ECTD metric
+L_p <- pinv(L)
+
+ACP <- eigen(L_p)
+
+U_tilde  <- ACP$vectors[, 1:2]
+
+X_tilde <- U_tilde %*% diag(sqrt(ACP$values[1:2]))
+
+X_tilde |>
+  as_tibble() |>
+  mutate(
+    group = c(rep(1, 12), rep(2, 12), rep(3, 12), rep(4, 18)),
+    id = row_number()   # crée un identifiant = numéro de ligne
+  ) |>
+  ggplot(aes(x = V1, y = V2, col = as.factor(group))) +
+  geom_text(aes(label = id), show.legend = FALSE) +
+  theme_ipsum(base_family = "serif")
+```
+
+Again, we see the ambiguity between the two groups after the procedure.
+
+
+# Researching method for multigraph
+
 
 ### References 

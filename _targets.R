@@ -1277,6 +1277,101 @@ list(
             rholist = 0.41)
   ),
 
+  tar_target(
+    pca_parameter_same_coeff,
+    {
+      Theta <- pca_parameter$Theta
+      diag(Theta) <- 0
+      Theta[Theta != 0] <- -2
+      diag(Theta) <- - rowSums(Theta)
+      Gamma <- Theta2Gamma(Theta)
+      Chi <- Gamma2chi(Gamma)
+
+      list(Chi = Chi, Theta = Theta, Gamma = Gamma)
+    }
+  ),
+
+  tar_target(
+    pca_simulation_same_coeff,
+    rmpareto(n = 200, model = "HR", par = pca_parameter_same_coeff$Gamma)
+  ),
+
+  tar_target(
+    pca_empirical_estimation_same_coeff,
+    list(
+      Gamma = emp_vario(pca_simulation_same_coeff),
+      Chi = emp_chi(pca_simulation_same_coeff)
+    )
+  ),
+  ##======================= High dimensionnal graph ============================
+  tar_target(
+    high_graph_pca,
+    {
+      n_groups <- 4
+
+      group_size <- rpois(n_groups, 15)   # number of vertex per groups
+      p <- 0.3           # probability internal edges
+
+      graphs <- list()
+
+      # Subgraph creation
+      for (i in 1:n_groups) {
+        repeat {
+          g_sub <- sample_gnp(group_size[i], p)  # graph Erdos-Renyi
+          if (is_connected(g_sub)) break      # only connected subgraph
+        }
+        g_sub <- set_vertex_attr(g_sub, "name",
+                                 value = as.character((sum(group_size[1:i]) - group_size[i] + 1):sum(group_size[1:i])))
+        g_sub <- set_vertex_attr(g_sub, "group", value = rep(i, group_size[i]))
+        graphs[[i]] <- g_sub
+      }
+
+      # Merge graphs
+      g <- graphs[[1]]
+      for (i in 2:n_groups) {
+        g <- disjoint_union(g, graphs[[i]])
+      }
+
+      # Connect subgraph
+      for (i in 1:(n_groups - 1)) {
+        g <- add_edges(g, c(sum(group_size[1:i]), sum(group_size[1:(i+1)])))
+      }
+
+      g
+
+    }
+  ),
+
+  tar_target(
+    pca_high_parameter,
+    {
+      Gamma <- generate_random_graphical_Gamma(high_graph_pca)
+      Theta <- Gamma2Theta(Gamma)
+      Chi <- Gamma2chi(Gamma)
+      list(Gamma = Gamma, Theta = Theta, Chi = Chi)
+    }
+  ),
+
+  tar_target(
+    pca_high_simulation,
+    rmpareto(n = 200, model = "HR", par = pca_high_parameter$Gamma)
+  ),
+
+  tar_target(
+    pca_empirical_estimation_high,
+    list(
+      Gamma = emp_vario(pca_high_simulation),
+      Chi = emp_chi(pca_high_simulation)
+    )
+  ),
+
+  tar_target(
+    pca_high_graph_estimation,
+    eglearn(pca_high_simulation,
+            reg_method = "glasso",
+            rholist = 0.6)
+  ),
+
   #----------------------------- Export document -------------------------------
   # Trivariate coefficient documents
   ## HTML
